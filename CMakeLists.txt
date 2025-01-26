@@ -14,7 +14,11 @@ set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -nostdlib -nodefaultlibs -
 # Add picolibc subdirectory
 add_subdirectory(external/picolibc)
 
+# Disable LLVM unwinder for libc++abi
 set(LIBCXXABI_USE_LLVM_UNWINDER OFF)
+
+# Generate __config_site on the fly
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/generate_config_site.cmake)
 
 # Add libc++ and libc++abi subdirectories
 add_subdirectory(external/llvm-project/libcxx)
@@ -41,6 +45,7 @@ target_include_directories(luna_os PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/external/micro-gl/include
     ${CMAKE_CURRENT_LIST_DIR}/external/llvm-project/libcxx/include
     ${CMAKE_CURRENT_LIST_DIR}/external/llvm-project/libcxxabi/include
+    ${CMAKE_CURRENT_BINARY_DIR} # Add the build directory for __config_site
 )
 
 # Link libraries
