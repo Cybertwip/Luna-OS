@@ -34,6 +34,10 @@ set(LIBCXX_HAS_EXTERNAL_THREAD_API ON CACHE BOOL "Use external thread API")
 set(LIBCXX_ENABLE_SHARED OFF CACHE BOOL "Disable shared libraries")
 set(LIBCXXABI_ENABLE_SHARED OFF CACHE BOOL "Disable shared libraries")
 
+# Disable threading support in libc++ and libc++abi
+set(LIBCXX_HAS_THREAD_API OFF CACHE BOOL "Disable threading support")
+set(LIBCXXABI_HAS_THREAD_API OFF CACHE BOOL "Disable threading support")
+
 # Add libc++ and libc++abi subdirectories
 add_subdirectory(external/llvm-project/libcxx)
 add_subdirectory(external/llvm-project/libcxxabi)
