@@ -2,7 +2,7 @@
 set(CMAKE_SYSTEM_NAME Generic)
 
 # Specify the target processor architecture
-set(CMAKE_SYSTEM_PROCESSOR x86)
+set(CMAKE_SYSTEM_PROCESSOR i686)
 
 # Set the cross-compilers
 set(CMAKE_C_COMPILER /usr/local/bin/i686-elf-gcc)

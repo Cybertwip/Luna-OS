@@ -1,4 +1,5 @@
 #include "Engine.h"
+#include <string.h>
 
 template<typename number>
 model_3d<number> create_cube_3d() {

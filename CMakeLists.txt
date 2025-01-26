@@ -1,72 +1,69 @@
 # Minimum CMake version
 cmake_minimum_required(VERSION 3.12)
 
+# Enable CMP0079 policy to allow linking against targets not built in the same directory
+cmake_policy(SET CMP0079 NEW)
+
 # Project name
 project(luna_os)
 
-# Compiler flags for C and C++
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32 -fpermissive -ffreestanding -march=i686 -fno-stack-protector -fno-pic -fno-pie -fno-exceptions -fno-rtti -std=c++20 -fno-threadsafe-statics")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m32 -fpermissive -ffreestanding -march=i686 -fno-stack-protector -fno-pic -fno-pie")
+# Standard configuration
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Linker flags
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -nostdlib -nodefaultlibs -Wl,-m,elf_i386 -T ${CMAKE_SOURCE_DIR}/linker.ld")
+# Base flags for both C/C++
+set(COMMON_FLAGS "-m32 -ffreestanding -march=i686 -fno-stack-protector -fno-pic -fno-pie -DNDEBUG -D_XOPEN_SOURCE=700 -D_POSIX_C_SOURCE=200809L -D__STDC_WANT_LIB_EXT1__=1 -D_FORTIFY_SOURCE=2")
 
-# Add picolibc subdirectory
-add_subdirectory(external/picolibc)
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COMMON_FLAGS} -std=c11 -fpermissive")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMMON_FLAGS} -std=c++20 -fpermissive -fno-exceptions -fno-threadsafe-statics")
 
-# Set the picolibc sysroot path
-set(PICOLIBC_SYSROOT ${CMAKE_BINARY_DIR}/external/picolibc/picolibc)
+# ========== Library Configuration ========== #
+# Libc++ settings
+set(LIBCXX_ENABLE_THREADS OFF CACHE BOOL "Disable threading" FORCE)
+set(LIBCXX_ENABLE_FILESYSTEM OFF CACHE BOOL "Disable filesystem" FORCE)
+set(LIBCXX_ENABLE_RTTI OFF CACHE BOOL "Disable RTTI" FORCE)
+set(LIBCXX_ENABLE_EXCEPTIONS OFF CACHE BOOL "Disable exceptions" FORCE)
+set(LIBCXX_USE_COMPILER_RT OFF CACHE BOOL "Disable compiler-rt" FORCE)
+set(LIBCXX_ENABLE_STATIC ON CACHE BOOL "Static build" FORCE)
+set(LIBCXX_ENABLE_SHARED OFF CACHE BOOL "Disable shared" FORCE)
 
-# Print the picolibc sysroot path
-message(STATUS "Picolibc sysroot: ${PICOLIBC_SYSROOT}")
+# Libc++abi settings
+set(LIBCXXABI_USE_LLVM_UNWINDER OFF CACHE BOOL "Disable unwinder" FORCE)
+set(LIBCXXABI_ENABLE_THREADS OFF CACHE BOOL "Disable threads" FORCE)
+set(LIBCXXABI_ENABLE_EXCEPTIONS OFF CACHE BOOL "Disable exceptions" FORCE)
+set(LIBCXXABI_SILENT_TERMINATE ON CACHE BOOL "Silent terminate" FORCE)
+set(LIBCXXABI_ENABLE_SHARED OFF CACHE BOOL "Static build" FORCE)
 
-# Disable LLVM unwinder for libc++abi
-set(LIBCXXABI_USE_LLVM_UNWINDER OFF)
 
-# Generate __config_site and bits/alltypes.h on the fly
+# Generate configuration files
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/patch_cxx.cmake)
 
-# ========== Critical Additions ========== #
-# Force-disable threading in libc++/libc++abi
-set(LIBCXX_HAS_NO_THREADS ON CACHE BOOL "Disable all threading" FORCE)
-set(LIBCXXABI_HAS_NO_THREADS ON CACHE BOOL "Disable threading in libc++abi" FORCE)
-
-# Explicitly define macros for libc++abi
-add_compile_definitions(
-    _LIBCPP_HAS_NO_THREADS  # For libc++
-    _LIBCXXABI_HAS_NO_THREADS  # For libc++abi (MOST CRITICAL)
+# ========== Build System Configuration ========== #
+# Linker configuration
+set(LINKER_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/linker.ld")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} 
+    -nostdlib -nodefaultlibs 
+    -Wl,-m,elf_i386 -T ${LINKER_SCRIPT}"
 )
 
-# Configure libc++abi's CMake flags
-set(LIBCXXABI_ENABLE_THREADS OFF CACHE BOOL "Disable threads" FORCE)
-set(LIBCXXABI_USE_LLVM_UNWINDER OFF CACHE BOOL "Disable unwinder" FORCE)
+# Generate picolibc config
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/external/picolibc/picolibc.h.in
+    ${CMAKE_CURRENT_BINARY_DIR}/include/picolibc.h
+    @ONLY
+)
 
-# Configure libc++ and libc++abi for barebones environment
-set(LIBCXX_ENABLE_THREADS OFF CACHE BOOL "Disable threading support")
-set(LIBCXX_ENABLE_FILESYSTEM OFF CACHE BOOL "Disable filesystem support")
-set(LIBCXX_ENABLE_RTTI OFF CACHE BOOL "Disable RTTI")
-set(LIBCXX_ENABLE_EXCEPTIONS OFF CACHE BOOL "Disable exceptions")
-set(LIBCXX_ENABLE_SHARED OFF CACHE BOOL "Disable shared libraries")
-set(LIBCXX_ENABLE_STATIC ON CACHE BOOL "Enable static libraries")
-set(LIBCXX_HAS_MUSL_LIBC ON CACHE BOOL "Use musl libc")
-set(LIBCXX_HAS_EXTERNAL_THREAD_API OFF CACHE BOOL "Use external thread API")
-
-# Force libc++ and libc++abi to build as static libraries
-set(LIBCXX_ENABLE_SHARED OFF CACHE BOOL "Disable shared libraries")
-set(LIBCXXABI_ENABLE_SHARED OFF CACHE BOOL "Disable shared libraries")
-
-# Disable threading support in libc++ and libc++abi
-set(LIBCXX_HAS_THREAD_API OFF CACHE BOOL "Disable threading support")
-set(LIBCXXABI_HAS_THREAD_API OFF CACHE BOOL "Disable threading support")
-
-# Disable exceptions in libc++abi
-set(LIBCXXABI_ENABLE_EXCEPTIONS OFF CACHE BOOL "Disable exceptions" FORCE)
-
-# Add libc++ and libc++abi subdirectories
+# ========== Dependencies ========== #
+add_subdirectory(external/picolibc)
 add_subdirectory(external/llvm-project/libcxx)
 add_subdirectory(external/llvm-project/libcxxabi)
 
-# Add the executable target
+set(PICOLIBC_SYSROOT ${CMAKE_BINARY_DIR}/external/picolibc/picolibc)
+message(STATUS "Picolibc sysroot: ${PICOLIBC_SYSROOT}")
+
+# ========== Target Configuration ========== #
+# Main executable
 add_executable(luna_os 
     src/Boot.cpp 
     src/Kernel.cpp 
@@ -75,20 +72,39 @@ add_executable(luna_os
     src/std/memory.cpp 
     src/std/new.cpp 
     src/std/cxx_support.cpp
-    src/std/spinlock.cpp 
+    src/std/spinlock.cpp
+    src/stubs.cpp  # Critical system stubs
 )
 
 # Include directories
 target_include_directories(luna_os PRIVATE 
-    ${PICOLIBC_SYSROOT}/include # Add the picolibc headers
-    ${CMAKE_CURRENT_BINARY_DIR}/include/c++/v1 # Add the libc++ headers from the build directory first
-    ${CMAKE_CURRENT_BINARY_DIR}/include/bits # Add the custom bits directory
+    ${PICOLIBC_SYSROOT}
+    ${CMAKE_CURRENT_BINARY_DIR}/include  
+    ${CMAKE_CURRENT_LIST_DIR}/external/picolibc/newlib/libc/include
+    ${CMAKE_CURRENT_BINARY_DIR}/include/c++/v1
+    ${CMAKE_CURRENT_BINARY_DIR}/include/bits
     ${CMAKE_CURRENT_LIST_DIR}/external/llvm-project/libcxx/include
     ${CMAKE_CURRENT_LIST_DIR}/external/llvm-project/libcxxabi/include
-    ${CMAKE_CURRENT_BINARY_DIR} # Add the build directory for __config_site
+    ${CMAKE_CURRENT_BINARY_DIR}
     src
     src/luna
     ${CMAKE_CURRENT_LIST_DIR}/external/micro-gl/include
+)
+
+target_include_directories(cxx_static PRIVATE 
+    ${CMAKE_CURRENT_BINARY_DIR}/include/c++/v1  # Prioritize C++ headers
+    ${CMAKE_CURRENT_BINARY_DIR}/include/bits    # Additional C++ headers
+    ${PICOLIBC_SYSROOT}                         # PicoC library headers
+    ${CMAKE_CURRENT_BINARY_DIR}/include         # Other includes
+    ${CMAKE_CURRENT_LIST_DIR}/external/picolibc/newlib/libc/include  # C Standard Library headers
+)
+
+target_include_directories(cxxabi_static PRIVATE 
+    ${CMAKE_CURRENT_BINARY_DIR}/include/c++/v1  # Prioritize C++ headers
+    ${CMAKE_CURRENT_BINARY_DIR}/include/bits    # Additional C++ headers
+    ${PICOLIBC_SYSROOT}                         # PicoC library headers
+    ${CMAKE_CURRENT_BINARY_DIR}/include         # Other includes
+    ${CMAKE_CURRENT_LIST_DIR}/external/picolibc/newlib/libc/include  # C Standard Library headers
 )
 
 # Link libraries
@@ -98,16 +114,24 @@ target_link_libraries(luna_os PRIVATE
     cxxabi_static
 )
 
-# Set default build type to Release if not specified
+target_link_libraries(cxx_static PRIVATE 
+    c
+)
+
+target_link_libraries(cxxabi_static PRIVATE 
+    c
+)
+
+
+# ========== Build Type Configuration ========== #
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
 endif()
 
-# Add compiler flags for Release mode
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -DNDEBUG")
-set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O3 -DNDEBUG")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
+set(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG")
 
-# Custom target for running with QEMU
+# ========== QEMU Execution Target ========== #
 add_custom_target(run
     DEPENDS luna_os
     COMMAND qemu-system-i386 
@@ -120,5 +144,35 @@ add_custom_target(run
         -smp 2 
         -serial stdio
     WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
-    COMMENT "Running the 32-bit kernel with QEMU on macOS"
+    COMMENT "Running 32-bit kernel with QEMU"
+)
+
+# Define __STDC_VERSION__ for C11
+target_compile_definitions(cxx_static PRIVATE
+    __STDC_VERSION__=201112L
+)
+
+# Define __SIZEOF_LONG_DOUBLE__ and _SIZEOF_LONG_DOUBLE__ based on your platform
+target_compile_definitions(cxx_static PRIVATE
+    __SIZEOF_LONG_DOUBLE__=16  # Adjust this value based on your platform
+    _SIZEOF_LONG_DOUBLE__=16   # Adjust this value based on your platform
+)
+
+# Repeat for cxxabi_static if necessary
+target_compile_definitions(cxxabi_static PRIVATE
+    __STDC_VERSION__=201112L
+    __SIZEOF_LONG_DOUBLE__=16
+    _SIZEOF_LONG_DOUBLE__=16
+)
+
+# Undefine __restrict and use standard restrict
+target_compile_definitions(cxx_static PRIVATE
+    -U__restrict
+)
+
+# ========== Critical System Configurations ========== #
+target_compile_definitions(luna_os PRIVATE
+    _LIBCPP_HAS_NO_THREADS
+    _LIBCXXABI_HAS_NO_THREADS
+    _LIBCPP_HAS_NO_MONOTONIC_CLOCK  # If not implementing chrono support
 )

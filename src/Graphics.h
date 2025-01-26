@@ -1,9 +1,10 @@
 #pragma once
 
+#include <stddef.h>
 #include <stdint.h>
 #include <string.h>
 
-#include "VBE.h" // Assuming VBE.h is in the same directory or an include path
+#include "VBE.h" 
 
 class Graphics {
 private:

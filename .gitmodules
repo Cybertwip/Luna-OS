@@ -7,3 +7,6 @@
 [submodule "external/llvm-project"]
 	path = external/llvm-project
 	url = git@github.com:llvm/llvm-project.git
+[submodule "external/libcpp"]
+	path = external/libcpp
+	url = git@github.com:embeddedartistry/libcpp.git

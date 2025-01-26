@@ -1,6 +1,6 @@
 #pragma once
 #include "Graphics.h"
-#include "luna/math.h"
+#include <math.h>
 
 namespace Luna {
 
