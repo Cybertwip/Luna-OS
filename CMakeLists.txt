@@ -27,12 +27,14 @@ add_executable(luna_os
     src/Boot.cpp 
     src/Kernel.cpp 
     src/Graphics.cpp 
-    src/memcpy.cpp 
-    src/memory.cpp 
-    src/new.cpp 
-    src/cxx_support.cpp
     src/GL/GLContext.cpp 
 
+
+    src/std/memcpy.cpp 
+    src/std/memory.cpp 
+    src/std/new.cpp 
+    src/std/cxx_support.cpp
+    src/std/spinlock.cpp 
 )
 
 # Include directories
