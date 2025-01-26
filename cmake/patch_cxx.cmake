@@ -151,6 +151,28 @@ file(WRITE "${CDEFS_H_PATH}" "${CDEFS_H_CONTENT}")
 
 # Notify the user that the file has been patched
 message(STATUS "Patched ${CDEFS_H_PATH} to always define __restrict and __restrict_arr as empty")
+
+set(CDEFS_H_PATH "${CMAKE_CURRENT_SOURCE_DIR}/external/picolibc/newlib/libc/include/sys/cdefs.h")
+
+# Read the content of the file
+file(READ "${CDEFS_H_PATH}" CDEFS_H_CONTENT)
+
+# Define the new _Noreturn macro definition
+set(NEW_NORETURN_DEFINITION "#define _Noreturn  // Always define as empty")
+
+# Check if _Noreturn is already defined
+if(CDEFS_H_CONTENT MATCHES "#define[ \t]+_Noreturn[ \t]+[^\n]*")
+    # Replace the existing _Noreturn definition with the new one
+    string(REGEX REPLACE "#define[ \t]+_Noreturn[ \t]+[^\n]*" "${NEW_NORETURN_DEFINITION}" CDEFS_H_CONTENT "${CDEFS_H_CONTENT}")
+    message(STATUS "Patched ${CDEFS_H_PATH} to redefine _Noreturn as empty")
+else()
+    # Add the _Noreturn definition if it doesn't exist
+    set(CDEFS_H_CONTENT "${CDEFS_H_CONTENT}\n${NEW_NORETURN_DEFINITION}\n")
+    message(STATUS "Added _Noreturn definition to ${CDEFS_H_PATH}")
+endif()
+
+# Write the modified content back to the file
+file(WRITE "${CDEFS_H_PATH}" "${CDEFS_H_CONTENT}")
 # Add critical libc++abi compile definitions
 add_compile_definitions(_LIBCXXABI_HAS_NO_THREADS)
 
