@@ -14,6 +14,8 @@ set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -nostdlib -nodefaultlibs -
 # Add picolibc subdirectory
 add_subdirectory(external/picolibc)
 
+set(LIBCXXABI_USE_LLVM_UNWINDER OFF)
+
 # Add libc++ and libc++abi subdirectories
 add_subdirectory(external/llvm-project/libcxx)
 add_subdirectory(external/llvm-project/libcxxabi)
