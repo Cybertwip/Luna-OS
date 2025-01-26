@@ -13,10 +13,17 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Base flags for both C/C++
+# Base flags for both C/C++
 set(COMMON_FLAGS "-m32 -ffreestanding -march=i686 -fno-stack-protector -fno-pic -fno-pie -DNDEBUG -D_XOPEN_SOURCE=700 -D_POSIX_C_SOURCE=200809L -D__STDC_WANT_LIB_EXT1__=1 -D_FORTIFY_SOURCE=2")
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COMMON_FLAGS} -std=c11 -fpermissive")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMMON_FLAGS} -std=c++20 -fpermissive -fno-exceptions -fno-threadsafe-statics")
+# Trim any trailing spaces or newlines
+string(STRIP "${COMMON_FLAGS}" COMMON_FLAGS)
+
+# Set C flags explicitly
+set(CMAKE_C_FLAGS "${COMMON_FLAGS} -std=c11 -fpermissive")
+
+# Set C++ flags explicitly
+set(CMAKE_CXX_FLAGS "${COMMON_FLAGS} -std=c++20 -fpermissive -fno-exceptions -fno-threadsafe-statics")
 
 # ========== Library Configuration ========== #
 # Libc++ settings
@@ -152,21 +159,21 @@ target_compile_definitions(cxx_static PRIVATE
     __STDC_VERSION__=201112L
 )
 
-# Define __SIZEOF_LONG_DOUBLE__ and _SIZEOF_LONG_DOUBLE__ based on your platform
+# ========== Critical System Configurations ========== #
+# Define __STDC_VERSION__ for C11
 target_compile_definitions(cxx_static PRIVATE
-    __SIZEOF_LONG_DOUBLE__=16  # Adjust this value based on your platform
-    _SIZEOF_LONG_DOUBLE__=16   # Adjust this value based on your platform
+    __STDC_VERSION__=201112L
+    SIZEOF_LONG_DOUBLE=16  # Use non-reserved name
 )
 
 # Repeat for cxxabi_static if necessary
 target_compile_definitions(cxxabi_static PRIVATE
     __STDC_VERSION__=201112L
-    __SIZEOF_LONG_DOUBLE__=16
-    _SIZEOF_LONG_DOUBLE__=16
+    SIZEOF_LONG_DOUBLE=16
 )
 
 # Undefine __restrict and use standard restrict
-target_compile_definitions(cxx_static PRIVATE
+target_compile_options(cxx_static PRIVATE
     -U__restrict
 )
 
