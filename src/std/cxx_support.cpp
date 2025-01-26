@@ -1,5 +1,5 @@
 // kernel/cxx_support.cpp
-#include <stdint.h<
+#include <stdint.h>
 
 extern "C" uint64_t __udivdi3(uint64_t dividend, uint64_t divisor) {
     uint64_t quotient = 0;
