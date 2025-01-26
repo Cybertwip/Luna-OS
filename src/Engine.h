@@ -50,11 +50,14 @@ private:
 
     microgl::sampling::checker_board<> sampler;
     microgl::z_buffer<14> depth_buffer;
+    
     model_3d<number> model;
 
     dynamic_array<vertex_attributes> vertex_buffer;
 
     float t = 0.0f; // Time variable for rotation
+
+    matrix_4x4<number> projection_matrix; // Precomputed projection matrix
 
 public:
     GameEngine();

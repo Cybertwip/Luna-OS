@@ -60,6 +60,10 @@ GameEngine::GameEngine()
         v.uv = model.uvs[ix];
         vertex_buffer.push_back(v);
     }
+
+    // Precompute the projection matrix
+    projection_matrix = camera::perspective<number>(
+        math::deg_to_rad(65.0f), mCanvas.width(), mCanvas.height(), 1.0f, 150.0f);
 }
 
 void GameEngine::run() {
@@ -79,7 +83,7 @@ void GameEngine::run() {
 }
 
 void GameEngine::update() {
-    t += 0.016f; // Increment time for rotation (60 FPS)
+    t += 0.05f; // Increment time for rotation (60 FPS)
 }
 
 uint32_t* GameEngine::getBackBuffer() { return graphics.getBackBuffer(); }
@@ -100,21 +104,19 @@ void GameEngine::busy_wait(uint32_t milliseconds) {
 }
 
 void GameEngine::render() {
-    // Clear the canvas and depth buffer
+    // Clear the canvas
     mCanvas.clear({0, 0, 255, 255}); // Clear to blue
     depth_buffer.clear(); // Clear depth buffer
 
     // Setup MVP matrix
     vertex3<number> rotation = {t, t, t}; // Rotate the cube
-    vertex3<number> translation = {0, 0, 20}; // Move the cube back
+    vertex3<number> translation = {0, 0, 60}; // Move the cube back
     vertex3<number> scale = {10, 10, 10}; // Scale the cube
 
-    matrix_4x4<number> model_matrix = matrix_4x4<number>::transform(rotation, translation, scale);
+    matrix_4x4<number> model_matrix = matrix_4x4<number>::transform(rotation, translation);
     matrix_4x4<number> view = camera::lookAt<number>({0, 0, 70}, {0, 0, 0}, {0, 1, 0});
-    matrix_4x4<number> projection = camera::perspective<number>(
-        math::deg_to_rad(90.0f), mCanvas.width(), mCanvas.height(), 0.1f, 100.0f);
 
-    matrix_4x4<number> mvp = projection * view * model_matrix;
+    matrix_4x4<number> mvp = projection_matrix * view * model_matrix;
 
     // Configure shader
     shader.matrix = mvp; // Set MVP matrix
