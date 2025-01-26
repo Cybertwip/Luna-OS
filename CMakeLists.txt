@@ -16,8 +16,8 @@ set(CMAKE_C_COMPILER /usr/local/bin/i686-elf-gcc)
 set(CMAKE_CXX_COMPILER /usr/local/bin/i686-elf-g++)
 
 # Compiler flags for C and C++
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32 -Wno-volatile -ffreestanding -march=i686 -fno-stack-protector -fno-pic -fno-pie -fno-exceptions -fno-rtti -std=c++20 -fno-threadsafe-statics")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m32 -Wno-volatile -ffreestanding -march=i686 -fno-stack-protector -fno-pic -fno-pie")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32 -Wno-volatile -fpermissive -ffreestanding -march=i686 -fno-stack-protector -fno-pic -fno-pie -fno-exceptions -fno-rtti -std=c++20 -fno-threadsafe-statics")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m32 -Wno-volatile -fpermissive -ffreestanding -march=i686 -fno-stack-protector -fno-pic -fno-pie")
 
 # Linker flags
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -nostdlib -nodefaultlibs -Wl,-m,elf_i386 -T ${CMAKE_SOURCE_DIR}/linker.ld")
@@ -29,7 +29,6 @@ add_executable(luna_os
     src/Graphics.cpp 
     src/GL/GLContext.cpp 
 
-
     src/std/memcpy.cpp 
     src/std/memory.cpp 
     src/std/new.cpp 
@@ -40,7 +39,7 @@ add_executable(luna_os
 # Include directories
 target_include_directories(luna_os PRIVATE 
     src
-    ${CMAKE_CURRENT_LIST_DIR}/micro-gl/include
+    ${CMAKE_CURRENT_LIST_DIR}/include
 )
 
 # Set default build type to Release if not specified

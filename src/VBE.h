@@ -1,6 +1,6 @@
 #pragma once
 
-#include <std/stdint.h>
+#include <stdint.h>
 
 #define VBE_DISPI_IOPORT_INDEX 0x01CE
 #define VBE_DISPI_IOPORT_DATA  0x01CF

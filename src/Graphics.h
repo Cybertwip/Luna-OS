@@ -1,6 +1,6 @@
 #pragma once
 
-#include <std/stdint.h>
+#include <stdint.h>
 #include <std/string.h>
 
 #include "VBE.h" // Assuming VBE.h is in the same directory or an include path

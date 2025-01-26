@@ -1,8 +1,7 @@
-// new.h (updated)
 #pragma once
 
-#include "memory.h"
-#include <std/stdint.h>
+#include "memory.h" // For kmalloc and kfree
+#include <stdint.h> // For size_t
 
 // Disable exceptions for kernel mode
 #define NO_EXCEPTIONS
@@ -12,9 +11,16 @@ struct bad_alloc {
     const char* what() const noexcept { return "Allocation failed"; }
 };
 
+// Global new and delete operators
 void* operator new(size_t size);
 void* operator new[](size_t size);
 void operator delete(void* ptr) noexcept;
 void operator delete[](void* ptr) noexcept;
 void operator delete(void* ptr, size_t) noexcept;
 void operator delete[](void* ptr, size_t) noexcept;
+
+// Placement new and delete operators
+void* operator new(size_t size, void* ptr) noexcept;
+void* operator new[](size_t size, void* ptr) noexcept;
+void operator delete(void* ptr, void*) noexcept;
+void operator delete[](void* ptr, void*) noexcept;

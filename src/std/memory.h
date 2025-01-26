@@ -2,7 +2,7 @@
 #pragma once
 
 #include <stddef.h>
-#include <std/stdint.h>
+#include <stdint.h>
 
 // Ensure proper alignment (16 bytes for general use)
 #define ALIGNMENT 16

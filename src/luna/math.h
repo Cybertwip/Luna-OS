@@ -1,5 +1,5 @@
 #pragma once
-#include <std/stdint.h>
+#include <stdint.h>
 #include <stddef.h>
 
 namespace Luna {

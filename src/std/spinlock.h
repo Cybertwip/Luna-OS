@@ -1,7 +1,7 @@
 #ifndef SPINLOCK_H
 #define SPINLOCK_H
 
-#include <std/stdint.h> // For uint32_t
+#include <stdint.h> // For uint32_t
 
 typedef struct {
     volatile uint32_t lock; // Lock variable (0 = unlocked, 1 = locked)

@@ -1,7 +1,7 @@
 // kernel/memory.cpp (updated)
 #include "memory.h"
 #include <stddef.h>
-#include <std/stdint.h>
+#include <stdint.h>
 #include <std/spinlock.h>
 
 // Memory pool configuration
