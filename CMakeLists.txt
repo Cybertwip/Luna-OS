@@ -26,6 +26,9 @@ set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -nostdlib -nodefaultlibs -
 add_executable(luna_os 
     src/Boot.cpp 
     src/Kernel.cpp 
+    src/Engine.cpp 
+
+    src/luna/GPU.cpp 
 
     src/std/memcpy.cpp 
     src/std/memory.cpp 
@@ -37,6 +40,7 @@ add_executable(luna_os
 # Include directories
 target_include_directories(luna_os PRIVATE 
     src
+    src/luna
     ${CMAKE_CURRENT_LIST_DIR}/external/micro-gl/include
 )
 

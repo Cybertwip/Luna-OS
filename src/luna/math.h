@@ -18,6 +18,18 @@ static T clamp(T value, T min, T max) {
     return value;
 }
 
+// Min function to return the smaller of two values
+template <typename T>
+static T min(T a, T b) {
+    return (a < b) ? a : b;
+}
+
+// Max function to return the larger of two values
+template <typename T>
+static T max(T a, T b) {
+    return (a > b) ? a : b;
+}
+
 static float sqrt(float x) {
     if (x < 0) return 0;
     float guess = x;
