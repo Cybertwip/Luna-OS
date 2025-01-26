@@ -28,7 +28,7 @@ set(LIBCXX_ENABLE_EXCEPTIONS OFF CACHE BOOL "Disable exceptions")
 set(LIBCXX_ENABLE_SHARED OFF CACHE BOOL "Disable shared libraries")
 set(LIBCXX_ENABLE_STATIC ON CACHE BOOL "Enable static libraries")
 set(LIBCXX_HAS_MUSL_LIBC ON CACHE BOOL "Use musl libc")
-set(LIBCXX_HAS_EXTERNAL_THREAD_API ON CACHE BOOL "Use external thread API")
+set(LIBCXX_HAS_EXTERNAL_THREAD_API OFF CACHE BOOL "Use external thread API")
 
 # Force libc++ and libc++abi to build as static libraries
 set(LIBCXX_ENABLE_SHARED OFF CACHE BOOL "Disable shared libraries")
