@@ -34,6 +34,9 @@ set(CONFIG_SITE_CONTENT "
 // Define nodiscard attribute
 #define _LIBCPP_NODISCARD_EXT [[nodiscard]]
 
+// Disable unnecessary headers
+#define _LIBCPP_HAS_NO_BITS_ALLTYPES_H
+
 #endif // _LIBCPP_CONFIG_SITE
 ")
 
