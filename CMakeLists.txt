@@ -52,7 +52,7 @@ target_include_directories(luna_os PRIVATE
 )
 
 # Link libraries
-target_include_directories(luna_os PRIVATE 
+target_link_libraries(luna_os PRIVATE 
     c
 )
 
