@@ -37,7 +37,6 @@ add_executable(luna_os
 
     src/luna/GPU.cpp 
 
-    src/std/memcpy.cpp 
     src/std/memory.cpp 
     src/std/new.cpp 
     src/std/cxx_support.cpp
