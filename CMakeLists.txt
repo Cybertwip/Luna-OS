@@ -14,6 +14,12 @@ set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -nostdlib -nodefaultlibs -
 # Add picolibc subdirectory
 add_subdirectory(external/picolibc)
 
+# Set the picolibc sysroot path
+set(PICOLIBC_SYSROOT ${CMAKE_BINARY_DIR}/external/picolibc/picolibc)
+
+# Print the picolibc sysroot path
+message(STATUS "Picolibc sysroot: ${PICOLIBC_SYSROOT}")
+
 # Disable LLVM unwinder for libc++abi
 set(LIBCXXABI_USE_LLVM_UNWINDER OFF)
 
@@ -58,6 +64,7 @@ add_executable(luna_os
 
 # Include directories
 target_include_directories(luna_os PRIVATE 
+    ${PICOLIBC_SYSROOT}/include # Add the picolibc headers
     ${CMAKE_CURRENT_BINARY_DIR}/include/c++/v1 # Add the libc++ headers from the build directory first
     ${CMAKE_CURRENT_LIST_DIR}/external/llvm-project/libcxx/include
     ${CMAKE_CURRENT_LIST_DIR}/external/llvm-project/libcxxabi/include
