@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.12)
 project(luna_os)
 
 # Compiler flags for C and C++
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32 -Wno-volatile -fpermissive -ffreestanding -march=i686 -fno-stack-protector -fno-pic -fno-pie -fno-exceptions -fno-rtti -std=c++20 -fno-threadsafe-statics")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32 -fpermissive -ffreestanding -march=i686 -fno-stack-protector -fno-pic -fno-pie -fno-exceptions -fno-rtti -std=c++20 -fno-threadsafe-statics")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m32 -fpermissive -ffreestanding -march=i686 -fno-stack-protector -fno-pic -fno-pie")
 
 # Linker flags
@@ -58,12 +58,13 @@ add_executable(luna_os
 
 # Include directories
 target_include_directories(luna_os PRIVATE 
-    src
-    src/luna
-    ${CMAKE_CURRENT_LIST_DIR}/external/micro-gl/include
+    ${CMAKE_CURRENT_BINARY_DIR}/include/c++/v1 # Add the libc++ headers from the build directory first
     ${CMAKE_CURRENT_LIST_DIR}/external/llvm-project/libcxx/include
     ${CMAKE_CURRENT_LIST_DIR}/external/llvm-project/libcxxabi/include
     ${CMAKE_CURRENT_BINARY_DIR} # Add the build directory for __config_site
+    src
+    src/luna
+    ${CMAKE_CURRENT_LIST_DIR}/external/micro-gl/include
 )
 
 # Link libraries
