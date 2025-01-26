@@ -39,7 +39,7 @@ add_executable(luna_os
 # Include directories
 target_include_directories(luna_os PRIVATE 
     src
-    ${CMAKE_CURRENT_LIST_DIR}/include
+    ${CMAKE_CURRENT_LIST_DIR}/external/micro-gl/include
 )
 
 # Set default build type to Release if not specified

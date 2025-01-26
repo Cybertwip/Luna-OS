@@ -1,6 +1,5 @@
 #include "new.h"
 
-
 // Global new and delete operators
 void* operator new(size_t size) {
     if (void* ptr = kmalloc(size)) {
@@ -36,19 +35,18 @@ void operator delete[](void* ptr, size_t) noexcept {
 }
 
 // Placement new and delete operators
-void* operator new(size_t size, void* ptr) noexcept {
+void* operator new(size_t, void* ptr) noexcept {
     return ptr;
 }
 
-void* operator new[](size_t size, void* ptr) noexcept {
+void* operator new[](size_t, void* ptr) noexcept {
     return ptr;
 }
 
-void operator delete(void* ptr, void*) noexcept {
+void operator delete(void*, void*) noexcept {
     // Placement delete does nothing
 }
 
-void operator delete[](void* ptr, void*) noexcept {
+void operator delete[](void*, void*) noexcept {
     // Placement delete[] does nothing
 }
-

@@ -16,6 +16,9 @@
 #include <microgl/math.h>
 #include <microgl/micro-tess/include/micro-tess/dynamic_array.h>
 
+#include "std/new.h"
+
+
 // Define a simple 3D cube model
 template<typename number>
 struct model_3d {
