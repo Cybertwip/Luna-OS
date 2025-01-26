@@ -1,0 +1,3 @@
+[submodule "external/micro-gl"]
+	path = external/micro-gl
+	url = git@github.com:micro-gl/micro-gl.git
