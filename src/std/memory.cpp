@@ -5,7 +5,7 @@
 #include <std/spinlock.h>
 
 // Memory pool configuration
-#define MEMORY_POOL_SIZE (256 * 1024 * 1024) // 4MB initial pool
+#define MEMORY_POOL_SIZE (1024 * 1024 * 1024) // 1024MB initial pool
 static char memory_pool[MEMORY_POOL_SIZE];
 static size_t memory_used = 0;
 

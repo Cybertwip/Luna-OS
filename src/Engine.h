@@ -18,7 +18,6 @@
 
 #include "std/new.h"
 
-
 // Define a simple 3D cube model
 template<typename number>
 struct model_3d {
@@ -53,18 +52,18 @@ model_3d<number> create_cube_3d() {
     model.uvs.push_back({0, 1});
 
     // Indices
-    model.indices.push_back(0); model.indices.push_back(1); model.indices.push_back(2); // Front face
-    model.indices.push_back(2); model.indices.push_back(3); model.indices.push_back(0);
-    model.indices.push_back(4); model.indices.push_back(5); model.indices.push_back(6); // Back face
-    model.indices.push_back(6); model.indices.push_back(7); model.indices.push_back(4);
-    model.indices.push_back(0); model.indices.push_back(3); model.indices.push_back(7); // Left face
-    model.indices.push_back(7); model.indices.push_back(4); model.indices.push_back(0);
-    model.indices.push_back(1); model.indices.push_back(2); model.indices.push_back(6); // Right face
-    model.indices.push_back(6); model.indices.push_back(5); model.indices.push_back(1);
-    model.indices.push_back(0); model.indices.push_back(1); model.indices.push_back(5); // Bottom face
-    model.indices.push_back(5); model.indices.push_back(4); model.indices.push_back(0);
-    model.indices.push_back(2); model.indices.push_back(3); model.indices.push_back(7); // Top face
-    model.indices.push_back(7); model.indices.push_back(6); model.indices.push_back(2);
+    unsigned int indices[] = {
+        0, 1, 2, 2, 3, 0, // Front face
+        4, 5, 6, 6, 7, 4, // Back face
+        0, 3, 7, 7, 4, 0, // Left face
+        1, 2, 6, 6, 5, 1, // Right face
+        0, 1, 5, 5, 4, 0, // Bottom face
+        2, 3, 7, 7, 6, 2  // Top face
+    };
+
+    for (unsigned int index : indices) {
+        model.indices.push_back(index);
+    }
 
     // Triangle type
     model.type = microtess::triangles::indices::TRIANGLES;
@@ -77,8 +76,8 @@ private:
     Graphics graphics;
     Renderer renderer;
     uint32_t frameCounter;
-    static const uint32_t TARGET_FPS = 30;
-    static const uint32_t TARGET_FRAME_TIME = 1000 / TARGET_FPS;
+    static const uint32_t TARGET_FPS = 60;
+    static const uint32_t TARGET_FRAME_TIME_MS = 1000 / TARGET_FPS;
 
     // Member variables for rendering
     using number = float;
@@ -87,7 +86,7 @@ private:
     using Shader = sampler_shader<number, sampling::checker_board<>>;
     using vertex_attributes = Shader::vertex_attributes;
 
-    Canvas24 canvas;
+    Canvas24 mCanvas;
     Shader shader;
 
     sampling::checker_board<> sampler;
@@ -103,39 +102,44 @@ public:
         : graphics(), 
           renderer(&graphics), 
           frameCounter(0),
-          canvas(getWidth(), getHeight()),
+          mCanvas(getWidth(), getHeight()),
           sampler({255, 0, 0, 255}, {255, 0, 0, 255}, 10, 10),
           depth_buffer(getWidth(), getHeight()),
           model(create_cube_3d<number>()) {
 
-            // Convert model vertices to vertex attributes
-            vertex_buffer.reserve(model.vertices.size());
-
-            for (unsigned ix = 0; ix < model.vertices.size(); ++ix) {
-                vertex_attributes v{};
-                v.point = model.vertices[ix];
-                v.uv = model.uvs[ix];
-                vertex_buffer.push_back(v);
-            }
-
+        // Convert model vertices to vertex attributes
+        vertex_buffer.reserve(model.vertices.size());
+        for (unsigned ix = 0; ix < model.vertices.size(); ++ix) {
+            vertex_attributes v{};
+            v.point = model.vertices[ix];
+            v.uv = model.uvs[ix];
+            vertex_buffer.push_back(v);
         }
+    }
 
     void run() {
-        while(true) {
+        while (true) {
+            uint32_t start = get_clock_ticks(); // Get current clock ticks
+
             update();
             render();
-            for(volatile uint32_t i=0; i<TARGET_FRAME_TIME*1000; ++i) {}
+
+            uint32_t elapsed = get_clock_ticks() - start; // Calculate elapsed time
+            if (elapsed < TARGET_FRAME_TIME_MS) {
+                busy_wait(TARGET_FRAME_TIME_MS - elapsed); // Busy-wait to maintain frame rate
+            }
+
             frameCounter++;
         }
     }
 
     void update() {
-        t += 0.032f; // Increment time for rotation
+        t += 0.016f; // Increment time for rotation (60 FPS)
     }
     
     void render() {
         // Clear the canvas and depth buffer
-        canvas.clear({0, 0, 255, 255});
+        mCanvas.clear({0, 0, 255, 255});
         depth_buffer.clear();
 
         // Setup MVP matrix
@@ -146,7 +150,7 @@ public:
         matrix_4x4<number> model_matrix = matrix_4x4<number>::transform(rotation, translation, scale);
         matrix_4x4<number> view = camera::lookAt<number>({0, 0, 70}, {0, 0, 0}, {0, 1, 0});
         matrix_4x4<number> projection = camera::perspective<number>(
-            math::deg_to_rad(90.0f), canvas.width(), canvas.height(), 0.1f, 100.0f);
+            math::deg_to_rad(90.0f), mCanvas.width(), mCanvas.height(), 0.1f, 100.0f);
 
         matrix_4x4<number> mvp = projection * view * model_matrix;
 
@@ -154,9 +158,9 @@ public:
         shader.sampler = &sampler;
 
         // Draw the model
-        canvas.drawTriangles<blendmode::Normal, porterduff::None<>, true, true, true>(
+        mCanvas.drawTriangles<blendmode::Normal, porterduff::None<>, true, true, true>(
             shader,                            // Shader
-            canvas.width(), canvas.height(),   // Viewport dimensions
+            mCanvas.width(), mCanvas.height(),   // Viewport dimensions
             vertex_buffer.data(),              // Vertex buffer
             model.indices.data(),              // Indices
             model.indices.size(),              // Number of indices
@@ -164,16 +168,34 @@ public:
             microtess::triangles::face_culling::none, // Disable face culling
             &depth_buffer                      // Depth buffer
         );
+
         // Copy to back buffer
         uint32_t* dst = getBackBuffer();
-        const uint32_t* src = reinterpret_cast<const uint32_t*>(canvas.pixels()); // Cast to const uint32_t*
+        const uint32_t* src = reinterpret_cast<const uint32_t*>(mCanvas.pixels()); // Cast to const uint32_t*
         const size_t count = getWidth() * getHeight();
-        for (size_t i = 0; i < count; ++i)
-            dst[i] = src[i];
+
+        // Use memcpy to copy the entire block of memory
+        memcpy(dst, src, count * sizeof(uint32_t));
         graphics.swapBuffers();
     }
 
     uint32_t* getBackBuffer() { return graphics.getBackBuffer(); }
     uint32_t getWidth() const { return graphics.getWidth(); }
     uint32_t getHeight() const { return graphics.getHeight(); }
+
+private:
+    // Kernel clock function (replace with your kernel's clock implementation)
+    uint32_t get_clock_ticks() {
+        // Replace this with your kernel's clock function
+        static uint32_t ticks = 0;
+        return ticks++;
+    }
+
+    // Busy-wait function
+    void busy_wait(uint32_t milliseconds) {
+        uint32_t start = get_clock_ticks();
+        while (get_clock_ticks() - start < milliseconds) {
+            // Do nothing, just wait
+        }
+    }
 };

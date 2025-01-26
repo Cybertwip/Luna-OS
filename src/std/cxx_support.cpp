@@ -1,4 +1,23 @@
 // kernel/cxx_support.cpp
+#include <stdint.h<
+
+extern "C" uint64_t __udivdi3(uint64_t dividend, uint64_t divisor) {
+    uint64_t quotient = 0;
+    uint64_t remainder = 0;
+
+    for (int i = 63; i >= 0; --i) {
+        remainder <<= 1;
+        remainder |= (dividend >> i) & 1;
+
+        if (remainder >= divisor) {
+            remainder -= divisor;
+            quotient |= (1ULL << i);
+        }
+    }
+
+    return quotient;
+}
+
 
 extern "C" {
     // Dummy __dso_handle for global destructors
@@ -24,4 +43,5 @@ extern "C" {
         // Panic or log an error if a pure virtual function is called
         while (1) {} // Hang the kernel
     }
+    
 }

@@ -10,11 +10,18 @@ private:
     static const uint32_t WIDTH = 1024;    // Reduced width
     static const uint32_t HEIGHT = 768;   // Reduced height
     static const uint32_t BPP = 32;
-    static uint32_t backBuffer[WIDTH * HEIGHT];  // Now uses less stack space
+    uint32_t* backBuffer;  // Pointer to the back buffer
 
 public:
     Graphics() {
         init(WIDTH, HEIGHT, BPP);
+
+        // Allocate backBuffer with the correct size (WIDTH * HEIGHT * (BPP / 8))
+        backBuffer = new uint32_t[WIDTH * HEIGHT];
+    }
+
+    ~Graphics() {
+        delete[] backBuffer;
     }
 
     const uint32_t getWidth() const { return WIDTH; }
@@ -35,6 +42,8 @@ public:
 
     void swapBuffers() {
         // Copy from backBuffer to video memory
-        memcpy((void*)0xFD000000, backBuffer, sizeof(backBuffer));
+        // Calculate the size of the backBuffer in bytes: WIDTH * HEIGHT * (BPP / 8)
+        size_t bufferSizeBytes = WIDTH * HEIGHT * (BPP / 8);
+        memcpy((void*)0xFD000000, backBuffer, bufferSizeBytes);
     }
 };

@@ -1,9 +1,28 @@
 // In memcpy.cpp (new source file)
 #include "string.h"
+#include <stddef.h>
+#include <stdint.h>
 
 extern "C" void* memcpy(void* dest, const void* src, size_t n) {
-    char* d = static_cast<char*>(dest);
-    const char* s = static_cast<const char*>(src);
-    for (; n; n--) *d++ = *s++;
+    // Cast pointers to uint64_t* for 64-bit copying
+    uint64_t* d64 = static_cast<uint64_t*>(dest);
+    const uint64_t* s64 = static_cast<const uint64_t*>(src);
+
+    // Copy in 64-bit chunks
+    size_t num_64bit_chunks = n / sizeof(uint64_t);
+    for (size_t i = 0; i < num_64bit_chunks; ++i) {
+        d64[i] = s64[i];
+    }
+
+    // Copy remaining bytes (if any)
+    size_t remaining_bytes = n % sizeof(uint64_t);
+    if (remaining_bytes) {
+        char* d8 = reinterpret_cast<char*>(d64 + num_64bit_chunks);
+        const char* s8 = reinterpret_cast<const char*>(s64 + num_64bit_chunks);
+        for (size_t i = 0; i < remaining_bytes; ++i) {
+            d8[i] = s8[i];
+        }
+    }
+
     return dest;
 }

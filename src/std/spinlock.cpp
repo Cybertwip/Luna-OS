@@ -8,15 +8,19 @@ void spinlock_init(spinlock_t *lock) {
     lock->lock = 0; // 0 means unlocked
 }
 
-// Acquire the spinlock
+// Acquire the spinlock with exponential backoff
 void spin_lock(spinlock_t *lock) {
+    int backoff = 1;
     while (1) {
         // Try to acquire the lock
         if (__sync_bool_compare_and_swap(&lock->lock, 0, 1)) {
             break; // Lock acquired
         }
-        // Memory barrier to prevent compiler optimizations
-        MEMORY_BARRIER();
+        // Exponential backoff
+        for (int i = 0; i < backoff; ++i) {
+            MEMORY_BARRIER();
+        }
+        backoff *= 2; // Increase backoff exponentially
     }
 }
 

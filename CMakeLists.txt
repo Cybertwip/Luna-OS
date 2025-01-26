@@ -26,8 +26,6 @@ set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -nostdlib -nodefaultlibs -
 add_executable(luna_os 
     src/Boot.cpp 
     src/Kernel.cpp 
-    src/Graphics.cpp 
-    src/GL/GLContext.cpp 
 
     src/std/memcpy.cpp 
     src/std/memory.cpp 
