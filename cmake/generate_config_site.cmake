@@ -27,6 +27,10 @@ set(CONFIG_SITE_CONTENT "
 // Disable C++20 coroutines (optional)
 #define _LIBCPP_HAS_NO_COROUTINES
 
+// Define hardening mode
+#define _LIBCPP_HARDENING_MODE_DEFAULT _LIBCPP_HARDENING_MODE_NONE
+#define _LIBCPP_HARDENING_MODE _LIBCPP_HARDENING_MODE_NONE
+
 #endif // _LIBCPP_CONFIG_SITE
 ")
 

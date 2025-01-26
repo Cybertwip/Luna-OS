@@ -5,8 +5,8 @@ cmake_minimum_required(VERSION 3.12)
 project(luna_os)
 
 # Compiler flags for C and C++
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32 -Wno-volatile -Wno-permissive -fpermissive -ffreestanding -march=i686 -fno-stack-protector -fno-pic -fno-pie -fno-exceptions -fno-rtti -std=c++20 -fno-threadsafe-statics")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m32 -Wno-permissive -fpermissive -ffreestanding -march=i686 -fno-stack-protector -fno-pic -fno-pie")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32 -Wno-volatile -fpermissive -ffreestanding -march=i686 -fno-stack-protector -fno-pic -fno-pie -fno-exceptions -fno-rtti -std=c++20 -fno-threadsafe-statics")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m32 -fpermissive -ffreestanding -march=i686 -fno-stack-protector -fno-pic -fno-pie")
 
 # Linker flags
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -nostdlib -nodefaultlibs -Wl,-m,elf_i386 -T ${CMAKE_SOURCE_DIR}/linker.ld")
@@ -19,6 +19,20 @@ set(LIBCXXABI_USE_LLVM_UNWINDER OFF)
 
 # Generate __config_site on the fly
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/generate_config_site.cmake)
+
+# Configure libc++ and libc++abi for barebones environment
+set(LIBCXX_ENABLE_THREADS OFF CACHE BOOL "Disable threading support")
+set(LIBCXX_ENABLE_FILESYSTEM OFF CACHE BOOL "Disable filesystem support")
+set(LIBCXX_ENABLE_RTTI OFF CACHE BOOL "Disable RTTI")
+set(LIBCXX_ENABLE_EXCEPTIONS OFF CACHE BOOL "Disable exceptions")
+set(LIBCXX_ENABLE_SHARED OFF CACHE BOOL "Disable shared libraries")
+set(LIBCXX_ENABLE_STATIC ON CACHE BOOL "Enable static libraries")
+set(LIBCXX_HAS_MUSL_LIBC ON CACHE BOOL "Use musl libc")
+set(LIBCXX_HAS_EXTERNAL_THREAD_API ON CACHE BOOL "Use external thread API")
+
+# Force libc++ and libc++abi to build as static libraries
+set(LIBCXX_ENABLE_SHARED OFF CACHE BOOL "Disable shared libraries")
+set(LIBCXXABI_ENABLE_SHARED OFF CACHE BOOL "Disable shared libraries")
 
 # Add libc++ and libc++abi subdirectories
 add_subdirectory(external/llvm-project/libcxx)
@@ -51,8 +65,8 @@ target_include_directories(luna_os PRIVATE
 # Link libraries
 target_link_libraries(luna_os PRIVATE 
     c
-    c++
-    c++abi
+    cxx_static
+    cxxabi_static
 )
 
 # Set default build type to Release if not specified
