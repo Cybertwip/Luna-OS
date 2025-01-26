@@ -23,8 +23,8 @@ message(STATUS "Picolibc sysroot: ${PICOLIBC_SYSROOT}")
 # Disable LLVM unwinder for libc++abi
 set(LIBCXXABI_USE_LLVM_UNWINDER OFF)
 
-# Generate __config_site on the fly
-include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/generate_config_site.cmake)
+# Generate __config_site and bits/alltypes.h on the fly
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/patch_cxx.cmake)
 
 # Configure libc++ and libc++abi for barebones environment
 set(LIBCXX_ENABLE_THREADS OFF CACHE BOOL "Disable threading support")
@@ -53,9 +53,7 @@ add_executable(luna_os
     src/Boot.cpp 
     src/Kernel.cpp 
     src/Engine.cpp 
-
     src/luna/GPU.cpp 
-
     src/std/memory.cpp 
     src/std/new.cpp 
     src/std/cxx_support.cpp
@@ -66,6 +64,7 @@ add_executable(luna_os
 target_include_directories(luna_os PRIVATE 
     ${PICOLIBC_SYSROOT}/include # Add the picolibc headers
     ${CMAKE_CURRENT_BINARY_DIR}/include/c++/v1 # Add the libc++ headers from the build directory first
+    ${CMAKE_CURRENT_BINARY_DIR}/include/bits # Add the custom bits directory
     ${CMAKE_CURRENT_LIST_DIR}/external/llvm-project/libcxx/include
     ${CMAKE_CURRENT_LIST_DIR}/external/llvm-project/libcxxabi/include
     ${CMAKE_CURRENT_BINARY_DIR} # Add the build directory for __config_site
