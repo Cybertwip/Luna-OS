@@ -1,4 +1,4 @@
-# generate_config_site.cmake
+# patch_cxx.cmake
 
 # Generate __config_site for libc++
 set(CONFIG_SITE_CONTENT "
@@ -66,14 +66,21 @@ typedef long blkcnt_t;
 typedef long time_t;
 typedef long suseconds_t;
 
+// Define FILE type
+typedef __FILE FILE;
+
 #endif // _BITS_ALLTYPES_H
 ")
 
 # Create the bits directory if it doesn't exist
-file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include/bits")
+file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include/c++/v1/bits")
 
 # Write the content to bits/alltypes.h
-file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/include/bits/alltypes.h" "${ALLTYPES_CONTENT}")
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/include/c++/v1/bits/alltypes.h" "${ALLTYPES_CONTENT}")
 
 # Notify the user
-message(STATUS "Generated bits/alltypes.h in ${CMAKE_CURRENT_BINARY_DIR}/include/bits")
+message(STATUS "Generated bits/alltypes.h in ${CMAKE_CURRENT_BINARY_DIR}/include/c++/v1/bits")
+
+# Add critical libc++abi compile definitions
+add_compile_definitions(_LIBCXXABI_HAS_NO_THREADS)
+message(STATUS "Force-disabled threading in libc++abi")

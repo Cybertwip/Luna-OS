@@ -26,6 +26,21 @@ set(LIBCXXABI_USE_LLVM_UNWINDER OFF)
 # Generate __config_site and bits/alltypes.h on the fly
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/patch_cxx.cmake)
 
+# ========== Critical Additions ========== #
+# Force-disable threading in libc++/libc++abi
+set(LIBCXX_HAS_NO_THREADS ON CACHE BOOL "Disable all threading" FORCE)
+set(LIBCXXABI_HAS_NO_THREADS ON CACHE BOOL "Disable threading in libc++abi" FORCE)
+
+# Explicitly define macros for libc++abi
+add_compile_definitions(
+    _LIBCPP_HAS_NO_THREADS  # For libc++
+    _LIBCXXABI_HAS_NO_THREADS  # For libc++abi (MOST CRITICAL)
+)
+
+# Configure libc++abi's CMake flags
+set(LIBCXXABI_ENABLE_THREADS OFF CACHE BOOL "Disable threads" FORCE)
+set(LIBCXXABI_USE_LLVM_UNWINDER OFF CACHE BOOL "Disable unwinder" FORCE)
+
 # Configure libc++ and libc++abi for barebones environment
 set(LIBCXX_ENABLE_THREADS OFF CACHE BOOL "Disable threading support")
 set(LIBCXX_ENABLE_FILESYSTEM OFF CACHE BOOL "Disable filesystem support")
