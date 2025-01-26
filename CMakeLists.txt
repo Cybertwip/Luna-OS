@@ -42,6 +42,11 @@ set(LIBCXXABI_ENABLE_EXCEPTIONS OFF CACHE BOOL "Disable exceptions" FORCE)
 set(LIBCXXABI_SILENT_TERMINATE ON CACHE BOOL "Silent terminate" FORCE)
 set(LIBCXXABI_ENABLE_SHARED OFF CACHE BOOL "Static build" FORCE)
 
+# Picolibc options
+set(_PICOLIBC_ATOMIC_SIGNAL OFF CACHE BOOL "Use atomics in signal/raise" FORCE)
+set(TINY_STDIO ON CACHE BOOL "Use tiny stdio from avr libc" FORCE)
+set(ATOMIC_UNGETC OFF CACHE BOOL "Atomic reentrancy" FORCE) # kernel mode doesn't have atomics integrated yet
+
 
 # Generate configuration files
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/patch_cxx.cmake)
@@ -52,13 +57,6 @@ set(LINKER_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/linker.ld")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} 
     -nostdlib -nodefaultlibs 
     -Wl,-m,elf_i386 -T ${LINKER_SCRIPT}"
-)
-
-# Generate picolibc config
-configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/external/picolibc/picolibc.h.in
-    ${CMAKE_CURRENT_BINARY_DIR}/include/picolibc.h
-    @ONLY
 )
 
 # ========== Dependencies ========== #
@@ -114,6 +112,13 @@ target_include_directories(cxxabi_static PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/external/picolibc/newlib/libc/include  # C Standard Library headers
 )
 
+# Disable monotonic clock for cxx_static
+target_compile_definitions(cxx_static PRIVATE _LIBCPP_HAS_NO_MONOTONIC_CLOCK)
+
+# Disable monotonic clock for cxxabi_static
+target_compile_definitions(cxxabi_static PRIVATE _LIBCPP_HAS_NO_MONOTONIC_CLOCK)
+
+
 # Link libraries
 target_link_libraries(luna_os PRIVATE 
     c
@@ -154,11 +159,6 @@ add_custom_target(run
     COMMENT "Running 32-bit kernel with QEMU"
 )
 
-# Define __STDC_VERSION__ for C11
-target_compile_definitions(cxx_static PRIVATE
-    __STDC_VERSION__=201112L
-)
-
 # ========== Critical System Configurations ========== #
 # Define __STDC_VERSION__ for C11
 target_compile_definitions(cxx_static PRIVATE
@@ -175,11 +175,4 @@ target_compile_definitions(cxxabi_static PRIVATE
 # Undefine __restrict and use standard restrict
 target_compile_options(cxx_static PRIVATE
     -U__restrict
-)
-
-# ========== Critical System Configurations ========== #
-target_compile_definitions(luna_os PRIVATE
-    _LIBCPP_HAS_NO_THREADS
-    _LIBCXXABI_HAS_NO_THREADS
-    _LIBCPP_HAS_NO_MONOTONIC_CLOCK  # If not implementing chrono support
 )

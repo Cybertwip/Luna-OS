@@ -112,6 +112,45 @@ else()
     message(STATUS "<climits> is already included in ${LIMITS_H_PATH}")
 endif()
 
+# Patch CMakeLists.txt to remove unconditional tinystdio
+set(CMAKE_LISTS_PATH "${CMAKE_CURRENT_SOURCE_DIR}/external/picolibc/newlib/libc/CMakeLists.txt")
+file(READ "${CMAKE_LISTS_PATH}" CMAKE_LISTS_CONTENT)
+
+# Check if TINY_STDIO is NOT enabled
+if(NOT TINY_STDIO)
+    # Remove unconditional add_subdirectory(tinystdio)
+    string(REGEX REPLACE "\n[ \t]*add_subdirectory\\([ \t]*tinystdio[ \t]*\\)[ \t]*\n" "\n" 
+        CMAKE_LISTS_CONTENT "${CMAKE_LISTS_CONTENT}")
+    
+    # Write modified content back
+    file(WRITE "${CMAKE_LISTS_PATH}" "${CMAKE_LISTS_CONTENT}")
+    message(STATUS "Removed unconditional tinystdio from ${CMAKE_LISTS_PATH}")
+else()
+    message(STATUS "Keeping tinystdio - TINY_STDIO is enabled")
+endif()
+
+
+
+# Define the path to the file to be patched
+set(CDEFS_H_PATH "${CMAKE_CURRENT_SOURCE_DIR}/external/picolibc/newlib/libc/include/sys/cdefs.h")
+
+# Read the content of the file
+file(READ "${CDEFS_H_PATH}" CDEFS_H_CONTENT)
+
+# Define the new __restrict macro definitions
+set(NEW_RESTRICT_DEFINITION "#define __restrict  // Always define as empty")
+set(NEW_RESTRICT_arr_DEFINITION "#define __restrict_arr  // Always define as empty")
+
+# Replace the existing definitions with the new ones
+# Use regex to handle any whitespace (spaces or tabs) between tokens
+string(REGEX REPLACE "#define[ \t]+__restrict[ \t]+restrict" "${NEW_RESTRICT_DEFINITION}" CDEFS_H_CONTENT "${CDEFS_H_CONTENT}")
+string(REGEX REPLACE "#define[ \t]+__restrict_arr[ \t]+restrict" "${NEW_RESTRICT_arr_DEFINITION}" CDEFS_H_CONTENT "${CDEFS_H_CONTENT}")
+
+# Write the modified content back to the file
+file(WRITE "${CDEFS_H_PATH}" "${CDEFS_H_CONTENT}")
+
+# Notify the user that the file has been patched
+message(STATUS "Patched ${CDEFS_H_PATH} to always define __restrict and __restrict_arr as empty")
 # Add critical libc++abi compile definitions
 add_compile_definitions(_LIBCXXABI_HAS_NO_THREADS)
 
