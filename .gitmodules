@@ -4,3 +4,6 @@
 [submodule "external/picolibc"]
 	path = external/picolibc
 	url = git@github.com:picolibc/picolibc.git
+[submodule "external/llvm-project"]
+	path = external/llvm-project
+	url = git@github.com:llvm/llvm-project.git

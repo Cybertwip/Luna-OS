@@ -1,23 +1,8 @@
-# Ensure CMake knows the compilers work
-set(CMAKE_C_COMPILER_WORKS 1)
-set(CMAKE_CXX_COMPILER_WORKS 1)
-set(CMAKE_SYSTEM_PROCESSOR x86)
-# Set cross-compilers for 32-bit x86
-set(CMAKE_C_COMPILER /usr/local/bin/i686-elf-gcc)
-set(CMAKE_CXX_COMPILER /usr/local/bin/i686-elf-g++)
-
-# Set the system name to Generic (for bare-metal development)
-set(CMAKE_SYSTEM_NAME Generic)
-
-
 # Minimum CMake version
 cmake_minimum_required(VERSION 3.12)
 
-
-
 # Project name
 project(luna_os)
-
 
 # Compiler flags for C and C++
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32 -Wno-volatile -Wno-permissive -fpermissive -ffreestanding -march=i686 -fno-stack-protector -fno-pic -fno-pie -fno-exceptions -fno-rtti -std=c++20 -fno-threadsafe-statics")
@@ -26,8 +11,12 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m32 -Wno-permissive -fpermissive -ffreestan
 # Linker flags
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -nostdlib -nodefaultlibs -Wl,-m,elf_i386 -T ${CMAKE_SOURCE_DIR}/linker.ld")
 
-
+# Add picolibc subdirectory
 add_subdirectory(external/picolibc)
+
+# Add libc++ and libc++abi subdirectories
+add_subdirectory(external/llvm-project/libcxx)
+add_subdirectory(external/llvm-project/libcxxabi)
 
 # Add the executable target
 add_executable(luna_os 
@@ -48,13 +37,16 @@ target_include_directories(luna_os PRIVATE
     src
     src/luna
     ${CMAKE_CURRENT_LIST_DIR}/external/micro-gl/include
+    ${CMAKE_CURRENT_LIST_DIR}/external/llvm-project/libcxx/include
+    ${CMAKE_CURRENT_LIST_DIR}/external/llvm-project/libcxxabi/include
 )
 
 # Link libraries
 target_link_libraries(luna_os PRIVATE 
     c
+    c++
+    c++abi
 )
-
 
 # Set default build type to Release if not specified
 if(NOT CMAKE_BUILD_TYPE)
