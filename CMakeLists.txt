@@ -90,6 +90,7 @@ add_executable(luna_os
     src/Kernel.cpp 
     src/Engine.cpp 
     src/luna/GPU.cpp 
+    src/luna/fastmem.cpp 
     src/std/memory.cpp 
     src/std/new.cpp 
     src/std/cxx_support.cpp

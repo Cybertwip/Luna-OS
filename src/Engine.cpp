@@ -1,5 +1,5 @@
 #include "Engine.h"
-#include <string.h>
+#include <luna/fastmem.h>
 
 template<typename number>
 model_3d<number> create_cube_3d() {
@@ -139,7 +139,7 @@ void GameEngine::render() {
     uint32_t* dst = getBackBuffer();
     const uint32_t* src = reinterpret_cast<const uint32_t*>(mCanvas.pixels());
     const size_t count = getWidth() * getHeight();
-    memcpy(dst, src, count * sizeof(uint32_t));
+    Luna::memcpy(dst, src, count * sizeof(uint32_t));
 
     // Swap buffers
     graphics.swapBuffers();
