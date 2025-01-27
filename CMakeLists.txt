@@ -64,9 +64,6 @@ add_subdirectory(external/picolibc)
 add_subdirectory(external/llvm-project/libcxx)
 add_subdirectory(external/llvm-project/libcxxabi)
 
-set(PICOLIBC_SYSROOT ${CMAKE_BINARY_DIR}/external/picolibc/picolibc)
-message(STATUS "Picolibc sysroot: ${PICOLIBC_SYSROOT}")
-
 # ========== Target Configuration ========== #
 # Main executable
 add_executable(luna_os 
@@ -83,14 +80,6 @@ add_executable(luna_os
 
 # Include directories
 target_include_directories(luna_os PRIVATE 
-    ${PICOLIBC_SYSROOT}
-    ${CMAKE_CURRENT_BINARY_DIR}/include  
-    ${CMAKE_CURRENT_LIST_DIR}/external/picolibc/newlib/libc/include
-    ${CMAKE_CURRENT_BINARY_DIR}/include/c++/v1
-    ${CMAKE_CURRENT_BINARY_DIR}/include/bits
-    ${CMAKE_CURRENT_LIST_DIR}/external/llvm-project/libcxx/include
-    ${CMAKE_CURRENT_LIST_DIR}/external/llvm-project/libcxxabi/include
-    ${CMAKE_CURRENT_BINARY_DIR}
     src
     src/luna
     ${CMAKE_CURRENT_LIST_DIR}/external/micro-gl/include
