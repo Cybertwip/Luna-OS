@@ -99,6 +99,13 @@ typedef int ptrdiff_t;
 typedef unsigned short wchar_t;
 #endif
 
+/* Define wint_t, which is an integer type capable of holding any wide character or WEOF */
+#ifndef _WINT_T_DEFINED
+#define _WINT_T_DEFINED
+typedef unsigned int wint_t;
+#endif
+
+
 /* Define max_align_t, which is a type whose alignment is the largest supported alignment */
 #ifndef _MAX_ALIGN_T_DEFINED
 #define _MAX_ALIGN_T_DEFINED
