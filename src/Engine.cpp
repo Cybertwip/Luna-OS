@@ -84,7 +84,7 @@ void GameEngine::run() {
 }
 
 void GameEngine::update() {
-    t += 0.05f; // Increment time for rotation (60 FPS)
+    t += 0.048f; // Increment time for rotation (60 FPS)
 }
 
 uint32_t* GameEngine::getBackBuffer() { return graphics.getBackBuffer(); }

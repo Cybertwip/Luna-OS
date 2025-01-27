@@ -141,6 +141,8 @@ set(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG")
 add_custom_target(run
     DEPENDS luna_os
     COMMAND qemu-system-i386 
+        -accel tcg,thread=multi
+        -smp 4
         -kernel $<TARGET_FILE:luna_os> 
         -vga std 
         -m 4096M 

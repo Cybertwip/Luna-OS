@@ -35,7 +35,7 @@ private:
     Graphics graphics;
     Renderer renderer;
     uint32_t frameCounter;
-    static const uint32_t TARGET_FPS = 60;
+    static const uint32_t TARGET_FPS = 30;
     static const uint32_t TARGET_FRAME_TIME_MS = 1000 / TARGET_FPS;
 
     // Member variables for rendering
