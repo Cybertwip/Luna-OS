@@ -1,149 +1,216 @@
-# Minimum CMake version
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 2.8)
 
-# Enable CMP0079 policy to allow linking against targets not built in the same directory
-cmake_policy(SET CMP0079 NEW)
+# Force external build
+if(${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_BINARY_DIR} AND NOT WIN32)
+	message(FATAL_ERROR "You can not use CMake to build from the root of it's source tree! Remove the CMakeCache.txt file from this directory, then create a separate directory (either below this directory or elsewhere), and then re-run CMake from there.")
+endif(${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_BINARY_DIR} AND NOT WIN32)
 
-# Project name
-project(luna_os)
+# Cmake module path (if exists)
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
-# Standard configuration
-set(CMAKE_C_STANDARD 99)
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+include(profile_detection)
 
-# Base flags for both C/C++
-set(COMMON_FLAGS "-m32 -ffreestanding -march=i686 -fno-stack-protector -fno-pic -fno-pie -DNDEBUG -D_XOPEN_SOURCE=700 -D_POSIX_C_SOURCE=200809L -D__STDC_WANT_LIB_EXT1__=1 -D_FORTIFY_SOURCE=2")
+# http://wiki.osdev.org/CMake_Build_System
+# This was very helpful in this build system
+LOAD_PROFILE("i386" "pc") # Generic for now
 
-# Trim any trailing spaces or newlines
-string(STRIP "${COMMON_FLAGS}" COMMON_FLAGS)
+# Get all the files needed
+file(GLOB KERN_TTY_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "kern/tty/*.c")
+file(GLOB KERN_LIB_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "kern/lib/*.c")
+file(GLOB KERN_MM_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "kern/mm/*.c")
+file(GLOB KERN_INPUT_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "kern/input/*.c")
+file(GLOB KERN_CMOS_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "kern/cmos/*.c")
+file(GLOB KERN_DISK_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "kern/disk/*.c")
+file(GLOB KERN_TASK_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "kern/task/*.c")
+file(GLOB KERN_MAIN_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "kern/entry/*.cpp")
+file(GLOB KERN_LUNA_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "kern/luna/*.cpp")
+file(GLOB KERN_LUNA_C_STD_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "kern/luna/std/*.c")
+file(GLOB KERN_LUNA_CXX_STD_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "kern/luna/std/*.cpp")
 
-# Set C flags explicitly
-set(CMAKE_C_FLAGS "${COMMON_FLAGS} -std=c99 -fpermissive")
+set(KERN_SOURCES ${KERN_TTY_SOURCES} ${KERN_LIB_SOURCES} ${KERN_MM_SOURCES} ${KERN_INPUT_SOURCES} ${KERN_CMOS_SOURCES} ${KERN_DISK_SOURCES} ${KERN_TASK_SOURCES})
+# file(GLOB KERN_TTY_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "kern/tty/*.c")
+file(GLOB LIBC_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "libc/*.c")
 
-# Set C++ flags explicitly
-set(CMAKE_CXX_FLAGS "${COMMON_FLAGS} -std=c++17 -fpermissive -fno-exceptions -fno-threadsafe-statics")
+# Various options we need
+option(USE_GCC_TOOLCHAIN "Use the GCC toolchain from tools/mkcrosscompiler_gcc.sh" OFF)
 
-# ========== Library Configuration ========== #
-# Libc++ settings
-set(LIBCXX_ENABLE_THREADS OFF CACHE BOOL "Disable threading" FORCE)
-set(LIBCXX_ENABLE_FILESYSTEM OFF CACHE BOOL "Disable filesystem" FORCE)
-set(LIBCXX_ENABLE_RTTI ON CACHE BOOL "Disable RTTI" FORCE)
-set(LIBCXX_ENABLE_EXCEPTIONS OFF CACHE BOOL "Disable exceptions" FORCE)
-set(LIBCXX_USE_COMPILER_RT OFF CACHE BOOL "Disable compiler-rt" FORCE)
-set(LIBCXX_ENABLE_STATIC ON CACHE BOOL "Static build" FORCE)
-set(LIBCXX_ENABLE_SHARED OFF CACHE BOOL "Disable shared" FORCE)
-set(LIBCXX_ENABLE_MONOTONIC_CLOCK OFF CACHE BOOL "Monotonic clock for chrono" FORCE)
+# these are any additional flags which should be added to the base compiles. Things like 32 bit or elf binaries
+set(CFLAGS "${ISA_C_FLAGS} -m32 -std=c11 -Wall -Wextra -ffreestanding -fno-builtin")
+set(CFLAGS "${CFLAGS} -nostdlib -nostdinc -finline-functions -fno-stack-protector -fomit-frame-pointer")
+set(CFLAGS "${CFLAGS} -Werror=implicit-function-declaration -mno-sse")
+# linker flags and Assembler flags too -Wl,--oformat,binary
+set(LINKFLAGS "${ISA_LINKER_FLAGS} ${PLATFORM_LINKER_FLAGS}")
+set(ASM_FLAGS "${ISA_ASM_FLAGS}")
 
-# Libc++abi settings
-set(LIBCXXABI_BAREMETAL ON CACHE BOOL "Build libc++abi for baremetal targets" FORCE)
-set(LIBCXXABI_USE_LLVM_UNWINDER OFF CACHE BOOL "Disable unwinder" FORCE)
-set(LIBCXXABI_ENABLE_THREADS OFF CACHE BOOL "Disable threads" FORCE)
-set(LIBCXXABI_ENABLE_EXCEPTIONS OFF CACHE BOOL "Disable exceptions" FORCE)
-set(LIBCXXABI_SILENT_TERMINATE ON CACHE BOOL "Silent terminate" FORCE)
-set(LIBCXXABI_ENABLE_SHARED OFF CACHE BOOL "Static build" FORCE)
+# Find clang (if the system has it)
+find_program(CLANG clang)
+find_program(CLANGXX clang++)
 
+# prefer clang instead of gcc (or whatever shit compiler they're using)
+if (CLANG)
+	set(CMAKE_C_COMPILER ${CLANG})
+endif (CLANG)
 
-# Picolibc options
-set(_PICOLIBC_ATOMIC_SIGNAL OFF CACHE BOOL "Use atomics in signal/raise" FORCE)
-set(TINY_STDIO ON CACHE BOOL "Use tiny stdio from avr libc" FORCE)
-set(ATOMIC_UNGETC OFF CACHE BOOL "Atomic reentrancy" FORCE) # kernel mode doesn't have atomics integrated yet
+# In case we need to compile C++ in the future (which I doubt we will)
+if (CLANGXX)
+	set(CMAKE_CXX_COMPILER ${CLANGXX})
+endif (CLANGXX)
 
 
-# Generate configuration files
-include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/patch_cxx.cmake)
+# Finally name our project now that we have picked our compiler.
+# this is way down here so the compiler can be tested
+project(Kernel)
+enable_language(ASM-ATT)
 
-# ========== Build System Configuration ========== #
-# Linker configuration
-set(LINKER_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/Linker.ld")
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -nostdlib -nodefaultlibs -Wl,-m,elf_i386 -T ${LINKER_SCRIPT}")
+# include cmake stuff for checking various system specific defines
+# include(CheckTypeSize)
+include(CheckFunctionExists)
+include(CheckIncludeFile)
+include(CheckLibraryExists)
+# include(CheckCXXCompilerFlag) 
+include(CheckCCompilerFlag)
+include(TestBigEndian)
+# include(TargetArch)
 
-# ========== Dependencies ========== #
-add_subdirectory(external/picolibc)
-add_subdirectory(external/llvm-project/libcxx)
-add_subdirectory(external/llvm-project/libcxxabi)
-
+# Because we don't have a libc with the compiler, these tests fail.
+# Check type sizes since we need them
+# check_type_size(int8_t INT8_T)
+# check_type_size(uint8_t UINT8_T)
+# check_type_size(int16_t INT16_T)
+# check_type_size(uint16_t UINT16_T)
+# check_type_size(int32_t INT32_T)
+# check_type_size(uint32_t UINT32_T)
+# check_type_size(int64_t INT64_T)
+# check_type_size(uint64_t UINT64_T)
 
 include_directories(
-    ${CMAKE_CURRENT_BINARY_DIR}/external/picolibc/picolibc/include
-    ${CMAKE_CURRENT_BINARY_DIR}/luna/include
-)
-
-target_include_directories(cxxabi_static_objects PRIVATE 
-    ${CMAKE_CURRENT_LIST_DIR}/external/llvm-project/libcxxabi/include
-    ${CMAKE_CURRENT_LIST_DIR}/external/llvm-project/libcxx/include
-    ${CMAKE_CURRENT_BINARY_DIR}/external/picolibc/picolibc/include
+	${CMAKE_SOURCE_DIR}/libc
+	${CMAKE_SOURCE_DIR}/kern
+	${CMAKE_SOURCE_DIR}/kern/luna
+	${CMAKE_CURRENT_LIST_DIR}/external/micro-gl/include
 )
 
 
-target_include_directories(cxx_static PRIVATE 
-    ${CMAKE_CURRENT_BINARY_DIR}/external/picolibc/picolibc/include
-    ${CMAKE_CURRENT_LIST_DIR}/external/llvm-project/libcxxabi/include
-    ${CMAKE_CURRENT_LIST_DIR}/external/llvm-project/libcxx/include
-)
+
+# If we're using clang..
+if(${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
+	# Clang isn't needy
+	SET (BASE_CFLAGS "${CFLAGS}")
+	
+	# Tell clang to pass our linker script to the linker and not try and compile it
+	# also tell the linker to set text and data sections to be readable and writable.
+	# Do not page align. (see man ld(1))
+	SET (LINKFLAGS "-Wl,--script=${PLATFORM_LAYOUT} -Wl,--omagic ${LINKFLAGS}")
+	
+	SET (CMAKE_C_FLAGS                "-Wall -g ${BASE_CFLAGS}")
+	SET (CMAKE_C_FLAGS_DEBUG          "-g -D_DEBUG ${BASE_CFLAGS}")
+	SET (CMAKE_C_FLAGS_MINSIZEREL     "-Os -DNDEBUG ${BASE_CFLAGS}")
+	SET (CMAKE_C_FLAGS_RELEASE        "-O3 -DNDEBUG ${BASE_CFLAGS}")
+	SET (CMAKE_C_FLAGS_RELWITHDEBINFO "-O2 -g ${BASE_CFLAGS}")
+
+	SET (CMAKE_CXX_FLAGS                "-Wall -std=c++17 ${BASE_CFLAGS}")
+	SET (CMAKE_CXX_FLAGS_DEBUG          "-g -D_DEBUG ${BASE_CFLAGS}")
+	SET (CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG ${BASE_CFLAGS}")
+	SET (CMAKE_CXX_FLAGS_RELEASE        "-O3 -DNDEBUG ${BASE_CFLAGS}")
+	SET (CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g ${BASE_CFLAGS}")
+	# Error on *ANY* assembler error. We don't want to fuck up assembly.
+	SET (CMAKE_ASM_FLAGS            "-Werror -felf")
+	
+endif(${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
 
 
-# ========== Target Configuration ========== #
-# Main executable
-add_executable(luna_os 
-    src/Boot.cpp 
-    src/Kernel.cpp 
-    src/Engine.cpp 
-    src/luna/GPU.cpp 
-    src/luna/fastmem.cpp 
-    src/std/memory.cpp 
-    src/std/new.cpp 
-    src/std/cxx_support.cpp
-    src/std/spinlock.cpp
-    src/stubs.cpp  # Critical system stubs
-)
+# If we're using our custom gcc from /usr/local/cross/bin
+if(${USE_GCC_TOOLCHAIN} OR ${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
+	
+	# additional GCC options cuz GNU.
+	
+	SET (BASE_CFLAGS "${CFLAGS} -fpermissive -fstrength-reduce -fno-builtin-time -fno-builtin-puts -fno-builtin-printf -fno-builtin-function")
+	#SET (LINKFLAGS "${LINKFLAGS} -melf_i386")
+	
+	SET (LINKFLAGS "-T ${PLATFORM_LAYOUT} -N ${LINKFLAGS}")
+	
+	SET (CMAKE_C_FLAGS                "-Wall -g ${BASE_CFLAGS}")
+	SET (CMAKE_C_FLAGS_DEBUG          "-g -D_DEBUG ${BASE_CFLAGS}")
+	SET (CMAKE_C_FLAGS_MINSIZEREL     "-Os -DNDEBUG ${BASE_CFLAGS}")
+	SET (CMAKE_C_FLAGS_RELEASE        "-O3 -DNDEBUG ${BASE_CFLAGS}")
+	SET (CMAKE_C_FLAGS_RELWITHDEBINFO "-O2 -g ${BASE_CFLAGS}")
 
-# Include directories
-target_include_directories(luna_os PRIVATE 
-    src
-    src/luna
-    ${CMAKE_CURRENT_LIST_DIR}/external/micro-gl/include
-)
+	set(CXXFLAGS "${BASE_CFLAGS} -std=c++17 -fno-rtti -fno-exceptions -fno-threadsafe-statics")
 
-# Disable monotonic clock for cxx_static
-target_compile_definitions(cxx_static PRIVATE _LIBCPP_HAS_NO_MONOTONIC_CLOCK)
+	SET (CMAKE_CXX_FLAGS                "-Wall ${CXXFLAGS}")
+	SET (CMAKE_CXX_FLAGS_DEBUG          "-g -D_DEBUG ${CXXFLAGS}")
+	SET (CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG ${CXXFLAGS}")
+	SET (CMAKE_CXX_FLAGS_RELEASE        "-O3 -DNDEBUG ${CXXFLAGS}")
+	SET (CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g ${CXXFLAGS}")
+		
+	SET (CMAKE_ASM_FLAGS            "-Werror -felf")
 
-# Disable monotonic clock for cxxabi_static
-target_compile_definitions(cxxabi_static PRIVATE _LIBCPP_HAS_NO_MONOTONIC_CLOCK)
+	find_program(GCC_AR ${CMAKE_SYSTEM_PROCESSOR}-elf-ar REQUIRED PATHS /usr/local/cross/bin)
+	find_program(GCC_LD ${CMAKE_SYSTEM_PROCESSOR}-elf-ld REQUIRED PATHS /usr/local/cross/bin)
+	find_program(GCC_NM ${CMAKE_SYSTEM_PROCESSOR}-elf-nm REQUIRED PATHS /usr/local/cross/bin)
+	find_program(GCC_OBJDUMP ${CMAKE_SYSTEM_PROCESSOR}-elf-objdump REQUIRED PATHS /usr/local/cross/bin)
+	find_program(GCC_RANLIB ${CMAKE_SYSTEM_PROCESSOR}-elf-ranlib REQUIRED PATHS /usr/local/cross/bin)
+	find_program(GCC ${CMAKE_SYSTEM_PROCESSOR}-elf-gcc REQUIRED PATHS /usr/local/cross/bin)
+	find_program(GPP ${CMAKE_SYSTEM_PROCESSOR}-elf-g++ REQUIRED PATHS /usr/local/cross/bin)
+	message(STATUS "GCC-ar: ${GCC_AR}")
+	message(STATUS "GCC-ld: ${GCC_LD}")
+	message(STATUS "GCC-nm: ${GCC_NM}")
+	message(STATUS "GCC-objdump: ${GCC_OBJDUMP}")
+	message(STATUS "GCC-ranlib: ${GCC_RANLIB}")
+	message(STATUS "GCC: ${GCC}")
+	message(STATUS "G++: ${GPP}")
+
+	SET (CMAKE_AR      "${GCC_AR}")
+	SET (CMAKE_LINKER  "${GCC_LD}")
+	SET (CMAKE_NM      "${GCC_NM}")
+	SET (CMAKE_OBJDUMP "${GCC_OBJDUMP}")
+	SET (CMAKE_RANLIB  "${GCC_RANLIB}")
+	SET (CMAKE_CXX_COMPILER "${GPP}")
+	SET (CMAKE_C_COMPILER "${GCC}")
+	
+endif(${USE_GCC_TOOLCHAIN} OR ${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
+
+# Concatenate and sort
+set(SOURCE_FILES ${LIBC_SOURCES} ${KERN_SOURCES} ${ISA_SRCS} ${PLATFORM_SRCS})
+list(SORT SOURCE_FILES)
+
+# Find perl - for run-cc.pl to colorize errors/warnings during compile
+find_program(PERL perl)
+if(PERL AND NOT CMAKE_C_COMPILER_ID STREQUAL "Clang")
+	# C++ compiles
+	set(CMAKE_CXX_COMPILE_OBJECT "${PERL} ${CMAKE_SOURCE_DIR}/run-cc.pl -q ${CMAKE_CXX_COMPILE_OBJECT}")
+	set(CMAKE_CXX_LINK_EXECUTABLE "${PERL} ${CMAKE_SOURCE_DIR}/run-cc.pl -q ${CMAKE_CXX_LINK_EXECUTABLE}")
+	set(CMAKE_CXX_CREATE_SHARED_MODULE "${PERL} ${CMAKE_SOURCE_DIR}/run-cc.pl -q ${CMAKE_CXX_CREATE_SHARED_MODULE}")
+	# C compiles
+	set(CMAKE_C_COMPILE_OBJECT "${PERL} ${CMAKE_SOURCE_DIR}/run-cc.pl -q ${CMAKE_C_COMPILE_OBJECT}")
+	set(CMAKE_C_LINK_EXECUTABLE "${PERL} ${CMAKE_SOURCE_DIR}/run-cc.pl -q ${CMAKE_C_LINK_EXECUTABLE}")
+	set(CMAKE_C_CREATE_SHARED_MODULE "${PERL} ${CMAKE_SOURCE_DIR}/run-cc.pl -q ${CMAKE_C_CREATE_SHARED_MODULE}")
+	# Assembly compiles
+	set(CMAKE_ASM_COMPILE_OBJECT "${PERL} ${CMAKE_SOURCE_DIR}/run-cc.pl -q <CMAKE_ASM-ATT_COMPILER> ${ASM_FLAGS} -o <OBJECT> <SOURCE>")
+else(PERL AND NOT CMAKE_C_COMPILER_ID STREQUAL "Clang")
+	# We're not doing colored builds or we're clang.
+	# Assembly compiles
+	SET(CMAKE_ASM-ATT_COMPILE_OBJECT  "<CMAKE_ASM-ATT_COMPILER> ${ASM_FLAGS} -o <OBJECT> <SOURCE>")
+endif(PERL AND NOT CMAKE_C_COMPILER_ID STREQUAL "Clang")
 
 
-# Link libraries with correct order
-target_link_libraries(luna_os PRIVATE 
-    c
-    cxxabi_static  # Must come before cxx_static
-    #cxx_static
-)
 
-target_link_libraries(cxx_static PRIVATE 
-    c
-    cxxabi_static
-)
-
-target_link_libraries(cxxabi_static PRIVATE 
-    c
-)
+# Finally, Tell CMake to build our kernel.
+add_executable(${PROJECT_NAME}.bin ${SOURCE_FILES} ${KERN_MAIN_SOURCES} ${KERN_LUNA_SOURCES} ${KERN_LUNA_C_STD_SOURCES} ${KERN_LUNA_CXX_STD_SOURCES})
+set_source_files_properties(${SOURCE_FILES} PROPERTIES LANGUAGE C COMPILE_FLAGS "")
 
 
-# ========== Build Type Configuration ========== #
-if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE Release)
-endif()
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -nostdlib -nodefaultlibs -Wl,-m,elf_i386 ${LINKFLAGS}")
 
-set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
-set(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG")
+#include(make_iso)
 
 # ========== QEMU Execution Target ========== #
 add_custom_target(run
-    DEPENDS luna_os
+    DEPENDS ${PROJECT_NAME}.bin
     COMMAND qemu-system-i386 
         -accel tcg,thread=multi
         -smp 4
-        -kernel $<TARGET_FILE:luna_os> 
+        -kernel $<TARGET_FILE:${PROJECT_NAME}.bin> 
         -vga std 
         -m 4096M 
         -display cocoa 
@@ -152,18 +219,5 @@ add_custom_target(run
         -serial stdio
     WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
     COMMENT "Running 32-bit kernel with QEMU"
-)
-
-# ========== Critical System Configurations ========== #
-# Define __STDC_VERSION__ for C11ƒ
-target_compile_definitions(cxx_static PRIVATE
-    __STDC_VERSION__=199901L
-    __SIZEOF_LONG_DOUBLE=16
-)
-
-# Repeat for cxxabi_static if necessary
-target_compile_definitions(cxxabi_static PRIVATE
-    __STDC_VERSION__=199901L
-    __SIZEOF_LONG_DOUBLE=16
 )
 
