@@ -23,7 +23,7 @@ string(STRIP "${COMMON_FLAGS}" COMMON_FLAGS)
 set(CMAKE_C_FLAGS "${COMMON_FLAGS} -std=c99 -fpermissive")
 
 # Set C++ flags explicitly
-set(CMAKE_CXX_FLAGS "${COMMON_FLAGS} -std=c++17 -fpermissive -fno-exceptions -fno-threadsafe-statics")
+set(CMAKE_CXX_FLAGS "${COMMON_FLAGS} -std=c++17 -fno-rtti -fpermissive -fno-exceptions -fno-threadsafe-statics")
 
 # ========== Library Configuration ========== #
 # Libc++ settings
