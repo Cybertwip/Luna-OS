@@ -9,12 +9,12 @@ project(luna_os)
 
 # Standard configuration
 set(CMAKE_C_STANDARD 99)
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Base flags for both C/C++
 # Base flags for both C/C++
-set(COMMON_FLAGS "-D__GNU_VISIBLE=1 -m32 -ffreestanding -march=i686 -fno-stack-protector -fno-pic -fno-pie -DNDEBUG -D_XOPEN_SOURCE=700 -D_POSIX_C_SOURCE=200809L -D__STDC_WANT_LIB_EXT1__=1 -D_FORTIFY_SOURCE=2")
+set(COMMON_FLAGS "-m32 -ffreestanding -march=i686 -fno-stack-protector -fno-pic -fno-pie -DNDEBUG -D_XOPEN_SOURCE=700 -D_POSIX_C_SOURCE=200809L -D__STDC_WANT_LIB_EXT1__=1 -D_FORTIFY_SOURCE=2")
 
 # Trim any trailing spaces or newlines
 string(STRIP "${COMMON_FLAGS}" COMMON_FLAGS)
@@ -23,7 +23,7 @@ string(STRIP "${COMMON_FLAGS}" COMMON_FLAGS)
 set(CMAKE_C_FLAGS "${COMMON_FLAGS} -std=c99 -fpermissive")
 
 # Set C++ flags explicitly
-set(CMAKE_CXX_FLAGS "${COMMON_FLAGS} -std=c++20 -fpermissive -fno-exceptions -fno-threadsafe-statics")
+set(CMAKE_CXX_FLAGS "${COMMON_FLAGS} -std=c++17 -fpermissive -fno-exceptions -fno-threadsafe-statics")
 
 # ========== Library Configuration ========== #
 # Libc++ settings
@@ -164,14 +164,12 @@ add_custom_target(run
 # ========== Critical System Configurations ========== #
 # Define __STDC_VERSION__ for C11ƒ
 target_compile_definitions(cxx_static PRIVATE
-    __GNU_VISIBLE=1
     __STDC_VERSION__=199901L
     __SIZEOF_LONG_DOUBLE=16
 )
 
 # Repeat for cxxabi_static if necessary
 target_compile_definitions(cxxabi_static PRIVATE
-    __GNU_VISIBLE=1
     __STDC_VERSION__=199901L
     __SIZEOF_LONG_DOUBLE=16
 )

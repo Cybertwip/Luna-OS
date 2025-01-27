@@ -173,6 +173,29 @@ endif()
 
 # Write the modified content back to the file
 file(WRITE "${CDEFS_H_PATH}" "${CDEFS_H_CONTENT}")
+
+
+# Define the path to the locale_base_api.h file
+set(LOCALE_BASE_API_PATH "${CMAKE_CURRENT_SOURCE_DIR}/external/llvm-project/libcxx/include/__locale_dir/locale_base_api.h")
+
+# Read the content of the file
+file(READ "${LOCALE_BASE_API_PATH}" LOCALE_BASE_API_CONTENT)
+
+# Replace _l versions of string functions with their non-_l counterparts
+string(REGEX REPLACE "strtol_l" "strtol" LOCALE_BASE_API_CONTENT "${LOCALE_BASE_API_CONTENT}")
+string(REGEX REPLACE "strtoul_l" "strtoul" LOCALE_BASE_API_CONTENT "${LOCALE_BASE_API_CONTENT}")
+string(REGEX REPLACE "strtoll_l" "strtoll" LOCALE_BASE_API_CONTENT "${LOCALE_BASE_API_CONTENT}")
+string(REGEX REPLACE "strtoull_l" "strtoull" LOCALE_BASE_API_CONTENT "${LOCALE_BASE_API_CONTENT}")
+string(REGEX REPLACE "strtof_l" "strtof" LOCALE_BASE_API_CONTENT "${LOCALE_BASE_API_CONTENT}")
+string(REGEX REPLACE "strtod_l" "strtod" LOCALE_BASE_API_CONTENT "${LOCALE_BASE_API_CONTENT}")
+string(REGEX REPLACE "strtold_l" "strtold" LOCALE_BASE_API_CONTENT "${LOCALE_BASE_API_CONTENT}")
+
+# Write the modified content back to the file
+file(WRITE "${LOCALE_BASE_API_PATH}" "${LOCALE_BASE_API_CONTENT}")
+
+# Notify the user that the file has been patched
+message(STATUS "Patched ${LOCALE_BASE_API_PATH} to replace _l versions of string functions")
+
 # Add critical libc++abi compile definitions
 add_compile_definitions(_LIBCXXABI_HAS_NO_THREADS)
 
