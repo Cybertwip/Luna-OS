@@ -121,8 +121,8 @@ target_compile_definitions(cxxabi_static PRIVATE _LIBCPP_HAS_NO_MONOTONIC_CLOCK)
 # Link libraries with correct order
 target_link_libraries(luna_os PRIVATE 
     c
-    cxxabi_static  # Must come before cxx_static
-    cxx_static
+    # cxxabi_static  # Must come before cxx_static
+    # cxx_static
 )
 
 target_link_libraries(cxx_static PRIVATE 
