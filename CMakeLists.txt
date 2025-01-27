@@ -8,7 +8,7 @@ cmake_policy(SET CMP0079 NEW)
 project(luna_os)
 
 # Standard configuration
-set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD 99)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -20,7 +20,7 @@ set(COMMON_FLAGS "-m32 -ffreestanding -march=i686 -fno-stack-protector -fno-pic 
 string(STRIP "${COMMON_FLAGS}" COMMON_FLAGS)
 
 # Set C flags explicitly
-set(CMAKE_C_FLAGS "${COMMON_FLAGS} -std=c11 -fpermissive")
+set(CMAKE_C_FLAGS "${COMMON_FLAGS} -std=c99 -fpermissive")
 
 # Set C++ flags explicitly
 set(CMAKE_CXX_FLAGS "${COMMON_FLAGS} -std=c++20 -fpermissive -fno-exceptions -fno-threadsafe-statics")
@@ -34,6 +34,7 @@ set(LIBCXX_ENABLE_EXCEPTIONS OFF CACHE BOOL "Disable exceptions" FORCE)
 set(LIBCXX_USE_COMPILER_RT OFF CACHE BOOL "Disable compiler-rt" FORCE)
 set(LIBCXX_ENABLE_STATIC ON CACHE BOOL "Static build" FORCE)
 set(LIBCXX_ENABLE_SHARED OFF CACHE BOOL "Disable shared" FORCE)
+set(LIBCXX_ENABLE_MONOTONIC_CLOCK OFF CACHE BOOL "Monotonic clock for chrono" FORCE)
 
 # Libc++abi settings
 set(LIBCXXABI_USE_LLVM_UNWINDER OFF CACHE BOOL "Disable unwinder" FORCE)
@@ -41,6 +42,7 @@ set(LIBCXXABI_ENABLE_THREADS OFF CACHE BOOL "Disable threads" FORCE)
 set(LIBCXXABI_ENABLE_EXCEPTIONS OFF CACHE BOOL "Disable exceptions" FORCE)
 set(LIBCXXABI_SILENT_TERMINATE ON CACHE BOOL "Silent terminate" FORCE)
 set(LIBCXXABI_ENABLE_SHARED OFF CACHE BOOL "Static build" FORCE)
+
 
 # Picolibc options
 set(_PICOLIBC_ATOMIC_SIGNAL OFF CACHE BOOL "Use atomics in signal/raise" FORCE)
@@ -160,19 +162,15 @@ add_custom_target(run
 )
 
 # ========== Critical System Configurations ========== #
-# Define __STDC_VERSION__ for C11
+# Define __STDC_VERSION__ for C11ƒ
 target_compile_definitions(cxx_static PRIVATE
-    __STDC_VERSION__=201112L
-    SIZEOF_LONG_DOUBLE=16  # Use non-reserved name
+    __STDC_VERSION__=199901L
+    __SIZEOF_LONG_DOUBLE=16
 )
 
 # Repeat for cxxabi_static if necessary
 target_compile_definitions(cxxabi_static PRIVATE
-    __STDC_VERSION__=201112L
-    SIZEOF_LONG_DOUBLE=16
+    __STDC_VERSION__=199901L
+    __SIZEOF_LONG_DOUBLE=16
 )
 
-# Undefine __restrict and use standard restrict
-target_compile_options(cxx_static PRIVATE
-    -U__restrict
-)
