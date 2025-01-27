@@ -105,7 +105,6 @@ typedef unsigned short wchar_t;
 typedef unsigned int wint_t;
 #endif
 
-
 /* Define max_align_t, which is a type whose alignment is the largest supported alignment */
 #ifndef _MAX_ALIGN_T_DEFINED
 #define _MAX_ALIGN_T_DEFINED
@@ -280,6 +279,89 @@ file(WRITE "${LOCALE_BASE_API_PATH}" "${LOCALE_BASE_API_CONTENT}")
 
 # Notify the user that the file has been patched
 message(STATUS "Patched ${LOCALE_BASE_API_PATH} to remove __loc argument from all strto* functions")
+
+
+# Critical patch to fix cctype conflict between libc++ and picolibc
+set(CCTYPE_PATCH_PATH "${CMAKE_CURRENT_SOURCE_DIR}/external/llvm-project/libcxx/include/cctype")
+
+file(READ "${CCTYPE_PATCH_PATH}" CCTYPE_CONTENT)
+
+# 1. Disable libc++'s ctype.h validation check
+string(REPLACE 
+  "#ifndef _LIBCPP_CTYPE_H
+#   error <cctype> tried including <ctype.h> but didn't find libc++'s <ctype.h> header"
+  "#ifndef _LIBCPP_CTYPE_H
+// #   error <cctype> header check disabled for picolibc compatibility"
+  CCTYPE_CONTENT "${CCTYPE_CONTENT}")
+
+# 2. Replace all `using ::func;` lines with `extern "C"` declarations
+set(NEW_CCTYPE_CONTENT "")
+foreach(func isalnum isalpha isblank iscntrl isdigit isgraph islower isprint ispunct
+            isspace isupper isxdigit tolower toupper)
+  string(REPLACE
+    "using ::${func} _LIBCPP_USING_IF_EXISTS;"
+    "extern \"C\" int ${func}(int);\nusing ::${func};"
+    CCTYPE_CONTENT "${CCTYPE_CONTENT}")
+endforeach()
+
+# 3. Write the modified content back to the file
+file(WRITE "${CCTYPE_PATCH_PATH}" "${CCTYPE_CONTENT}")
+message(STATUS "Applied critical cctype compatibility patch")
+
+# Critical patch to fix cwctype conflict between libc++ and picolibc
+set(CWCTYPE_PATCH_PATH "${CMAKE_CURRENT_SOURCE_DIR}/external/llvm-project/libcxx/include/cwctype")
+
+file(READ "${CWCTYPE_PATCH_PATH}" CWCTYPE_CONTENT)
+
+# Replace the incorrect `extern "C" int wint_t(int);` with the correct `typedef`
+string(REPLACE
+  "extern \"C\" int wint_t(int);"
+  "typedef unsigned int wint_t;"
+  CWCTYPE_CONTENT "${CWCTYPE_CONTENT}")
+
+# Write the modified content back to the file
+file(WRITE "${CWCTYPE_PATCH_PATH}" "${CWCTYPE_CONTENT}")
+message(STATUS "Applied critical cwctype compatibility patch")
+
+# Critical patch to fix char_traits.h conflict between libc++ and picolibc
+set(CHAR_TRAITS_PATCH_PATH "${CMAKE_CURRENT_SOURCE_DIR}/external/llvm-project/libcxx/include/__string/char_traits.h")
+
+file(READ "${CHAR_TRAITS_PATCH_PATH}" CHAR_TRAITS_CONTENT)
+
+# Ensure `wint_t` is treated as a type in the template specialization
+string(REPLACE
+  "struct _LIBCPP_TEMPLATE_VIS char_traits<wchar_t> : __char_traits_base<wchar_t, wint_t, static_cast<wint_t>(-1)> {"
+  "struct _LIBCPP_TEMPLATE_VIS char_traits<wchar_t> : __char_traits_base<wchar_t, unsigned int, static_cast<unsigned int>(-1)> {"
+  CHAR_TRAITS_CONTENT "${CHAR_TRAITS_CONTENT}")
+
+# Write the modified content back to the file
+file(WRITE "${CHAR_TRAITS_PATCH_PATH}" "${CHAR_TRAITS_CONTENT}")
+message(STATUS "Applied critical char_traits compatibility patch")
+
+# Critical patch to fix cstring conflict between libc++ and picolibc
+set(CSTRING_PATCH_PATH "${CMAKE_CURRENT_SOURCE_DIR}/external/llvm-project/libcxx/include/cstring")
+
+file(READ "${CSTRING_PATCH_PATH}" CSTRING_CONTENT)
+
+
+# Replace all `using ::func;` lines with `extern "C"` declarations
+set(NEW_CSTRING_CONTENT "")
+foreach(func memcpy memmove strcpy strncpy strcat strncat memcmp strcmp strncmp strcoll strxfrm memchr strchr strcspn strpbrk strrchr strspn strstr strtok memset strerror)
+  string(REPLACE
+    "using ::${func} _LIBCPP_USING_IF_EXISTS;"
+    "extern \"C\" void* ${func}(void*, const void*, size_t);"
+    CSTRING_CONTENT "${CSTRING_CONTENT}")
+endforeach()
+
+# Correct the declaration for `strlen`
+string(REPLACE
+  "using ::strlen _LIBCPP_USING_IF_EXISTS;"
+  "extern \"C\" size_t strlen(const char*);"
+  CSTRING_CONTENT "${CSTRING_CONTENT}")
+
+# Write the modified content back to the file
+file(WRITE "${CSTRING_PATCH_PATH}" "${CSTRING_CONTENT}")
+message(STATUS "Applied critical cstring compatibility patch")
 
 # Add critical libc++abi compile definitions
 add_compile_definitions(_LIBCXXABI_HAS_NO_THREADS)

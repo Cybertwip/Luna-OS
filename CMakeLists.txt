@@ -70,10 +70,16 @@ include_directories(
 )
 
 target_include_directories(cxxabi_static_objects PRIVATE 
-${CMAKE_CURRENT_LIST_DIR}/external/llvm-project/libcxxabi/include
-${CMAKE_CURRENT_LIST_DIR}/external/llvm-project/libcxx/include
-${CMAKE_CURRENT_BINARY_DIR}/external/picolibc/picolibc/include
+    ${CMAKE_CURRENT_LIST_DIR}/external/llvm-project/libcxxabi/include
+    ${CMAKE_CURRENT_LIST_DIR}/external/llvm-project/libcxx/include
+    ${CMAKE_CURRENT_BINARY_DIR}/external/picolibc/picolibc/include
+)
 
+
+target_include_directories(cxx_static PRIVATE 
+    ${CMAKE_CURRENT_BINARY_DIR}/external/picolibc/picolibc/include
+    ${CMAKE_CURRENT_LIST_DIR}/external/llvm-project/libcxxabi/include
+    ${CMAKE_CURRENT_LIST_DIR}/external/llvm-project/libcxx/include
 )
 
 
@@ -109,11 +115,12 @@ target_compile_definitions(cxxabi_static PRIVATE _LIBCPP_HAS_NO_MONOTONIC_CLOCK)
 target_link_libraries(luna_os PRIVATE 
     c
     cxxabi_static  # Must come before cxx_static
-    # cxx_static
+    #cxx_static
 )
 
 target_link_libraries(cxx_static PRIVATE 
     c
+    cxxabi_static
 )
 
 target_link_libraries(cxxabi_static PRIVATE 
