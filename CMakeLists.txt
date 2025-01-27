@@ -149,7 +149,6 @@ add_custom_target(run
         -display cocoa 
         -machine q35 
         -cpu qemu32 
-        -smp 2 
         -serial stdio
     WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
     COMMENT "Running 32-bit kernel with QEMU"
