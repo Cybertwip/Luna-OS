@@ -37,6 +37,7 @@ set(LIBCXX_ENABLE_SHARED OFF CACHE BOOL "Disable shared" FORCE)
 set(LIBCXX_ENABLE_MONOTONIC_CLOCK OFF CACHE BOOL "Monotonic clock for chrono" FORCE)
 
 # Libc++abi settings
+set(LIBCXXABI_BAREMETAL ON CACHE BOOL "Build libc++abi for baremetal targets" FORCE)
 set(LIBCXXABI_USE_LLVM_UNWINDER OFF CACHE BOOL "Disable unwinder" FORCE)
 set(LIBCXXABI_ENABLE_THREADS OFF CACHE BOOL "Disable threads" FORCE)
 set(LIBCXXABI_ENABLE_EXCEPTIONS OFF CACHE BOOL "Disable exceptions" FORCE)
@@ -95,22 +96,6 @@ target_include_directories(luna_os PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/external/micro-gl/include
 )
 
-target_include_directories(cxx_static PRIVATE 
-    ${CMAKE_CURRENT_BINARY_DIR}/include/c++/v1  # Prioritize C++ headers
-    ${CMAKE_CURRENT_BINARY_DIR}/include/bits    # Additional C++ headers
-    ${PICOLIBC_SYSROOT}                         # PicoC library headers
-    ${CMAKE_CURRENT_BINARY_DIR}/include         # Other includes
-    ${CMAKE_CURRENT_LIST_DIR}/external/picolibc/newlib/libc/include  # C Standard Library headers
-)
-
-target_include_directories(cxxabi_static PRIVATE 
-    ${CMAKE_CURRENT_BINARY_DIR}/include/c++/v1  # Prioritize C++ headers
-    ${CMAKE_CURRENT_BINARY_DIR}/include/bits    # Additional C++ headers
-    ${PICOLIBC_SYSROOT}                         # PicoC library headers
-    ${CMAKE_CURRENT_BINARY_DIR}/include         # Other includes
-    ${CMAKE_CURRENT_LIST_DIR}/external/picolibc/newlib/libc/include  # C Standard Library headers
-)
-
 # Disable monotonic clock for cxx_static
 target_compile_definitions(cxx_static PRIVATE _LIBCPP_HAS_NO_MONOTONIC_CLOCK)
 
@@ -121,7 +106,7 @@ target_compile_definitions(cxxabi_static PRIVATE _LIBCPP_HAS_NO_MONOTONIC_CLOCK)
 # Link libraries with correct order
 target_link_libraries(luna_os PRIVATE 
     c
-    # cxxabi_static  # Must come before cxx_static
+    cxxabi_static  # Must come before cxx_static
     # cxx_static
 )
 
