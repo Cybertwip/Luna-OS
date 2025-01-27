@@ -9,6 +9,12 @@
 static char memory_pool[MEMORY_POOL_SIZE];
 static size_t memory_used = 0;
 
+// Define heap symbols for picolibc's sbrk
+extern "C" {
+    uintptr_t __heap_start = reinterpret_cast<uintptr_t>(&memory_pool[0]);
+    uintptr_t __heap_end = __heap_start + MEMORY_POOL_SIZE;
+}
+
 // Free list structure with size and next pointer
 struct FreeListNode {
     size_t size;
