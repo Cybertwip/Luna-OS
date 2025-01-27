@@ -13,7 +13,6 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Base flags for both C/C++
-# Base flags for both C/C++
 set(COMMON_FLAGS "-m32 -ffreestanding -march=i686 -fno-stack-protector -fno-pic -fno-pie -DNDEBUG -D_XOPEN_SOURCE=700 -D_POSIX_C_SOURCE=200809L -D__STDC_WANT_LIB_EXT1__=1 -D_FORTIFY_SOURCE=2")
 
 # Trim any trailing spaces or newlines
@@ -23,13 +22,13 @@ string(STRIP "${COMMON_FLAGS}" COMMON_FLAGS)
 set(CMAKE_C_FLAGS "${COMMON_FLAGS} -std=c99 -fpermissive")
 
 # Set C++ flags explicitly
-set(CMAKE_CXX_FLAGS "${COMMON_FLAGS} -std=c++17 -fno-rtti -fpermissive -fno-exceptions -fno-threadsafe-statics")
+set(CMAKE_CXX_FLAGS "${COMMON_FLAGS} -std=c++17 -fpermissive -fno-exceptions -fno-threadsafe-statics")
 
 # ========== Library Configuration ========== #
 # Libc++ settings
 set(LIBCXX_ENABLE_THREADS OFF CACHE BOOL "Disable threading" FORCE)
 set(LIBCXX_ENABLE_FILESYSTEM OFF CACHE BOOL "Disable filesystem" FORCE)
-set(LIBCXX_ENABLE_RTTI OFF CACHE BOOL "Disable RTTI" FORCE)
+set(LIBCXX_ENABLE_RTTI ON CACHE BOOL "Disable RTTI" FORCE)
 set(LIBCXX_ENABLE_EXCEPTIONS OFF CACHE BOOL "Disable exceptions" FORCE)
 set(LIBCXX_USE_COMPILER_RT OFF CACHE BOOL "Disable compiler-rt" FORCE)
 set(LIBCXX_ENABLE_STATIC ON CACHE BOOL "Static build" FORCE)
@@ -63,6 +62,20 @@ set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -nostdlib -nodefaultlibs -
 add_subdirectory(external/picolibc)
 add_subdirectory(external/llvm-project/libcxx)
 add_subdirectory(external/llvm-project/libcxxabi)
+
+
+include_directories(
+    ${CMAKE_CURRENT_BINARY_DIR}/external/picolibc/picolibc/include
+    ${CMAKE_CURRENT_BINARY_DIR}/luna/include
+)
+
+target_include_directories(cxxabi_static_objects PRIVATE 
+${CMAKE_CURRENT_LIST_DIR}/external/llvm-project/libcxxabi/include
+${CMAKE_CURRENT_LIST_DIR}/external/llvm-project/libcxx/include
+${CMAKE_CURRENT_BINARY_DIR}/external/picolibc/picolibc/include
+
+)
+
 
 # ========== Target Configuration ========== #
 # Main executable

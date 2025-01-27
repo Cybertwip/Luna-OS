@@ -41,7 +41,7 @@ set(CONFIG_SITE_CONTENT "
 ")
 
 # Write the content to __config_site
-file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/include/c++/v1/__config_site" "${CONFIG_SITE_CONTENT}")
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/luna/include/c++/v1/__config_site" "${CONFIG_SITE_CONTENT}")
 
 # Generate bits/alltypes.h
 set(ALLTYPES_CONTENT "
@@ -68,10 +68,68 @@ typedef __FILE FILE;
 ")
 
 # Create the bits directory if it doesn't exist
-file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include/c++/v1/bits")
+file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/luna/include/c++/v1/bits")
 
 # Write the content to bits/alltypes.h
-file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/include/c++/v1/bits/alltypes.h" "${ALLTYPES_CONTENT}")
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/luna/include/c++/v1/bits/alltypes.h" "${ALLTYPES_CONTENT}")
+
+
+set(STDDEF_CONTENT "
+#ifndef _STDDEF_H
+#define _STDDEF_H
+
+/* Define NULL pointer value */
+#define NULL ((void *)0)
+
+/* Define size_t, which is an unsigned integer type representing sizes */
+#ifndef _SIZE_T_DEFINED
+#define _SIZE_T_DEFINED
+typedef unsigned int size_t;
+#endif
+
+/* Define ptrdiff_t, which is a signed integer type representing pointer differences */
+#ifndef _PTRDIFF_T_DEFINED
+#define _PTRDIFF_T_DEFINED
+typedef int ptrdiff_t;
+#endif
+
+/* Define wchar_t, which is an integer type capable of holding any wide character */
+#ifndef _WCHAR_T_DEFINED
+#define _WCHAR_T_DEFINED
+typedef unsigned short wchar_t;
+#endif
+
+/* Define max_align_t, which is a type whose alignment is the largest supported alignment */
+#ifndef _MAX_ALIGN_T_DEFINED
+#define _MAX_ALIGN_T_DEFINED
+typedef struct {
+    long long __max_align_ll;   /* 8-byte alignment */
+    long double __max_align_ld; /* 16-byte alignment (if supported) */
+} max_align_t;
+#endif
+
+/* Define offsetof macro, which calculates the offset of a member in a structure */
+#ifndef _OFFSETOF_DEFINED
+#define _OFFSETOF_DEFINED
+#define offsetof(type, member) ((size_t) &((type *)0)->member)
+#endif
+
+/* Define unreachable macro (C23 feature, optional) */
+#ifndef _UNREACHABLE_DEFINED
+#define _UNREACHABLE_DEFINED
+#define unreachable() __builtin_unreachable()
+#endif
+
+#endif /* _STDDEF_H */
+
+")
+
+# Create the bits directory if it doesn't exist
+file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/luna/include/")
+
+# Write the content to bits/alltypes.h
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/luna/include/stddef.h" "${STDDEF_CONTENT}")
+
 
 # Generate bits/limits.h to define LLONG_MIN
 set(LIMITS_CONTENT "
@@ -219,5 +277,3 @@ message(STATUS "Patched ${LOCALE_BASE_API_PATH} to remove __loc argument from al
 # Add critical libc++abi compile definitions
 add_compile_definitions(_LIBCXXABI_HAS_NO_THREADS)
 
-# Include the generated headers
-include_directories("${CMAKE_CURRENT_BINARY_DIR}/include/c++/v1")
