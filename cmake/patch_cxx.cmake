@@ -196,6 +196,26 @@ file(WRITE "${LOCALE_BASE_API_PATH}" "${LOCALE_BASE_API_CONTENT}")
 # Notify the user that the file has been patched
 message(STATUS "Patched ${LOCALE_BASE_API_PATH} to replace _l versions of string functions")
 
+
+# Define the path to the locale_base_api.h file
+set(LOCALE_BASE_API_PATH "${CMAKE_CURRENT_SOURCE_DIR}/external/llvm-project/libcxx/include/__locale_dir/locale_base_api.h")
+
+# Read the content of the file
+file(READ "${LOCALE_BASE_API_PATH}" LOCALE_BASE_API_CONTENT)
+
+# Remove the __loc argument from all problematic function calls
+string(REGEX REPLACE "strtof\\(__nptr, __endptr, __loc\\)" "strtof(__nptr, __endptr)" LOCALE_BASE_API_CONTENT "${LOCALE_BASE_API_CONTENT}")
+string(REGEX REPLACE "strtod\\(__nptr, __endptr, __loc\\)" "strtod(__nptr, __endptr)" LOCALE_BASE_API_CONTENT "${LOCALE_BASE_API_CONTENT}")
+string(REGEX REPLACE "strtold\\(__nptr, __endptr, __loc\\)" "strtold(__nptr, __endptr)" LOCALE_BASE_API_CONTENT "${LOCALE_BASE_API_CONTENT}")
+string(REGEX REPLACE "strtoll\\(__nptr, __endptr, __base, __loc\\)" "strtoll(__nptr, __endptr, __base)" LOCALE_BASE_API_CONTENT "${LOCALE_BASE_API_CONTENT}")
+string(REGEX REPLACE "strtoull\\(__nptr, __endptr, __base, __loc\\)" "strtoull(__nptr, __endptr, __base)" LOCALE_BASE_API_CONTENT "${LOCALE_BASE_API_CONTENT}")
+
+# Write the modified content back to the file
+file(WRITE "${LOCALE_BASE_API_PATH}" "${LOCALE_BASE_API_CONTENT}")
+
+# Notify the user that the file has been patched
+message(STATUS "Patched ${LOCALE_BASE_API_PATH} to remove __loc argument from all strto* functions")
+
 # Add critical libc++abi compile definitions
 add_compile_definitions(_LIBCXXABI_HAS_NO_THREADS)
 
