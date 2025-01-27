@@ -11,4 +11,3 @@ set(CMAKE_CXX_COMPILER /usr/local/bin/i686-elf-g++)
 # Ensure CMake knows the compilers work
 set(CMAKE_C_COMPILER_WORKS 1)
 set(CMAKE_CXX_COMPILER_WORKS 1)
-

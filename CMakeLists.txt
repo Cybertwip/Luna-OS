@@ -56,9 +56,7 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/patch_cxx.cmake)
 # ========== Build System Configuration ========== #
 # Linker configuration
 set(LINKER_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/Linker.ld")
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} 
-    -Wl,-m,elf_i386 -T ${LINKER_SCRIPT}"
-)
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -nostdlib -nodefaultlibs -Wl,-m,elf_i386 -T ${LINKER_SCRIPT}")
 
 # ========== Dependencies ========== #
 add_subdirectory(external/picolibc)
