@@ -397,7 +397,7 @@ Large, non-trivial assembly functions should go in .S files, with corresponding
 C prototypes defined in C header files.  The C prototypes for assembly
 functions should use "asmlinkage".
 
-You may need to mark your asm statement as volatile, to prevent GCC from
+You may need to mark your __asm__ statement as volatile, to prevent GCC from
 removing it if GCC doesn't notice any side effects.  You don't always need to
 do so, though, and doing so unnecessarily can limit optimization.
 

@@ -15,27 +15,24 @@ include(profile_detection)
 LOAD_PROFILE("i386" "pc") # Generic for now
 
 # Get all the files needed
-file(GLOB KERN_TTY_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "kern/tty/*.c")
-file(GLOB KERN_LIB_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "kern/lib/*.c")
-file(GLOB KERN_MM_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "kern/mm/*.c")
-file(GLOB KERN_INPUT_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "kern/input/*.c")
-file(GLOB KERN_CMOS_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "kern/cmos/*.c")
-file(GLOB KERN_DISK_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "kern/disk/*.c")
-file(GLOB KERN_TASK_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "kern/task/*.c")
-file(GLOB KERN_MAIN_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "kern/entry/*.cpp")
-file(GLOB KERN_LUNA_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "kern/luna/*.cpp")
-file(GLOB KERN_LUNA_C_STD_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "kern/luna/std/*.c")
-file(GLOB KERN_LUNA_CXX_STD_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "kern/luna/std/*.cpp")
+file(GLOB KERN_LIB_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "kernel/lib/*.c")
+file(GLOB KERN_MM_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "kernel/mm/*.c")
+file(GLOB KERN_DRIVERS_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "kernel/drivers/*.c")
+file(GLOB KERN_SYS_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "kernel/sys/*.c")
+file(GLOB KERN_MAIN_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "kernel/entry/*.cpp")
+file(GLOB KERN_LUNA_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "kernel/luna/*.cpp")
+file(GLOB KERN_LUNA_C_STD_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "kernel/luna/std/*.c")
+file(GLOB KERN_LUNA_CXX_STD_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "kernel/luna/std/*.cpp")
 
-set(KERN_SOURCES ${KERN_TTY_SOURCES} ${KERN_LIB_SOURCES} ${KERN_MM_SOURCES} ${KERN_INPUT_SOURCES} ${KERN_CMOS_SOURCES} ${KERN_DISK_SOURCES} ${KERN_TASK_SOURCES})
+set(KERN_SOURCES ${KERN_TTY_SOURCES} ${KERN_LIB_SOURCES} ${KERN_MM_SOURCES} ${KERN_SYS_SOURCES} ${KERN_DRIVERS_SOURCES})
 # file(GLOB KERN_TTY_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "kern/tty/*.c")
-file(GLOB LIBC_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "libc/*.c")
+file(GLOB LIBC_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "libc/stdlib/*.c")
 
 # Various options we need
 option(USE_GCC_TOOLCHAIN "Use the GCC toolchain from tools/mkcrosscompiler_gcc.sh" OFF)
 
 # these are any additional flags which should be added to the base compiles. Things like 32 bit or elf binaries
-set(CFLAGS "${ISA_C_FLAGS} -m32 -std=c11 -Wall -Wextra -ffreestanding -fno-builtin")
+set(CFLAGS "${ISA_C_FLAGS} -m32 -std=c11 -ffreestanding -fno-builtin")
 set(CFLAGS "${CFLAGS} -nostdlib -nostdinc -finline-functions -fno-stack-protector -fomit-frame-pointer")
 set(CFLAGS "${CFLAGS} -Werror=implicit-function-declaration -mno-sse")
 # linker flags and Assembler flags too -Wl,--oformat,binary
@@ -59,8 +56,8 @@ endif (CLANGXX)
 
 # Finally name our project now that we have picked our compiler.
 # this is way down here so the compiler can be tested
-project(Kernel)
-enable_language(ASM-ATT)
+project(Luna LANGUAGES C CXX ASM_NASM)
+enable_language(ASM_NASM)
 
 # include cmake stuff for checking various system specific defines
 # include(CheckTypeSize)
@@ -84,9 +81,10 @@ include(TestBigEndian)
 # check_type_size(uint64_t UINT64_T)
 
 include_directories(
-	${CMAKE_SOURCE_DIR}/libc
-	${CMAKE_SOURCE_DIR}/kern
-	${CMAKE_SOURCE_DIR}/kern/luna
+	${CMAKE_SOURCE_DIR}/libc/stdlib
+	${CMAKE_SOURCE_DIR}/kernel
+	${CMAKE_SOURCE_DIR}/kernel/lib
+	${CMAKE_SOURCE_DIR}/kernel/luna
 	${CMAKE_CURRENT_LIST_DIR}/external/micro-gl/include
 )
 
@@ -102,19 +100,19 @@ if(${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
 	# Do not page align. (see man ld(1))
 	SET (LINKFLAGS "-Wl,--script=${PLATFORM_LAYOUT} -Wl,--omagic ${LINKFLAGS}")
 	
-	SET (CMAKE_C_FLAGS                "-Wall -g ${BASE_CFLAGS}")
+	SET (CMAKE_C_FLAGS                "-g ${BASE_CFLAGS}")
 	SET (CMAKE_C_FLAGS_DEBUG          "-g -D_DEBUG ${BASE_CFLAGS}")
 	SET (CMAKE_C_FLAGS_MINSIZEREL     "-Os -DNDEBUG ${BASE_CFLAGS}")
 	SET (CMAKE_C_FLAGS_RELEASE        "-O3 -DNDEBUG ${BASE_CFLAGS}")
 	SET (CMAKE_C_FLAGS_RELWITHDEBINFO "-O2 -g ${BASE_CFLAGS}")
 
-	SET (CMAKE_CXX_FLAGS                "-Wall -std=c++17 ${BASE_CFLAGS}")
+	SET (CMAKE_CXX_FLAGS                "-std=c++17 ${BASE_CFLAGS}")
 	SET (CMAKE_CXX_FLAGS_DEBUG          "-g -D_DEBUG ${BASE_CFLAGS}")
 	SET (CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG ${BASE_CFLAGS}")
 	SET (CMAKE_CXX_FLAGS_RELEASE        "-O3 -DNDEBUG ${BASE_CFLAGS}")
 	SET (CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g ${BASE_CFLAGS}")
 	# Error on *ANY* assembler error. We don't want to fuck up assembly.
-	SET (CMAKE_ASM_FLAGS            "-Werror -felf")
+	SET (CMAKE_ASM_NASM_FLAGS            "-Werror -f elf")
 	
 endif(${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
 
@@ -129,7 +127,7 @@ if(${USE_GCC_TOOLCHAIN} OR ${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
 	
 	SET (LINKFLAGS "-T ${PLATFORM_LAYOUT} -N ${LINKFLAGS}")
 	
-	SET (CMAKE_C_FLAGS                "-Wall -g ${BASE_CFLAGS}")
+	SET (CMAKE_C_FLAGS                "-g ${BASE_CFLAGS}")
 	SET (CMAKE_C_FLAGS_DEBUG          "-g -D_DEBUG ${BASE_CFLAGS}")
 	SET (CMAKE_C_FLAGS_MINSIZEREL     "-Os -DNDEBUG ${BASE_CFLAGS}")
 	SET (CMAKE_C_FLAGS_RELEASE        "-O3 -DNDEBUG ${BASE_CFLAGS}")
@@ -137,13 +135,13 @@ if(${USE_GCC_TOOLCHAIN} OR ${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
 
 	set(CXXFLAGS "${BASE_CFLAGS} -std=c++17 -fno-rtti -fno-exceptions -fno-threadsafe-statics")
 
-	SET (CMAKE_CXX_FLAGS                "-Wall ${CXXFLAGS}")
+	SET (CMAKE_CXX_FLAGS                "${CXXFLAGS}")
 	SET (CMAKE_CXX_FLAGS_DEBUG          "-g -D_DEBUG ${CXXFLAGS}")
 	SET (CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG ${CXXFLAGS}")
 	SET (CMAKE_CXX_FLAGS_RELEASE        "-O3 -DNDEBUG ${CXXFLAGS}")
 	SET (CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g ${CXXFLAGS}")
 		
-	SET (CMAKE_ASM_FLAGS            "-Werror -felf")
+	SET (CMAKE_ASM_NASM_FLAGS            "-Werror -felf")
 
 	find_program(GCC_AR ${CMAKE_SYSTEM_PROCESSOR}-elf-ar REQUIRED PATHS /usr/local/cross/bin)
 	find_program(GCC_LD ${CMAKE_SYSTEM_PROCESSOR}-elf-ld REQUIRED PATHS /usr/local/cross/bin)
@@ -198,6 +196,9 @@ endif(PERL AND NOT CMAKE_C_COMPILER_ID STREQUAL "Clang")
 # Finally, Tell CMake to build our kernel.
 add_executable(${PROJECT_NAME}.bin ${SOURCE_FILES} ${KERN_MAIN_SOURCES} ${KERN_LUNA_SOURCES} ${KERN_LUNA_C_STD_SOURCES} ${KERN_LUNA_CXX_STD_SOURCES})
 set_source_files_properties(${SOURCE_FILES} PROPERTIES LANGUAGE C COMPILE_FLAGS "")
+set_source_files_properties(kernel/arch/i386/boot.s PROPERTIES LANGUAGE ASM_NASM)
+set_source_files_properties(kernel/arch/i386/interrupt.s PROPERTIES LANGUAGE ASM_NASM)
+set_source_files_properties(kernel/arch/i386/thread_asm.s PROPERTIES LANGUAGE ASM_NASM)
 
 
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -nostdlib -nodefaultlibs -Wl,-m,elf_i386 ${LINKFLAGS}")
@@ -212,7 +213,7 @@ add_custom_target(run
         -smp 4
         -kernel $<TARGET_FILE:${PROJECT_NAME}.bin> 
         -vga std 
-        -m 4096M 
+        -m 256M
         -display cocoa 
         -machine q35 
         -cpu qemu32 
