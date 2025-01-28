@@ -33,7 +33,6 @@ int main(uint32_t magic, multiboot_info_t* mb_info) {
 
     init_descriptor_tables();
 
-
     init_paging(mb_info);
 
     init_timer(20);
