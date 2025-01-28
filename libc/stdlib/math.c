@@ -1,173 +1,168 @@
-/*
- * Copyright (c) 2014, Justin Crawford <Justasic@gmail.com>
- * 
- * Permission to use, copy, modify, and/or distribute this software for any purpose
- * with or without fee is hereby granted, provided that the above copyright notice 
- * and this permission notice appear in all copies.
- *
- * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO
- * THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO
- * EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL
- * DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER
- * IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
- * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
- */
-#include "math.h"
+#include <math.h>
 
-// TODO: this is temporary to clear away some of the warnings
-#warning "Developer notice: This file is incomplete."
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-variable"
-#pragma clang diagnostic ignored "-Wunused-parameter"
-#pragma clang diagnostic ignored "-Wunused-function"
-#pragma clang diagnostic ignored "-Wreturn-type"
+#ifndef NAN
+#define NAN (0.0 / 0.0) // Define NAN if it's not already defined
+#endif
 
-////////////////////////////////////////
 // Trigonometric functions
-double cos(double x)
-{
-	
+double cos(double x) {
+    // Using Taylor series approximation for cosine
+    double result = 1.0;
+    double term = 1.0;
+    for (int i = 1; i <= 10; i++) {
+        term *= -x * x / ((2 * i) * (2 * i - 1));
+        result += term;
+    }
+    return result;
 }
 
-double sin(double x)
-{
-	
+double sin(double x) {
+    // Using Taylor series approximation for sine
+    double result = x;
+    double term = x;
+    for (int i = 1; i <= 10; i++) {
+        term *= -x * x / ((2 * i) * (2 * i + 1));
+        result += term;
+    }
+    return result;
 }
 
-double tan(double x)
-{
-	
+double tan(double x) {
+    return sin(x) / cos(x);
 }
 
-
-////////////////////////////////////////
-// Exponential and logarithmic functions
-double modf(double x, double* intpart)
-{
-	
+// Decompose x into fractional and integer parts
+double modf(double x, double* intpart) {
+    *intpart = (long long)x;
+    return x - *intpart;
 }
 
-double log(double x)
-{
-	
+// Logarithmic functions
+double log(double x) {
+    if (x <= 0) return NAN; // Logarithm of non-positive number is undefined
+    // Using Newton's method for natural logarithm
+    double result = 0.0;
+    while (x >= 2.0) {
+        x /= 2.0;
+        result += 0.69314718056; // ln(2)
+    }
+    while (x < 1.0) {
+        x *= 2.0;
+        result -= 0.69314718056; // ln(2)
+    }
+    x -= 1.0;
+    double term = x;
+    result += term;
+    for (int i = 2; i <= 10; i++) {
+        term *= -x;
+        result += term / i;
+    }
+    return result;
 }
 
-double log10(double x)
-{
-	
+double log10(double x) {
+    return log(x) / 2.30258509299; // ln(10)
 }
 
-////////////////////////////////////////
-// Power functions
-double pow(double base, double exponent)
-{
-	
+// Power function
+double pow(double base, double exponent) {
+    if (exponent == 0) return 1.0;
+    if (base == 0) return 0.0;
+    double result = 1.0;
+    for (int i = 0; i < (int)exponent; i++) {
+        result *= base;
+    }
+    return result;
 }
 
-double sqrt(double x)
-{
-	
+// Square root function
+double sqrt(double x) {
+    if (x < 0) return NAN; // Square root of negative number is undefined
+    double guess = x / 2.0;
+    for (int i = 0; i < 10; i++) {
+        guess = 0.5 * (guess + x / guess);
+    }
+    return guess;
 }
 
-////////////////////////////////////////
-// Rounding and remainder functions
-double ceil(double x)
-{
-	
+// Rounding functions
+double ceil(double x) {
+    if (x == (long long)x) return x;
+    return x > 0 ? (long long)x + 1 : (long long)x;
 }
 
-double floor(double x)
-{
-	
+double floor(double x) {
+    if (x == (long long)x) return x;
+    return x > 0 ? (long long)x : (long long)x - 1;
 }
 
-double fmod(double numer, double denom)
-{
-	
+double fmod(double numer, double denom) {
+    if (denom == 0) return NAN; // Division by zero
+    return numer - (long long)(numer / denom) * denom;
 }
 
-double trunc(double x)
-{
-	
+double trunc(double x) {
+    return (long long)x;
 }
 
-float truncf(float x)
-{
-	
+float truncf(float x) {
+    return (long long)x;
 }
 
-long double truncl(long double x)
-{
-	
+long double truncl(long double x) {
+    return (long long)x;
 }
 
-double round(double x)
-{
-	
+double round(double x) {
+    return x >= 0 ? (long long)(x + 0.5) : (long long)(x - 0.5);
 }
 
-float roundf(float x)
-{
-	
+float roundf(float x) {
+    return x >= 0 ? (long long)(x + 0.5f) : (long long)(x - 0.5f);
 }
 
-long double roundl(long double x)
-{
-	
+long double roundl(long double x) {
+    return x >= 0 ? (long long)(x + 0.5L) : (long long)(x - 0.5L);
 }
 
-////////////////////////////////////////
 // Minimum, Maximum, and difference functions
-double fmin(double x, double y)
-{
-	
+double fmin(double x, double y) {
+    return x < y ? x : y;
 }
 
-float fminf(float x, float y)
-{
-	
+float fminf(float x, float y) {
+    return x < y ? x : y;
 }
 
-long double fminl(long double x, long double y)
-{
-	
+long double fminl(long double x, long double y) {
+    return x < y ? x : y;
 }
 
-double fmax(double x, double y)
-{
-	
+double fmax(double x, double y) {
+    return x > y ? x : y;
 }
 
-float fmaxf(float x, float y)
-{
-	
+float fmaxf(float x, float y) {
+    return x > y ? x : y;
 }
 
-long double fmaxl(long double x, long double y)
-{
-	
+long double fmaxl(long double x, long double y) {
+    return x > y ? x : y;
 }
 
-////////////////////////////////////////
-// Other functions.
-double fabs(double x)
-{
-	
+// Absolute value functions
+double fabs(double x) {
+    return x < 0 ? -x : x;
 }
 
-double abs(double x)
-{
-	
+double abs(double x) {
+    return fabs(x);
 }
 
-float absf(float x)
-{
-	
+float absf(float x) {
+    return x < 0 ? -x : x;
 }
 
-long double absld(long double x)
-{
-	
+long double absld(long double x) {
+    return x < 0 ? -x : x;
 }
-
-#pragma clang diagnostic pop

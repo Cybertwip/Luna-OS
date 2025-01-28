@@ -32,9 +32,9 @@ file(GLOB LIBC_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "libc/stdlib/*.c")
 option(USE_GCC_TOOLCHAIN "Use the GCC toolchain from tools/mkcrosscompiler_gcc.sh" OFF)
 
 # these are any additional flags which should be added to the base compiles. Things like 32 bit or elf binaries
-set(CFLAGS "${ISA_C_FLAGS} -m32 -std=c11 -ffreestanding -fno-builtin")
+set(CFLAGS "${ISA_C_FLAGS} -m32 -fcheck-new -ffreestanding -fno-builtin")
 set(CFLAGS "${CFLAGS} -nostdlib -nostdinc -finline-functions -fno-stack-protector -fomit-frame-pointer")
-set(CFLAGS "${CFLAGS} -Werror=implicit-function-declaration -mno-sse")
+set(CFLAGS "${CFLAGS} -mno-sse")
 # linker flags and Assembler flags too -Wl,--oformat,binary
 set(LINKFLAGS "${ISA_LINKER_FLAGS} ${PLATFORM_LINKER_FLAGS}")
 set(ASM_FLAGS "${ISA_ASM_FLAGS}")
@@ -93,7 +93,7 @@ include_directories(
 # If we're using clang..
 if(${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
 	# Clang isn't needy
-	SET (BASE_CFLAGS "${CFLAGS}")
+	SET (BASE_CFLAGS "${CFLAGS} -std=c11 -Werror=implicit-function-declaration")
 	
 	# Tell clang to pass our linker script to the linker and not try and compile it
 	# also tell the linker to set text and data sections to be readable and writable.
@@ -122,7 +122,8 @@ if(${USE_GCC_TOOLCHAIN} OR ${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
 	
 	# additional GCC options cuz GNU.
 	
-	SET (BASE_CFLAGS "${CFLAGS} -fpermissive -fstrength-reduce -fno-builtin-time -fno-builtin-puts -fno-builtin-printf -fno-builtin-function")
+	SET (BASE_CFLAGS "${CFLAGS} -std=c11 -fpermissive -fstrength-reduce -fno-builtin-time -fno-builtin-puts -fno-builtin-printf -fno-builtin-function")
+	SET (BASE_CXXFLAGS "${CFLAGS} -fpermissive -fstrength-reduce -fno-builtin-time -fno-builtin-puts -fno-builtin-printf -fno-builtin-function")
 	#SET (LINKFLAGS "${LINKFLAGS} -melf_i386")
 	
 	SET (LINKFLAGS "-T ${PLATFORM_LAYOUT} -N ${LINKFLAGS}")
@@ -133,7 +134,7 @@ if(${USE_GCC_TOOLCHAIN} OR ${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
 	SET (CMAKE_C_FLAGS_RELEASE        "-O3 -DNDEBUG ${BASE_CFLAGS}")
 	SET (CMAKE_C_FLAGS_RELWITHDEBINFO "-O2 -g ${BASE_CFLAGS}")
 
-	set(CXXFLAGS "${BASE_CFLAGS} -std=c++17 -fno-rtti -fno-exceptions -fno-threadsafe-statics")
+	set(CXXFLAGS "${BASE_CXXFLAGS} -std=c++17 -fno-rtti -fno-exceptions -fno-threadsafe-statics")
 
 	SET (CMAKE_CXX_FLAGS                "${CXXFLAGS}")
 	SET (CMAKE_CXX_FLAGS_DEBUG          "-g -D_DEBUG ${CXXFLAGS}")
