@@ -175,3 +175,14 @@ void irq_handler(registers_t *regs) {
         interrupt_handlers[regs->int_no](regs);  // Call the handler
     }
 }
+
+void enable_irq_line(int numirq)
+{
+    if (numirq < 8) {
+        /* irq on master PIC. */
+        outb(PIC1_DATA, inb(PIC1_DATA) & ~(1 << numirq));
+    } else {
+        /* irq on slave PIC. */
+        outb(PIC2_DATA, inb(PIC2_DATA) & ~(1 << (numirq - 8)));
+    }
+}

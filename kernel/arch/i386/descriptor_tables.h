@@ -18,8 +18,16 @@
 #define IRQ11 43
 #define IRQ12 44
 #define IRQ13 45
-#define IRQ14 46
-#define IRQ15 47
+#define IRQ14 46    // Primary IDE
+#define IRQ15 47    // Secondary IDE
+
+#define PIC1_DATA  0x21  /* Master PIC data port */
+#define PIC2_DATA  0xa1  /* Slave PIC data port */
+
+#define NR_BLKDEV_MAJOR_TYPES   2
+
+#define BLKDEV_RAM_DISK_MAJOR   0
+#define BLKDEV_IDE_DISK_MAJOR   1
 
 /* 
  * GDT entry structure.
@@ -158,5 +166,7 @@ void register_interrupt_handler(uint8_t n, interrupt_handler_t h);
  *     regs: The registers saved during the interrupt.
  */
 void irq_handler(registers_t *regs);
+
+void enable_irq_line(int numirq);
 
 #endif /* DESCRIPTOR_TABLES_H */

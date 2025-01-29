@@ -3,11 +3,15 @@ extern "C" {
 #include "arch/i386/multiboot.h"
 #include "sys/scheduler.h"
 #include "drivers/timer.h"
+#include "drivers/ide.h"
+#include "drivers/voltron.h"
+
+#include <stdlib.h>
 }
 
 #include "luna/Engine.h"
 
-#include <stdio.h>
+
 
 int main(uint32_t magic, multiboot_info_t* mb_info) {
     if (magic != 0x2BADB002) {
@@ -18,6 +22,10 @@ int main(uint32_t magic, multiboot_info_t* mb_info) {
 
     init_descriptor_tables();
 
+    kernel_io_init();
+
+    init_ide();
+
     init_paging(mb_info);
 
     init_timer(20);
@@ -25,8 +33,24 @@ int main(uint32_t magic, multiboot_info_t* mb_info) {
     __asm__ volatile ("sti");
     init_scheduler(init_threading());
 
-    GameEngine engine;
-    engine.run();
+    disable_paging();
+    uint8_t sector_buffer[512];
+
+    // ahci_init();
+    // ahci_read_sector(0, 0, sector_buffer);
+
+
+    // Example: Print 512 bytes of the sector
+    printk("%s", "\n");
+    for (int i = 0; i < 512; i++) {
+        printk("%02x ", sector_buffer[i]);
+    }
+
+    
+    switch_page_directory(kernel_directory);
+
+    // GameEngine engine;
+    // engine.run();
 
     return 0xDEADBABA;
 }

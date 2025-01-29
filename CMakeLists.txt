@@ -229,7 +229,11 @@ add_custom_target(run
         -display cocoa 
         -machine q35 
         -cpu qemu32 
-        -serial stdio
+		-device piix3-ide,id=ide
+		-drive id=disk,file=${CMAKE_CURRENT_LIST_DIR}/disk.img,format=raw,if=none,index=0,media=disk
+		-device ide-hd,drive=disk,bus=ide.0
+
+		-serial stdio
     WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
     COMMENT "Running 32-bit kernel with QEMU"
 )

@@ -54,3 +54,16 @@ void init_timer(uint32_t freq) {
     outb(0x40, l);
   	outb(0x40, h);
 }
+
+void udelay(uint32_t microseconds) {
+    // Example: Busy-wait loop (adjust based on your CPU speed)
+    for (uint32_t i = 0; i < microseconds * 1000; i++) {
+        __asm__ volatile ("nop");
+    }
+}
+
+void mdelay(uint32_t milliseconds) {
+    while (milliseconds--) {
+        udelay(1000); // 1000 microseconds = 1 millisecond
+    }
+}

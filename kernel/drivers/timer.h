@@ -13,4 +13,9 @@
  */
 void init_timer(uint32_t freq);
 
+void udelay(uint32_t microseconds);
+
+void mdelay(uint32_t milliseconds);
+
+
 #endif /* TIMER_H */

@@ -11,11 +11,9 @@
 #include <stdio.h>
 #include <string.h>
 
-#ifndef BAREMETAL
+#include <sys/errno.h>
 
 #include "pdclib/_PDCLIB_glue.h"
-
-#include "/usr/include/errno.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -88,7 +86,6 @@ int _PDCLIB_flushbuffer( struct _PDCLIB_file_t * stream )
     return EOF;
 }
 
-#endif
 
 #ifdef TEST
 
