@@ -1,6 +1,10 @@
 #include "Engine.h"
 #include <string.h>
 
+#include <microgl/samplers/fast_radial_gradient.h>
+#include <microgl/blend_modes/Multiply.h>
+#include <microgl/porter_duff/SourceOver.h>
+
 template<typename number>
 model_3d<number> create_cube_3d() {
     model_3d<number> model;
@@ -103,11 +107,25 @@ void GameEngine::busy_wait(uint32_t milliseconds) {
         // Do nothing, just wait
     }
 }
+using namespace microgl::sampling;
+
 
 void GameEngine::render() {
+    
+    // fast_radial_gradient<number, 4, rgba_t<8,8,8,0>, precision::high> gradient{0.5, 0.5, 0.5};
+    // gradient.addStop(0.0f, {255,0,0});
+    // gradient.addStop(0.45f, {255,0,0});
+    // gradient.addStop(0.50f, {0,255,0});
+    // gradient.addStop(1.f, {255,255,255});
+
     // Clear the canvas
     mCanvas.clear({0, 0, 255, 255}); // Clear to blue
     depth_buffer.clear(); // Clear depth buffer
+
+    // mCanvas.drawRect<blendmode::Multiply<>, porterduff::SourceOver<>, false, number>(
+        // gradient,
+        // 0, 0, 400, 400);
+
 
     // Setup MVP matrix
     vertex3<number> rotation = {t, t, t}; // Rotate the cube

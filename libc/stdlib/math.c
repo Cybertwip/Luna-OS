@@ -1,8 +1,23 @@
+#include <stdint.h> 
 #include <math.h>
+
+
 
 #ifndef NAN
 #define NAN (0.0 / 0.0) // Define NAN if it's not already defined
 #endif
+
+
+int isinf(double x) {
+    union {
+        double d;
+        uint64_t u;
+    } u;
+    u.d = x;
+    uint64_t exponent = (u.u >> 52) & 0x7FF;
+    uint64_t mantissa = u.u & 0x000FFFFFFFFFFFFFULL;
+    return (exponent == 0x7FF && mantissa == 0);
+}
 
 // Trigonometric functions
 double cos(double x) {

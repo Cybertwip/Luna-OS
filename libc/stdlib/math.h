@@ -1,6 +1,8 @@
 #ifndef __MATH_H__
 #define __MATH_H__
 
+extern int isinf(double x);
+
 extern double cos(double x);
 extern double sin(double x);
 extern double tan(double x);
