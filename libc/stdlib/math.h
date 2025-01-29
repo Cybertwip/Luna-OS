@@ -35,7 +35,7 @@ extern long double fmaxl(long double x, long double y);
 
 extern double fabs(double x);
 
-extern double abs(double x);
+extern int abs(int x);
 extern float absf(float x);
 extern long double absld(long double x);
 

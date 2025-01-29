@@ -10,3 +10,6 @@
 [submodule "external/libcpp"]
 	path = external/libcpp
 	url = git@github.com:embeddedartistry/libcpp.git
+[submodule "external/pdclib"]
+	path = external/pdclib
+	url = git@github.com:DevSolar/pdclib.git

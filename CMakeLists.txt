@@ -1,3 +1,4 @@
+
 cmake_minimum_required(VERSION 2.8)
 
 # Force external build
@@ -9,6 +10,7 @@ endif(${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_BINARY_DIR} AND NOT W
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 include(profile_detection)
+include(patch_pdclib)
 
 # http://wiki.osdev.org/CMake_Build_System
 # This was very helpful in this build system
@@ -88,8 +90,6 @@ include_directories(
 	${CMAKE_CURRENT_LIST_DIR}/external/micro-gl/include
 )
 
-
-
 # If we're using clang..
 if(${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
 	# Clang isn't needy
@@ -128,7 +128,7 @@ if(${USE_GCC_TOOLCHAIN} OR ${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
 	
 	SET (LINKFLAGS "-T ${PLATFORM_LAYOUT} -N ${LINKFLAGS}")
 	
-	SET (CMAKE_C_FLAGS                "-g ${BASE_CFLAGS}")
+	SET (CMAKE_C_FLAGS                "-g -DHAVE_MMAP=0 -DLACKS_UNISTD_H=1 -DLACKS_SCHED_H=1 -DLACKS_SYS_PARAM_H=1 ${BASE_CFLAGS}") #Fix memory mappings, later
 	SET (CMAKE_C_FLAGS_DEBUG          "-g -D_DEBUG ${BASE_CFLAGS}")
 	SET (CMAKE_C_FLAGS_MINSIZEREL     "-Os -DNDEBUG ${BASE_CFLAGS}")
 	SET (CMAKE_C_FLAGS_RELEASE        "-O3 -DNDEBUG ${BASE_CFLAGS}")
@@ -193,6 +193,13 @@ else(PERL AND NOT CMAKE_C_COMPILER_ID STREQUAL "Clang")
 endif(PERL AND NOT CMAKE_C_COMPILER_ID STREQUAL "Clang")
 
 
+set(USE_THREADS OFF CACHE BOOL "Disable threads" FORCE)
+set(AS_C11 OFF CACHE BOOL "Configure with the latest C11" FORCE)
+set(BAREMETAL ON CACHE BOOL "Configure as baremetal libc" FORCE)
+
+
+# Add the subdirectory
+add_subdirectory(external/pdclib)
 
 # Finally, Tell CMake to build our kernel.
 add_executable(${PROJECT_NAME}.bin ${SOURCE_FILES} ${KERN_MAIN_SOURCES} ${KERN_LUNA_SOURCES} ${KERN_LUNA_C_STD_SOURCES} ${KERN_LUNA_CXX_STD_SOURCES})
@@ -202,10 +209,12 @@ set_source_files_properties(kernel/arch/i386/interrupt.s PROPERTIES LANGUAGE ASM
 set_source_files_properties(kernel/arch/i386/thread_asm.s PROPERTIES LANGUAGE ASM_NASM)
 
 
+target_link_libraries(${PROJECT_NAME}.bin PRIVATE pdclibs)
+
+
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -nostdlib -nodefaultlibs -Wl,-m,elf_i386 ${LINKFLAGS}")
 
 #include(make_iso)
-
 # ========== QEMU Execution Target ========== #
 add_custom_target(run
     DEPENDS ${PROJECT_NAME}.bin

@@ -155,8 +155,9 @@ double fabs(double x) {
     return x < 0 ? -x : x;
 }
 
-double abs(double x) {
-    return fabs(x);
+
+int abs(int x) {
+    return x < 0 ? -x : x;
 }
 
 float absf(float x) {

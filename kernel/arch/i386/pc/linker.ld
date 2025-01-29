@@ -2,8 +2,6 @@
 ENTRY(_start)
 
 
-// Write again.
-
 /* Define the memory layout */
 SECTIONS
 {
