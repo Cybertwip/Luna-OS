@@ -1,6 +1,7 @@
 #pragma once
 
-#include <stdint.h> // For size_t
+#include <stdint.h>
+#include <stddef.h> // For size_t
 
 // Disable exceptions for kernel mode
 #define NO_EXCEPTIONS

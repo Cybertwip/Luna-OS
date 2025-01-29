@@ -64,14 +64,6 @@ void _panic(const char *fmt, ...);
  */
 void *memset(void *b, int c, size_t len);
 
-/**
- * strlen
- * Calculates the length of a null-terminated string.
- *
- * @param src Pointer to the string.
- * @return The length of the string (excluding the null terminator).
- */
-int strlen(char *src);
 
 /**
  * printk

@@ -88,6 +88,8 @@ include_directories(
 	${CMAKE_SOURCE_DIR}/kernel/lib
 	${CMAKE_SOURCE_DIR}/kernel/luna
 	${CMAKE_CURRENT_LIST_DIR}/external/micro-gl/include
+	${CMAKE_CURRENT_LIST_DIR}/external/pdclib/include
+	${CMAKE_BINARY_DIR}/external/pdclib/configured_include
 )
 
 # If we're using clang..
