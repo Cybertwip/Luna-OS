@@ -84,7 +84,7 @@ struct vm_heap *init_heap(struct vm_heap *heap, uint32_t start, uint32_t end, ui
  * 
  * @return A pointer to the allocated memory block.
  */
-void *alloc(uint32_t size, int page_align, struct vm_heap *heap);
+void *halloc(uint32_t size, int page_align, struct vm_heap *heap);
 
 /**
  * Frees a block of memory previously allocated using `alloc`.
@@ -92,6 +92,6 @@ void *alloc(uint32_t size, int page_align, struct vm_heap *heap);
  * @param p A pointer to the block of memory to free.
  * @param heap A pointer to the heap structure to which the memory belongs.
  */
-void free(void *p, struct vm_heap *heap);
+void hfree(void *p, struct vm_heap *heap);
 
 #endif /* INCLUDE_HEAP_H */

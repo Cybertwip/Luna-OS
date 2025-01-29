@@ -182,3 +182,221 @@ float absf(float x) {
 long double absld(long double x) {
     return x < 0 ? -x : x;
 }
+
+
+double acos(double x) {
+    if (x < -1.0 || x > 1.0) return NAN;
+    return atan2(sqrt(1.0 - x*x), x);
+}
+
+double atan2(double y, double x) {
+    if (x > 0) return atan(y / x);
+    if (x < 0) {
+        if (y >= 0) return atan(y / x) + M_PI;
+        return atan(y / x) - M_PI;
+    }
+    if (y > 0) return M_PI_2;
+    if (y < 0) return -M_PI_2;
+    return NAN;
+}
+
+double atan(double x) {
+    if (x > 1.0) return M_PI_2 - atan(1.0 / x);
+    if (x < -1.0) return -M_PI_2 - atan(1.0 / x);
+    
+    double result = x;
+    double term = x;
+    double x_sq = x * x;
+    for (int i = 1; i < 20; i++) {
+        term *= -x_sq;
+        result += term / (2 * i + 1);
+    }
+    return result;
+}
+
+float cosf(float x) {
+    float result = 1.0f;
+    float term = 1.0f;
+    for (int i = 1; i <= 10; i++) {
+        term *= -x * x / ((2 * i) * (2 * i - 1));
+        result += term;
+    }
+    return result;
+}
+
+float sinf(float x) {
+    float result = x;
+    float term = x;
+    for (int i = 1; i <= 10; i++) {
+        term *= -x * x / ((2 * i) * (2 * i + 1));
+        result += term;
+    }
+    return result;
+}
+
+float tanf(float x) {
+    return sinf(x) / cosf(x);
+}
+
+float acosf(float x) {
+    if (x < -1.0f || x > 1.0f) return NAN;
+    return atan2f(sqrtf(1.0f - x*x), x);
+}
+
+float atan2f(float y, float x) {
+    if (x > 0) return atanf(y / x);
+    if (x < 0) {
+        if (y >= 0) return atanf(y / x) + (float)M_PI;
+        return atanf(y / x) - (float)M_PI;
+    }
+    if (y > 0) return (float)M_PI_2;
+    if (y < 0) return -(float)M_PI_2;
+    return NAN;
+}
+
+float atanf(float x) {
+    if (x > 1.0f) return (float)M_PI_2 - atanf(1.0f / x);
+    if (x < -1.0f) return -(float)M_PI_2 - atanf(1.0f / x);
+    
+    float result = x;
+    float term = x;
+    float x_sq = x * x;
+    for (int i = 1; i < 20; i++) {
+        term *= -x_sq;
+        result += term / (2 * i + 1);
+    }
+    return result;
+}
+
+float sqrtf(float x) {
+    if (x < 0) return NAN;
+    float guess = x / 2.0f;
+    for (int i = 0; i < 10; i++) {
+        guess = 0.5f * (guess + x / guess);
+    }
+    return guess;
+}
+
+
+// Hyperbolic Functions
+float sinhf(float x) {
+    float ex = expf(x);
+    float e_x = expf(-x);
+    return (ex - e_x) / 2.0f;
+}
+
+float coshf(float x) {
+    float ex = expf(x);
+    float e_x = expf(-x);
+    return (ex + e_x) / 2.0f;
+}
+
+float tanhf(float x) {
+    float ex = expf(x);
+    float e_x = expf(-x);
+    return (ex - e_x) / (ex + e_x);
+}
+
+// Inverse Hyperbolic Functions
+float asinhf(float x) {
+    return logf(x + sqrtf(x*x + 1.0f));
+}
+
+float acoshf(float x) {
+    if (x < 1.0f) return NAN;
+    return logf(x + sqrtf(x*x - 1.0f));
+}
+
+float atanhf(float x) {
+    if (x <= -1.0f || x >= 1.0f) return NAN;
+    return 0.5f * logf((1.0f + x)/(1.0f - x));
+}
+
+// Power and Exponential Functions
+float powf(float base, float exponent) {
+    if (base == 0.0f) {
+        if (exponent <= 0.0f) return NAN;
+        return 0.0f;
+    }
+    if (exponent == 0.0f) return 1.0f;
+    return expf(exponent * logf(base));
+}
+
+float expf(float x) {
+    if (x == 0.0f) return 1.0f;
+
+    int is_negative = 0;
+    if (x < 0.0f) {
+        is_negative = 1;
+        x = -x;
+    }
+
+    const float ln2 = 0.69314718056f;
+    int k = (int)(x / ln2);
+    float r = x - (float)k * ln2;
+
+    float term = 1.0f;
+    float sum = term;
+    for (int i = 1; i <= 10; i++) {
+        term *= r / (float)i;
+        sum += term;
+    }
+
+    float two_k = 1.0f;
+    if (k > 0) {
+        for (int i = 0; i < k; i++) two_k *= 2.0f;
+    } else if (k < 0) {
+        for (int i = 0; i > k; i--) two_k /= 2.0f;
+    }
+
+    sum *= two_k;
+    return is_negative ? 1.0f / sum : sum;
+}
+
+float exp2f(float x) {
+    return expf(x * 0.69314718056f);
+}
+
+// Logarithmic Functions
+float logf(float x) {
+    if (x <= 0.0f) return NAN;
+
+    int exponent = 0;
+    while (x >= 2.0f) { x /= 2.0f; exponent++; }
+    while (x < 1.0f) { x *= 2.0f; exponent--; }
+
+    x -= 1.0f;
+
+    float term = x, result = term;
+    for (int i = 2; i <= 10; i++) {
+        term *= -x;
+        result += term / (float)i;
+    }
+
+    return result + exponent * 0.69314718056f;
+}
+
+float log2f(float x) {
+    return logf(x) / 0.69314718056f;
+}
+
+// Rounding Functions
+float floorf(float x) {
+    if (x >= 0.0f) return (int)x;
+    float int_part = (int)x;
+    return (x == int_part) ? int_part : int_part - 1.0f;
+}
+
+float nearbyintf(float x) {
+    return (x >= 0.0f) ? (int)(x + 0.5f) : (int)(x - 0.5f);
+}
+
+float ceilf(float x) {
+    if (x == (int)x) return x;
+    return (x > 0.0f) ? (int)x + 1.0f : (int)x;
+}
+
+// NaN Check
+int isnan(float x) {
+    return x != x;
+}

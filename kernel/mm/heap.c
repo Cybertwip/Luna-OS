@@ -221,7 +221,7 @@ static uint32_t contract(uint32_t new_size, struct vm_heap *heap)
  * 
  * Returns: A pointer to the allocated memory block.
  */
-void *alloc(uint32_t size, int page_align, struct vm_heap *heap)
+void *halloc(uint32_t size, int page_align, struct vm_heap *heap)
 {
     // Account for the size of header and footer
     size_t new_size = size + sizeof(struct vm_heap_header) + sizeof(struct vm_heap_footer);
@@ -276,7 +276,7 @@ void *alloc(uint32_t size, int page_align, struct vm_heap *heap)
         }
 
         // Retry the allocation with the updated heap
-        return (alloc(size, page_align, heap));
+        return (halloc(size, page_align, heap));
     }
 
     // We found a suitable hole, let's process it
@@ -350,7 +350,7 @@ void *alloc(uint32_t size, int page_align, struct vm_heap *heap)
  * @p:    The pointer to the memory block to be freed.
  * @heap: The heap from which memory was allocated.
  */
-void free(void *p, struct vm_heap *heap)
+void hfree(void *p, struct vm_heap *heap)
 {
     // If the pointer or heap is null, return immediately
     if (p == NULL || heap == NULL)

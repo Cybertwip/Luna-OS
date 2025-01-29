@@ -144,7 +144,7 @@ static void * _kmalloc(size_t len, uint32_t *phys, uint32_t flags)
         addr = (void *)(placement_address - len);
     } else {
         // Otherwise, allocate memory from the kernel heap
-        addr = alloc(len, (flags & M_ALIGNED), kernel_heap);
+        addr = halloc(len, (flags & M_ALIGNED), kernel_heap);
 
         // Return the physical address if requested
         if (phys != NULL) {
@@ -167,5 +167,5 @@ static void * _kmalloc(size_t len, uint32_t *phys, uint32_t flags)
  */
 void kfree(void *ptr)
 {
-    free(ptr, kernel_heap);
+    hfree(ptr, kernel_heap);
 }
