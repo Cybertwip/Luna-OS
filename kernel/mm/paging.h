@@ -8,6 +8,9 @@
 #define FRAME_SIZE 0x1000
 #define PAGE_TABLE_ENTRIES 1024
 
+#define PAGE_PRESENT  (1 << 0)  /* Bit 0 for present flag in the page table entry */
+#define PAGE_WRITABLE (1 << 1)  /* Bit 1 for read/write flag in the page table entry */
+
 /* Structure representing a single virtual memory page. */
 struct vm_page {
     uint32_t p_present  : 1;   /* Page is present in memory (1) or not (0) */

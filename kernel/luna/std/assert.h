@@ -12,7 +12,7 @@
         if (!(condition)) { \
             printk("Assertion failed: %s, file %s, line %d\n", \
                    #condition, __FILE__, __LINE__); \
-            kernel_panic(); \
+            panic(); \
         } \
     } while (0)
 #endif // NDEBUG

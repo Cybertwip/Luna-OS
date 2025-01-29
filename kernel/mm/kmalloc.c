@@ -169,3 +169,53 @@ void kfree(void *ptr)
 {
     hfree(ptr, kernel_heap);
 }
+
+size_t get_block_size(void *ptr) {
+    if (ptr == NULL) {
+        return 0;
+    }
+
+    // The size is stored in a header before the allocated memory
+    size_t *size_ptr = (size_t *)ptr - 1;
+    return *size_ptr;
+}
+
+
+void *luna_malloc(size_t size) {
+    return _kmalloc(size, NULL, 0);
+}
+
+void *luna_realloc(void *ptr, size_t size) {
+    if (ptr == NULL) {
+        // If ptr is NULL, realloc behaves like malloc
+        return malloc(size);
+    }
+
+    if (size == 0) {
+        // If size is zero, realloc behaves like free
+        kfree(ptr);
+        return NULL;
+    }
+
+    // Allocate a new block of memory
+    void *new_ptr = malloc(size);
+    if (new_ptr == NULL) {
+        return NULL; // Allocation failed
+    }
+
+    // Copy the data from the old block to the new block
+    // Determine the size of the old block (this requires tracking the size of allocated blocks)
+    size_t old_size = get_block_size(ptr); // This function needs to be implemented
+    memcpy(new_ptr, ptr, old_size < size ? old_size : size);
+
+    // Free the old block
+    kfree(ptr);
+
+    return new_ptr;
+}
+
+void luna_free(void *ptr) {
+    if (ptr != NULL) {
+        kfree(ptr);
+    }
+}

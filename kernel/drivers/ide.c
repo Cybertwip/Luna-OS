@@ -434,7 +434,7 @@ static unsigned int ide_read_write_blocks(unsigned int minor, uint32_t block,
     if (type == IO_WRITE) {
         /* Transfer the data to the controller. */
         for (i = nblocks * 256; --i >= 0; )
-            outw(iobase + ATA_DATA, *buf++);
+            outw((uint16_t)iobase + ATA_DATA, (uint16_t)*buf++);
     }
 
     /* Go to sleep until the IRQ handler wakes us up. Note: on Bochs, the IRQ

@@ -9,9 +9,10 @@ extern "C" {
     #include "mm/kmemdetect.h"
     #include "mm/paging.h"
     #include "mm/heap.h"
-}
 
-#include "VBE.h" 
+    #include "VBE.h" 
+
+}
 
 class Graphics {
 private:

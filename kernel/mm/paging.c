@@ -128,7 +128,7 @@ void init_paging(void*) {
     extern struct vm_heap *kernel_heap;
 
     /* Size of physical memory (16MB for now) */
-    mem_end_page = 0x1000000;
+    mem_end_page = 0x10000000;
 
     nframes = mem_end_page / 0x1000;
     frames = kmalloc0(INDEX_FROM_BIT(nframes));

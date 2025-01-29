@@ -1,5 +1,34 @@
 #include "divmod.h"
 
+/* Unsigned 64-bit division */
+uint64_t __udivdi3(uint64_t numerator, uint64_t denominator)
+{
+    return __udivmoddi4(numerator, denominator, 0);
+}
+
+/* Unsigned 64-bit modulo */
+uint64_t __umoddi3(uint64_t numerator, uint64_t denominator)
+{
+    uint64_t remainder;
+    __udivmoddi4(numerator, denominator, &remainder);
+    return remainder;
+}
+
+/* Signed 64-bit division */
+int64_t __divdi3(int64_t numerator, int64_t denominator)
+{
+    return __divmoddi4(numerator, denominator, 0);
+}
+
+/* Signed 64-bit modulo */
+int64_t __moddi3(int64_t numerator, int64_t denominator)
+{
+    int64_t remainder;
+    __divmoddi4(numerator, denominator, &remainder);
+    return remainder;
+}
+
+
 uint64_t __udivmoddi4(uint64_t numerator, uint64_t denominator, uint64_t* remainder) {
     uint64_t quotient = 0;
     uint64_t current = 1;
