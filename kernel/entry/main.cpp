@@ -13,6 +13,8 @@ extern "C" {
 
 #include "luna/Engine.h"
 
+#include "luna/portablegl.h"
+
 
 int fn(void *arg) {
     for (;;) {
