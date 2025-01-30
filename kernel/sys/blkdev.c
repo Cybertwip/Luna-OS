@@ -47,6 +47,7 @@ int register_blkdev_instance(unsigned int major, unsigned int minor, const char 
 
     /* Validate input parameters */
     if (!name || block_size == 0 || capacity == 0) {
+
         return -1; // Invalid parameters
     }
 
@@ -80,6 +81,7 @@ int register_blkdev_instance(unsigned int major, unsigned int minor, const char 
         kfree(instance);
         return -1; // No matching class found
     }
+
 
     /* Add the instance to the linked list */
     kmutex_lock(&blkdev_mutex);

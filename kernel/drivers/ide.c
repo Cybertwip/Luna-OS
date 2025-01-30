@@ -320,10 +320,11 @@ static void identify_ide_device(struct ide_device *device)
     /* Here, we simplified things a bit.
        See ATA/ATAPI-4 spec, Annexe B for more information. */
     if (device->lba) {
-        device->capacity = (unsigned int) info[60];
+        // Combine info[60] (lower 16 bits) and info[61] (upper 16 bits)
+        device->capacity = ((unsigned int)info[61] << 16) | info[60];
     } else {
         device->capacity = device->heads * device->sectors * device->cylinders;
-    }
+    }    
 
     /* Copy and massage the information that is useful to us. */
     memcpy(device->model, &info[27], 40);
@@ -441,7 +442,7 @@ static unsigned int ide_read_write_blocks(unsigned int minor, uint32_t block,
        is raised before we even reach this line! This is OK, and in that case,
        this line will not make us go to sleep (the semaphore will have been
        incremented by the IRQ handler prior to reaching this line) */
-    ksema_down(controller->ksema);
+    //ksema_down(controller->ksema);
 
     /* Either the device completed the operation very quickly,
        or we went to sleep and just got woken up by the IRQ handler. */
@@ -467,7 +468,7 @@ static unsigned int ide_read_write_blocks(unsigned int minor, uint32_t block,
  * Read the specified block from the specified device, and copy its content
  * to the destination buffer. The work is delegated to ide_read_write_blocks.
  */
-static unsigned int ide_read_blocks(unsigned int minor, uint32_t block,
+unsigned int ide_read_blocks(unsigned int minor, uint32_t block,
     unsigned int nblocks, void *buffer)
 {
     return ide_read_write_blocks(minor, block, nblocks, buffer, IO_READ);
@@ -477,7 +478,7 @@ static unsigned int ide_read_blocks(unsigned int minor, uint32_t block,
  * Write the content of the source buffer in the specified block of the
  * specified device. The work is delegated to ide_read_write_blocks.
  */
-static unsigned int ide_write_blocks(unsigned int minor, uint32_t block,
+unsigned int ide_write_blocks(unsigned int minor, uint32_t block,
     unsigned int nblocks, void *buffer)
 {
     return ide_read_write_blocks(minor, block, nblocks, buffer, IO_WRITE);
@@ -487,7 +488,7 @@ static void handle_ide_controller_interrupt(uint32_t esp,
     struct ide_controller *controller)
 {
     /* This wakes up the task waiting for the I/O operation to complete. */
-    ksema_up(controller->ksema);
+    //ksema_up(controller->ksema);
 }
 
 static void handle_primary_ide_controller_interrupt(uint32_t esp)
@@ -520,7 +521,7 @@ void init_ide(void)
         /* Initialize the controller structure. */
         controller = &controllers[i];
         controller->kmutex = kmutex_init();
-        controller->ksema = ksema_init(0);
+        // controller->ksema = ksema_init(0);
 
         /* Detect and identify IDE devices attached to this controller. */
         for (j = 0; j < NR_DEVICES_PER_CONTROLLER; j++) {

@@ -55,6 +55,14 @@ int main(uint32_t magic, multiboot_info_t* mb_info) {
 
     init_ide();
 
+    if(!init_filesystem()) {
+        panic("panic!");
+    }
+
+    list_root();
+
+    panic("PANIC");
+
     init_paging(mb_info);
 
 
