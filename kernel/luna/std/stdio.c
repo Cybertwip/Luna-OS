@@ -230,3 +230,46 @@ _PDCLIB_PUBLIC size_t fwrite(const void *ptr, size_t size, size_t nmemb, FILE *s
 
     return written / size;
 }
+
+
+
+_PDCLIB_PUBLIC int remove(const char *path) {
+    printk("remove: Attempting to remove: %s\n", path);
+
+    struct ufat_directory dir;
+    struct ufat_dirent ent;
+    const char* remaining;
+    
+    // Start at root directory
+    ufat_open_root(&uf, &dir);
+
+    // Find the entry
+    int ret = ufat_dir_find_path(&dir, path, &ent, &remaining);
+    if (ret != UFAT_OK) {
+        printk("remove: Path not found or invalid: %s\n", path);
+        return -1; // Error: file or path not found
+    }
+
+    // Check if it's a file or directory
+    if (ent.attributes & UFAT_ATTR_DIRECTORY) {
+        // It's a directory
+        if (ent.file_size != 0) { // Checking if the directory is empty (assuming file_size indicates this for directories)
+            printk("remove: Directory not empty, cannot remove: %s\n", path);
+            return -1; // Error: directory not empty
+        }
+        // For directory removal, we still use ufat_dir_delete since remove_file only handles files
+        ret = ufat_dir_delete(&uf, &ent);
+        if (ret != UFAT_OK) {
+            printk("remove: Failed to delete directory: %s\n", path);
+            return -1; // Error: failed to delete directory
+        }
+    } else {
+        // Use existing remove_file function for files (assuming delete_file is now remove_file)
+        if (!delete_file(path)) {
+            return -1; // Deletion failed
+        }
+    }
+
+    printk("remove: Successfully removed: %s\n", path);
+    return 0; // Success
+}

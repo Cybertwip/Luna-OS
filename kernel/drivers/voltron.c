@@ -361,7 +361,7 @@ bool delete_file(const char* path) {
 
     // Find the file entry
     int ret = ufat_dir_find_path(&dir, path, &ent, &remaining);
-    if (ret != UFAT_OK || (remaining && *remaining)) {
+    if (ret != UFAT_OK) {
         printk("delete_file: Failed to find file: %s\n", path);
         return false;
     }
@@ -382,3 +382,4 @@ bool delete_file(const char* path) {
 
     return ret == UFAT_OK;
 }
+

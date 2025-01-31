@@ -73,14 +73,12 @@ int main(uint32_t magic, multiboot_info_t* mb_info) {
         file = fopen(filename, "w");
         if (file == NULL) {
             printk("Failed to create file");
-            return;
         }
         printk("File created successfully.\n");
 
         if (fwrite(data, 1, 14, file) != 14) {
             printk("Failed to write to file");
             fclose(file);
-            return;
         }
         printk("File written successfully.\n");
         fclose(file);
@@ -89,14 +87,12 @@ int main(uint32_t magic, multiboot_info_t* mb_info) {
         file = fopen(filename, "r");
         if (file == NULL) {
             printk("Failed to open file for reading");
-            return;
         }
 
         size_t bytes_read = fread(buffer, 1, sizeof(buffer), file);
         if (bytes_read == 0) {
             printk("Failed to read from file");
             fclose(file);
-            return;
         }
         printk("File read successfully.\n");
         fclose(file);
@@ -107,8 +103,7 @@ int main(uint32_t magic, multiboot_info_t* mb_info) {
         }
 
         // Delete the file
-        if (delete_file(filename)) {
-            return;
+        if (remove(filename)) {
             printk("Failed to delete file");
         }
         printk("File deleted successfully.\n");
