@@ -52,7 +52,7 @@ _PDCLIB_PUBLIC FILE *fopen(const char *pathname, const char *mode) {
     const char *remaining;
     ufat_open_root(&uf, &dir);
     int ret = ufat_dir_find_path(&dir, pathname, &ent, &remaining);
-    bool file_exists = (ret == UFAT_OK) && !remaining;
+    bool file_exists = (ret == UFAT_OK);
 
     // Handle directories and invalid paths
     if (file_exists && (ent.attributes & UFAT_ATTR_DIRECTORY))
@@ -71,7 +71,7 @@ _PDCLIB_PUBLIC FILE *fopen(const char *pathname, const char *mode) {
         } else {
             if (!create_file(pathname)) return NULL;
             ufat_open_root(&uf, &dir);
-            if (ufat_dir_find_path(&dir, pathname, &ent, &remaining) != UFAT_OK || remaining)
+            if (ufat_dir_find_path(&dir, pathname, &ent, &remaining) != UFAT_OK)
                 return NULL;
         }
     } else if (read && !file_exists) {

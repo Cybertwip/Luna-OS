@@ -64,26 +64,54 @@ int main(uint32_t magic, multiboot_info_t* mb_info) {
             printk("Directory created successfully.\n");
         }
 
-        if(create_file("/report")) {
-            printk("File created successfully.\n");
-        }
-       
-        if(write_file("/report", "Monthly Report", 14)){
-            printk("File written successfully.\n");
-        }
-
+        FILE *file;
+        const char *filename = "/report";
+        const char *data = "Monthly Report";
         char buffer[256];
-        if(read_file("/report", buffer, sizeof(buffer))) {
-            printk("File read successfully.\n");
+
+        // Create and write to the file
+        file = fopen(filename, "w");
+        if (file == NULL) {
+            printk("Failed to create file");
+            return;
+        }
+        printk("File created successfully.\n");
+
+        if (fwrite(data, 1, 14, file) != 14) {
+            printk("Failed to write to file");
+            fclose(file);
+            return;
+        }
+        printk("File written successfully.\n");
+        fclose(file);
+
+        // Read from the file
+        file = fopen(filename, "r");
+        if (file == NULL) {
+            printk("Failed to open file for reading");
+            return;
         }
 
-        for(int i = 0; i < 14; ++i) {
-            printk("%c\n", buffer[i]);  // Corrected to print a single character
+        size_t bytes_read = fread(buffer, 1, sizeof(buffer), file);
+        if (bytes_read == 0) {
+            printk("Failed to read from file");
+            fclose(file);
+            return;
+        }
+        printk("File read successfully.\n");
+        fclose(file);
+
+        // Print the read data
+        for (int i = 0; i < 14; ++i) {
+            printk("%c\n", buffer[i]);
         }
 
-        if(delete_file("/report")) {
-            printk("File deleted successfully.\n");
+        // Delete the file
+        if (delete_file(filename)) {
+            return;
+            printk("Failed to delete file");
         }
+        printk("File deleted successfully.\n");
 
         if(open_directory("/")) {
             printk("Directory exists.\n");
