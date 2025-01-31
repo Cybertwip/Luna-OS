@@ -1,15 +1,6 @@
 [submodule "external/micro-gl"]
 	path = external/micro-gl
 	url = git@github.com:micro-gl/micro-gl.git
-[submodule "external/picolibc"]
-	path = external/picolibc
-	url = git@github.com:picolibc/picolibc.git
-[submodule "external/llvm-project"]
-	path = external/llvm-project
-	url = git@github.com:llvm/llvm-project.git
-[submodule "external/libcpp"]
-	path = external/libcpp
-	url = git@github.com:embeddedartistry/libcpp.git
 [submodule "external/pdclib"]
 	path = external/pdclib
 	url = git@github.com:DevSolar/pdclib.git

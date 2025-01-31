@@ -1,5 +1,16 @@
-
 cmake_minimum_required(VERSION 2.8)
+cmake_policy(SET CMP0079 NEW)
+
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -nostdinc++ -ffreestanding")
+
+# Ensure Clang/GCC do not use system headers
+if(CLANG)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+endif()
+
 
 # Force external build
 if(${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_BINARY_DIR} AND NOT WIN32)
@@ -10,6 +21,7 @@ endif(${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_BINARY_DIR} AND NOT W
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 include(profile_detection)
+include(patch_cxx)
 include(patch_pdclib)
 
 # http://wiki.osdev.org/CMake_Build_System
@@ -70,26 +82,18 @@ include(CheckLibraryExists)
 include(CheckCCompilerFlag)
 include(TestBigEndian)
 
-include_directories(
-	${CMAKE_SOURCE_DIR}/libc/stdlib
-	${CMAKE_SOURCE_DIR}/kernel
-	${CMAKE_SOURCE_DIR}/kernel/lib
-	${CMAKE_SOURCE_DIR}/kernel/luna
-	${CMAKE_CURRENT_LIST_DIR}/external/micro-gl/include
-	${CMAKE_CURRENT_LIST_DIR}/external/pdclib/include
-	${CMAKE_BINARY_DIR}/external/pdclib/configured_include
-	# Add libcxx includes
-	${CMAKE_CURRENT_LIST_DIR}/external/libcxx/libcxx/include
-)
 
 # Configure libcxx for freestanding environment
 set(LIBCXX_ENABLE_SHARED OFF)
-set(LIBCXX_ENABLE_THREADS OFF)
-set(LIBCXX_ENABLE_FILESYSTEM OFF)
 set(LIBCXX_ENABLE_RTTI OFF)
 set(LIBCXX_ENABLE_EXCEPTIONS OFF)
-set(LIBCXX_ENABLE_FREESTANDING ON)
-add_subdirectory(external/libcxx/libcxx)
+set(LIBCXX_ENABLE_WIDE_CHARACTERS OFF) # Disable wchar_t support
+set(LIBCXX_ENABLE_MONOTONIC_CLOCK OFF) # Disable monotonic clock
+set(LIBCXX_ENABLE_THREADS OFF) # disable threads (for now)
+set(LIBCXX_ENABLE_FILESYSTEM OFF) # disable fs (for now)
+set(LIBCXX_ENABLE_LOCALIZATION OFF) # disable locale (for now)
+
+add_subdirectory(external/cxx/libcxx)
 
 # If we're using clang..
 if(${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
@@ -202,6 +206,25 @@ set(BAREMETAL ON CACHE BOOL "Configure as baremetal libc" FORCE)
 # Add the subdirectories
 add_subdirectory(external/pdclib)
 
+target_include_directories(pdclibs PRIVATE
+	${CMAKE_CURRENT_LIST_DIR}/external/cxx/libcxx/include  # Ensure libc++ headers are first
+    ${CMAKE_SOURCE_DIR}/libc/stdlib
+    ${CMAKE_SOURCE_DIR}/kernel
+    ${CMAKE_SOURCE_DIR}/kernel/sys
+    ${CMAKE_SOURCE_DIR}/kernel/lib
+    ${CMAKE_SOURCE_DIR}/kernel/luna
+    ${CMAKE_CURRENT_LIST_DIR}/external/micro-gl/include
+    ${CMAKE_CURRENT_LIST_DIR}/external/pdclib/include
+    ${CMAKE_BINARY_DIR}/external/pdclib/configured_include
+)
+
+target_include_directories(cxx_static BEFORE PRIVATE
+${CMAKE_CURRENT_LIST_DIR}/external/cxx/libcxx/include  # Ensure libc++ headers are first
+${CMAKE_SOURCE_DIR}/kernel
+${CMAKE_CURRENT_LIST_DIR}/external/pdclib/include
+${CMAKE_BINARY_DIR}/external/pdclib/configured_include
+)
+
 # Finally, Tell CMake to build our kernel.
 add_executable(${PROJECT_NAME}.bin ${SOURCE_FILES} ${KERN_MAIN_SOURCES} ${KERN_LUNA_SOURCES} ${KERN_LUNA_C_STD_SOURCES} ${KERN_LUNA_CXX_STD_SOURCES})
 set_source_files_properties(${SOURCE_FILES} PROPERTIES LANGUAGE C COMPILE_FLAGS "")
@@ -210,7 +233,9 @@ set_source_files_properties(kernel/arch/i386/interrupt.s PROPERTIES LANGUAGE ASM
 set_source_files_properties(kernel/arch/i386/thread_asm.s PROPERTIES LANGUAGE ASM_NASM)
 
 
-target_link_libraries(${PROJECT_NAME}.bin PRIVATE pdclibs cxx)
+target_link_libraries(cxx_static PRIVATE pdclibs)
+
+target_link_libraries(${PROJECT_NAME}.bin PRIVATE pdclibs cxx_static)
 
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -nostdlib -nodefaultlibs -Wl,-m,elf_i386 ${LINKFLAGS}")
 
