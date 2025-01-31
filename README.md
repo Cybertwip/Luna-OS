@@ -1,12 +1,17 @@
-# Luna-OS
-Kernel Mode Gaming Operating System
+# 🌙 Luna-OS 🐱‍🚀
+**Kernel Mode Gaming Operating System**
 
-Kernel is Public Domain, however, the uFat library is BSD. 
+## What's Working So Far? ✅
+- **Memory allocation with paging.** 🧠  
+- **32-bit 2D and 3D graphics** (via MicroGL and PortableGL) 🎨  
+- **Standard C library functions.** 📚  
 
-It makes use of pdlibc which is Public Domain as well. 
+## Licensing Info 📜
+- **Kernel**: Public Domain 🙌  
+- **uFat Library**: BSD License 📝  
+- **pdlibc**: Public Domain 🆓  
+- **MicroGL & PortableGL**: Follow their own respective licensing. 🔍  
+- **PortableGL** will be replaced with **LunaGL** (a Public Domain implementation of the OpenGL 3.0 standard) 🌟  
 
-MicroGL and PortableGL follow their own respective licensing. 
-
-PortableGL will be replaced with LunaGL (a Public Domain implementation of the OpenGL 3.0 standard)
-
-A library named rUgly that we're developing will be the Public Domain replacement for uFat.
+## Future Developments 🔮
+- **rUgly Library**: Our Public Domain replacement for uFat is in the works! 🛠️  
