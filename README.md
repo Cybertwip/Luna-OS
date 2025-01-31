@@ -9,10 +9,9 @@
 ### Screenshots and Demos 📸🎥
 ![PortableGL Screenshot](docs/portablegl.png)
 
+**Luna-OS with 3d in action**
 
 https://github.com/user-attachments/assets/6d8a7e6f-908b-4a36-80ee-c61700db3488
-
-
 
 
 ## Licensing Info 📜
