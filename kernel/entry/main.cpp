@@ -55,79 +55,14 @@ int main(uint32_t magic, multiboot_info_t* mb_info) {
     kernel_io_init();
 
     init_ide();
-    
-// Initialize the filesystem
-    if (init_filesystem(DISK_HD_ATA)) {
-        printk("Filesystem initialized successfully.\n");
-
-        if(create_directory("/")) {
-            printk("Directory created successfully.\n");
-        }
-
-        FILE *file;
-        const char *filename = "/report";
-        const char *data = "Monthly Report";
-        char buffer[256];
-
-        // Create and write to the file
-        file = fopen(filename, "w");
-        if (file == NULL) {
-            printk("Failed to create file");
-        }
-        printk("File created successfully.\n");
-
-        if (fwrite(data, 1, 14, file) != 14) {
-            printk("Failed to write to file");
-            fclose(file);
-        }
-        printk("File written successfully.\n");
-        fclose(file);
-
-        // Read from the file
-        file = fopen(filename, "r");
-        if (file == NULL) {
-            printk("Failed to open file for reading");
-        }
-
-        size_t bytes_read = fread(buffer, 1, sizeof(buffer), file);
-        if (bytes_read == 0) {
-            printk("Failed to read from file");
-            fclose(file);
-        }
-        printk("File read successfully.\n");
-        fclose(file);
-
-        // Print the read data
-        for (int i = 0; i < 14; ++i) {
-            printk("%c\n", buffer[i]);
-        }
-
-        // Delete the file
-        if (remove(filename)) {
-            printk("Failed to delete file");
-        }
-        printk("File deleted successfully.\n");
-
-        if(open_directory("/")) {
-            printk("Directory exists.\n");
-        }
-        // // Read data from the file
-        // uint8_t buffer[100];
-        // if (read_file("/example_directory/example.txt", buffer, sizeof(buffer))) {
-        //     printk("File read successfully.\n");
-        // }
-    } else {
-        printk("Failed to initialize filesystem.\n");
-    }
-
-    panic("halt");
-
+    init_filesystem(DISK_HD_ATA);
     init_paging(mb_info);
-
     init_timer(20);
 
     __asm__ volatile ("sti");
     init_scheduler(init_threading());
+
+    // start operations here
 
     Graphics gfx;
 
