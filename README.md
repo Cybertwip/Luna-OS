@@ -9,7 +9,7 @@
 ### Screenshots and Demos 📸🎥
 ![PortableGL Screenshot](docs/portablegl.png)
 
-[![Watch the video](https://raw.githubusercontent.com/cybertwip/Luna-OS/refs/heads/master/docs/luna_thumbnail.png)](https://raw.githubusercontent.com/cybertwip/Luna-OS/refs/heads/master/docs/luna.mp4)
+<video src="https://raw.githubusercontent.com/cybertwip/Luna-OS/refs/heads/master/docs/luna.mp4" controls>Your browser does not support the video tag.</video>
 
 
 ## Licensing Info 📜
