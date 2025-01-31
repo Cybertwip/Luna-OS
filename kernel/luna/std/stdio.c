@@ -4,6 +4,7 @@
 #include "drivers/fat32.h"
 #include "drivers/ufat.h"
 #include "drivers/voltron.h"
+#include "mm/kmalloc.h"
 #include "sys/system.h"
 #include "string.h"
 #include <pdclib/_PDCLIB_glue.h>
@@ -79,11 +80,11 @@ _PDCLIB_PUBLIC FILE *fopen(const char *pathname, const char *mode) {
     }
 
     // Allocate FILE structure
-    FILE *stream = calloc(1, sizeof(FILE));
+    FILE *stream = (FILE*)calloc(1, sizeof(FILE));
     if (!stream) return NULL;
 
     // Allocate ufat handle
-    ufat_file_handle *handle = calloc(1, sizeof(ufat_file_handle));
+    ufat_file_handle *handle = (ufat_file_handle*)calloc(1, sizeof(ufat_file_handle));
     if (!handle) {
         free(stream);
         return NULL;
