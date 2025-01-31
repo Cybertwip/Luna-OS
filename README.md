@@ -9,7 +9,7 @@
 ### Screenshots and Demos 📸🎥
 ![PortableGL Screenshot](docs/portablegl.png)
 
-[![Watch the video](https://raw.githubusercontent.com/cybertwip/repository/master/docs/luna_thumbnail.png)](https://raw.githubusercontent.com/cybertwip/repository/master/docs/luna.mp4)
+[![Watch the video](https://raw.githubusercontent.com/cybertwip/master/docs/luna_thumbnail.png)](https://raw.githubusercontent.com/cybertwip/master/docs/luna.mp4)
 
 
 ## Licensing Info 📜
