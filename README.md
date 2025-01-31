@@ -7,8 +7,9 @@
 - **Standard C library functions.** 📚  
 
 ### Screenshots and Demos 📸🎥
-- **[PortableGL Screenshot](docs/portablegl.png)**
-- **[Luna Demo](docs/luna.mp4)**
+![PortableGL Screenshot](docs/portablegl.png)
+
+<video src="docs/luna.mp4" controls>Your browser does not support the video tag.</video>
 
 ## Licensing Info 📜
 - **Kernel**: Public Domain 🙌  
