@@ -9,10 +9,7 @@
 ### Screenshots and Demos 📸🎥
 ![PortableGL Screenshot](docs/portablegl.png)
 
-<figure class="video_container">
-  <iframe src="docs/luna.mp4" frameborder="0" allowfullscreen="true"> 
-</iframe>
-</figure>
+![](docs/luna.mp4)
 
 ## Licensing Info 📜
 - **Kernel**: Public Domain 🙌  
