@@ -92,36 +92,12 @@ _PDCLIB_PUBLIC void srand( unsigned int seed );
 
 /* Memory management functions */
 
-/* Allocate a chunk of heap memory of given size. If request could not be
-   satisfied, return NULL. Otherwise, return a pointer to the allocated
-   memory. Memory contents are undefined.
-*/
-_PDCLIB_PUBLIC void * malloc( size_t size );
-
 /* Allocate a chunk of heap memory that is large enough to hold nmemb elements
    of the given size, and zero-initialize that memory. If request could not be
    satisfied, return NULL. Otherwise, return a pointer to the allocated
    memory.
 */
 _PDCLIB_PUBLIC void * calloc( size_t nmemb, size_t size );
-
-/* De-allocate a chunk of heap memory previously allocated using malloc(),
-   calloc(), or realloc(), and pointed to by ptr. If ptr does not match a
-   pointer previously returned by the mentioned allocation functions, or
-   free() has already been called for this ptr, behaviour is undefined.
-*/
-_PDCLIB_PUBLIC void free( void * ptr );
-
-/* Resize a chunk of memory previously allocated with malloc() and pointed to
-   by ptr to the given size (which might be larger or smaller than the original
-   size). Returns a pointer to the reallocated memory, or NULL if the request
-   could not be satisfied. Note that the resizing might include a memcpy()
-   from the original location to a different one, so the return value might or
-   might not equal ptr. If size is larger than the original size, the value of
-   memory beyond the original size is undefined. If ptr is NULL, realloc()
-   behaves like malloc().
-*/
-_PDCLIB_PUBLIC void * realloc( void * ptr, size_t size );
 
 /* Communication with the environment */
 

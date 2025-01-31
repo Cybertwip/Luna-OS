@@ -35,10 +35,11 @@ void * sbrk( intptr_t );
    are declared _PDCLIB_PUBLIC in <stdlib.h>, marking them
    exported from the library.)
 */
-#define dlmalloc   malloc
-#define dlcalloc   calloc
+
+#define malloc luna_malloc
+#define realloc luna_realloc
+#define free luna_free
 #define dlrealloc  realloc
-#define dlfree     free
 #if __STDC_VERSION__ >= 201112L
 #define dlmemalign aligned_alloc
 #endif
@@ -5242,7 +5243,7 @@ static void internal_inspect_all(mstate m,
 
 /* ------------------ Exported realloc, memalign, etc -------------------- */
 
-#if !ONLY_MSPACES
+#if !defined(ONLY_MSPACES)
 
 void* dlrealloc(void* oldmem, size_t bytes) {
   void* mem = 0;

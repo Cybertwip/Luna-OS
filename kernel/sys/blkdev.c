@@ -1,7 +1,9 @@
 #include "blkdev.h"
-#include "sync.h"
 #include "mm/heap.h"
 #include "string.h"
+#include "sync.h"
+
+#include "stdlib.h"
 
 static kmutex_t blkdev_mutex;                  // Mutex for thread-safe operations
 static blkdev_class_t *blkdev_classes = NULL;  // Linked list of block device classes
@@ -33,7 +35,7 @@ int register_blkdev_class(unsigned int major, const char *name,
 
     /* Add the class to the linked list */
     kmutex_lock(&blkdev_mutex);
-    class->next = blkdev_classes;
+    class->next = (blkdev_class_t*)blkdev_classes;
     blkdev_classes = class;
     kmutex_unlock(&blkdev_mutex);
 
@@ -52,7 +54,7 @@ int register_blkdev_instance(unsigned int major, unsigned int minor, const char 
     }
 
     /* Allocate memory for the new instance */
-    instance = kmalloc(sizeof(blkdev_instance_t));
+    instance = (blkdev_instance_t*)kmalloc(sizeof(blkdev_instance_t));
     if (!instance) {
         return -1; // Memory allocation failed
     }
@@ -73,7 +75,7 @@ int register_blkdev_instance(unsigned int major, unsigned int minor, const char 
             instance->class = class;
             break;
         }
-        class = class->next;
+        class = (blkdev_class_t*)class->next;
     }
     kmutex_unlock(&blkdev_mutex);
 
@@ -85,7 +87,7 @@ int register_blkdev_instance(unsigned int major, unsigned int minor, const char 
 
     /* Add the instance to the linked list */
     kmutex_lock(&blkdev_mutex);
-    instance->next = blkdev_instances;
+    instance->next = (blkdev_instance_t*)blkdev_instances;
     blkdev_instances = instance;
     kmutex_unlock(&blkdev_mutex);
 

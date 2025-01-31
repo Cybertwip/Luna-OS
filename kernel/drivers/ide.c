@@ -2,11 +2,18 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include <stdio.h>
+
 #include <arch/i386/descriptor_tables.h>
 #include <drivers/ide.h>
+#include <drivers/timer.h>
 #include <luna/VBE.h>
 #include <luna/std/assert.h>
 #include <sys/blkdev.h>
+#include <sys/sync.h>
+
+
+extern hd_ata hd_slot_0;
 
 /* We support up to 2 IDE controllers in Simplix. */
 #define NR_IDE_CONTROLLERS 2
@@ -114,7 +121,7 @@ struct ide_controller {
 
     /* A controller can serve only one request at a time. This kmutex
        protects the controller while it's being used by another task. */
-    struct kmutex *kmutex;
+    kmutex_t *kmutex;
 
     /* When issuing a request to the IDE controller, a task decrements
        the value of this ksemaphore (DOWN). The IRQ handler increments it
@@ -367,14 +374,16 @@ static unsigned int ide_read_write_blocks(unsigned int minor, uint32_t block,
     if (!device->present)
         return 0;
 
+
     if (!nblocks)
         return 0;
 
     if (nblocks > MAX_NBLOCKS)
         nblocks = MAX_NBLOCKS;
 
-    if (block + nblocks > device->capacity)
+    if (block + nblocks > device->capacity) {
         return 0;
+    }
 
     controller = device->controller;
     iobase = controller->iobase;
@@ -468,7 +477,7 @@ static unsigned int ide_read_write_blocks(unsigned int minor, uint32_t block,
  * Read the specified block from the specified device, and copy its content
  * to the destination buffer. The work is delegated to ide_read_write_blocks.
  */
-unsigned int ide_read_blocks(unsigned int minor, uint32_t block,
+static int ide_read_blocks(unsigned int minor, uint32_t block,
     unsigned int nblocks, void *buffer)
 {
     return ide_read_write_blocks(minor, block, nblocks, buffer, IO_READ);
@@ -478,27 +487,27 @@ unsigned int ide_read_blocks(unsigned int minor, uint32_t block,
  * Write the content of the source buffer in the specified block of the
  * specified device. The work is delegated to ide_read_write_blocks.
  */
-unsigned int ide_write_blocks(unsigned int minor, uint32_t block,
+static int ide_write_blocks(unsigned int minor, uint32_t block,
     unsigned int nblocks, void *buffer)
 {
     return ide_read_write_blocks(minor, block, nblocks, buffer, IO_WRITE);
 }
 
-static void handle_ide_controller_interrupt(uint32_t esp,
-    struct ide_controller *controller)
+static void handle_ide_controller_interrupt()
 {
+    panic("PAN");
     /* This wakes up the task waiting for the I/O operation to complete. */
     //ksema_up(controller->ksema);
 }
 
-static void handle_primary_ide_controller_interrupt(uint32_t esp)
+static void handle_primary_ide_controller_interrupt(registers_t*)
 {
-    handle_ide_controller_interrupt(esp, &controllers[PRIMARY_IDE_CONTROLLER]);
+    handle_ide_controller_interrupt();
 }
 
-static void handle_secondary_ide_controller_interrupt(uint32_t esp)
+static void handle_secondary_ide_controller_interrupt(registers_t*)
 {
-    handle_ide_controller_interrupt(esp, &controllers[SECONDARY_IDE_CONTROLLER]);
+    handle_ide_controller_interrupt();
 }
 
 /*
@@ -520,7 +529,7 @@ void init_ide(void)
 
         /* Initialize the controller structure. */
         controller = &controllers[i];
-        controller->kmutex = kmutex_init();
+        kmutex_init(controller->kmutex);
         // controller->ksema = ksema_init(0);
 
         /* Detect and identify IDE devices attached to this controller. */
@@ -533,6 +542,13 @@ void init_ide(void)
 
             if (!device->present || device->atapi)
                 continue;
+
+            // Assign the first found device to hd_slot_0
+            if (!hd_slot_0.initialized) {
+                hd_slot_0.minor = i * NR_DEVICES_PER_CONTROLLER + j;
+                hd_slot_0.initialized = true;
+                printk("IDE: Assigned minor %u to hd_slot_0\n", hd_slot_0.minor);
+            }
 
             /* Show the device information on the screen.
                Since we don't support ATAPI devices, let's not list them! */
@@ -568,4 +584,32 @@ void init_ide(void)
     /* Enable IRQ lines. */
     enable_irq_line(IRQ14);
     enable_irq_line(IRQ15);
+}
+
+
+// Implement the new disk interface functions
+u8 hd_ata_get_status(hd_ata* hd) {
+    struct ide_device *device = get_ide_device(hd->minor);
+    if (!device->present || !hd->initialized) {
+        return 0;
+    }
+    return 1;
+}
+
+u8 hd_ata_protocol_config(hd_ata *hd) {
+    // Configuration is handled during init_ide; just check initialization
+    if (hd->initialized) {
+        return 1; // Success
+    }
+    return 0; // Error (not initialized)
+}
+
+u8 hd_ata_protocol_read(hd_ata* hd, u8* buffer, u32 lba, u32 count) {
+    unsigned int n = ide_read_blocks(hd->minor, lba, count, buffer);
+    return (n == count) ? 1 : 0;
+}
+
+u8 hd_ata_protocol_write(hd_ata* hd, const u8* buffer, u32 lba, u32 count) {
+    unsigned int n = ide_write_blocks(hd->minor, lba, count, (void*)buffer);
+    return (n == count) ? 1 : 0;
 }

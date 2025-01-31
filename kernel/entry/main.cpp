@@ -5,6 +5,7 @@ extern "C" {
 #include "drivers/timer.h"
 #include "drivers/ide.h"
 #include "drivers/voltron.h"
+#include "drivers/fat32.h"
 
 }
 
@@ -54,17 +55,51 @@ int main(uint32_t magic, multiboot_info_t* mb_info) {
     kernel_io_init();
 
     init_ide();
+    
+// Initialize the filesystem
+    if (init_filesystem(DISK_HD_ATA)) {
+        printk("Filesystem initialized successfully.\n");
 
-    if(!init_filesystem()) {
-        panic("panic!");
+        if(create_directory("/")) {
+            printk("Directory created successfully.\n");
+        }
+
+        if(create_file("/report")) {
+            printk("File created successfully.\n");
+        }
+       
+        if(write_file("/report", "Monthly Report", 14)){
+            printk("File written successfully.\n");
+        }
+
+        char buffer[256];
+        if(read_file("/report", buffer, sizeof(buffer))) {
+            printk("File read successfully.\n");
+        }
+
+        for(int i = 0; i < 14; ++i) {
+            printk("%c\n", buffer[i]);  // Corrected to print a single character
+        }
+
+        if(delete_file("/report")) {
+            printk("File deleted successfully.\n");
+        }
+
+        if(open_directory("/")) {
+            printk("Directory exists.\n");
+        }
+        // // Read data from the file
+        // uint8_t buffer[100];
+        // if (read_file("/example_directory/example.txt", buffer, sizeof(buffer))) {
+        //     printk("File read successfully.\n");
+        // }
+    } else {
+        printk("Failed to initialize filesystem.\n");
     }
 
-    list_root();
-
-    panic("PANIC");
+    panic("halt");
 
     init_paging(mb_info);
-
 
     init_timer(20);
 

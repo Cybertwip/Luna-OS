@@ -1,10 +1,17 @@
 #pragma once
 #include <stdint.h>
 
-unsigned int ide_read_blocks(unsigned int minor, uint32_t block,
-    unsigned int nblocks, void *buffer);
+#include <drivers/disk_interface.h>
 
-unsigned int ide_write_blocks(unsigned int minor, uint32_t block,
-    unsigned int nblocks, void *buffer);
-    
 extern void init_ide(void);
+
+extern u8 disk_get_status(disk_e disk);
+
+/// Initializes at disk intrface
+extern u8 disk_initialize(disk_e disk);
+
+/// Read a number of sectors from the MSD
+extern u8 disk_read(disk_e disk, u8* buffer, u32 lba, u32 count);
+
+/// Write a number of sectors to the MSD
+extern u8 disk_write(disk_e disk, const u8* buffer, u32 lba, u32 count);

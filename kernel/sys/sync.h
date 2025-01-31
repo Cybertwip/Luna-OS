@@ -14,7 +14,7 @@ typedef struct {
     volatile int count;
     kmutex_t lock;
 } ksema_t;
-
+ 
 void ksema_init(ksema_t *sema, int initial_count);
 void ksema_down(ksema_t *sema);
 void ksema_up(ksema_t *sema);

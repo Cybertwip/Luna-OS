@@ -1,14 +1,17 @@
 import os
 import subprocess
 
-def create_fat32_disk(image_path="disk.img", size_gb=1):
+def create_fat32_disk(image_path="disk.img", size_gb=8):
     # Delete existing image if present
     if os.path.exists(image_path):
         os.remove(image_path)
-    
+        print(f"Removed disk image: {image_path}")
+    else:
+        print(f"File {image_path} does not exist.")
+
     # Step 1: Create a raw disk image with dd
     print("Creating raw disk image...")
-    image_size = size_gb * 1024 * 1024 * 1024  # 1GB in bytes
+    image_size = size_gb * 1025 * 1024 * 1024  # 1GB in bytes
     with open(image_path, "wb") as f:
         f.truncate(image_size)
     

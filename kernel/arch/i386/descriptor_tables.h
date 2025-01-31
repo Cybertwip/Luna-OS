@@ -18,8 +18,12 @@
 #define IRQ11 43
 #define IRQ12 44
 #define IRQ13 45
-#define IRQ14 46    // Primary IDE
-#define IRQ15 47    // Secondary IDE
+#define IRQ14 46    
+#define IRQ15 47    
+
+#define IRQ_PRIMARY_IDE     14
+#define IRQ_SECONDARY_IDE   15
+
 
 #define PIC1_DATA  0x21  /* Master PIC data port */
 #define PIC2_DATA  0xa1  /* Slave PIC data port */

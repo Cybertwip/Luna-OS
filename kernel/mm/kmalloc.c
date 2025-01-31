@@ -185,6 +185,21 @@ void *luna_malloc(size_t size) {
     return _kmalloc(size, NULL, 0);
 }
 
+void *luna_calloc(size_t num, size_t size) {
+    // Calculate the total size to allocate
+    size_t total_size = num * size;
+
+    // Check for overflow in the multiplication
+    if (size != 0 && total_size / size != num) {
+        return NULL; // Overflow occurred
+    }
+
+    // Allocate memory using _kmalloc with the M_ZERO flag to zero the memory
+    void *ptr = _kmalloc(total_size, NULL, M_ZERO);
+
+    return ptr;
+}
+
 void *luna_realloc(void *ptr, size_t size) {
     if (ptr == NULL) {
         // If ptr is NULL, realloc behaves like malloc

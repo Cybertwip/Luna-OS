@@ -141,6 +141,9 @@ long double roundl(long double x) {
 }
 
 // Minimum, Maximum, and difference functions
+int min(int a, int b) {
+    return a < b ? a : b;
+}
 double fmin(double x, double y) {
     return x < y ? x : y;
 }
@@ -151,6 +154,10 @@ float fminf(float x, float y) {
 
 long double fminl(long double x, long double y) {
     return x < y ? x : y;
+}
+
+int max(int a, int b) {
+    return a > b ? a : b;
 }
 
 double fmax(double x, double y) {

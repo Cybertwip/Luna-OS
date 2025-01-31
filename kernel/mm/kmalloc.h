@@ -90,4 +90,9 @@ void *kmalloc0_ap(size_t len, uint32_t *phys);
 void kfree(void *ptr);
 
 
+extern void *luna_malloc(size_t size);
+extern void *luna_calloc(size_t num, size_t size);
+extern void *luna_realloc(void *ptr, size_t size);
+extern void luna_free(void *ptr);
+
 #endif /* KMALLOC_H */

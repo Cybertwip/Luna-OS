@@ -36,4 +36,3 @@ extern void *luna_realloc(void *ptr, size_t size);
 
 extern void luna_free(void *ptr);
 
-#include_next <stdlib.h>

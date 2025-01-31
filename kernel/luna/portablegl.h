@@ -333,7 +333,6 @@ extern "C" {
 #if defined(PGL_MALLOC) && defined(PGL_FREE) && defined(PGL_REALLOC)
 /* ok */
 #elif !defined(PGL_MALLOC) && !defined(PGL_FREE) && !defined(PGL_REALLOC)
-/* ok */
 #else
 #error "Must define all or none of PGL_MALLOC, PGL_FREE, and PGL_REALLOC."
 #endif
