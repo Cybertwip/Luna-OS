@@ -7,7 +7,7 @@
 - **Memory allocation with paging.** 🧠  
 - **32-bit 2D and 3D graphics** (via MicroGL and PortableGL) 🎨  
 - **Standard C11 library functions.** 📚  
-- **C++ STL support via EASTL** (Thanks EA). Licensing for EASTL is BSD. 🛠
+- **C++ STL support via EASTL** (Thanks EA). 🛠
 
 ### Screenshots and Demos 📸🎥
 ![PortableGL Screenshot](docs/portablegl.png)
