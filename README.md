@@ -9,7 +9,8 @@
 ### Screenshots and Demos 📸🎥
 ![PortableGL Screenshot](docs/portablegl.png)
 
-![](https://github.com/Cybertwip/Luna-OS/raw/refs/heads/master/docs/luna.mp4)
+[![Watch the video](https://raw.githubusercontent.com/cybertwip/repository/master/docs/luna_thumbnail.png)](https://raw.githubusercontent.com/cybertwip/repository/master/docs/luna.mp4)
+
 
 ## Licensing Info 📜
 - **Kernel**: Public Domain 🙌  
