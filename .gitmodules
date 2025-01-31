@@ -8,7 +8,6 @@
 	path = external/libcxx
 	url = git@github.com:llvm/llvm-project.git
 	branch = release/17.x
-[submodule "external/cxx"]
-	path = external/cxx
-	url = git@github.com:llvm/llvm-project.git
-	branch = 17.x
+[submodule "external/EASTL"]
+	path = external/EASTL
+	url = git@github.com:electronicarts/EASTL.git

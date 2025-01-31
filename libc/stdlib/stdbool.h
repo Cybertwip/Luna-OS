@@ -1,20 +1,21 @@
-
-#ifndef __STDBOOL_H__
-#define __STDBOOL_H__
+#ifndef STDBOOL_H
+#define STDBOOL_H
 
 #ifndef __cplusplus
 
+/* Define bool, true, and false for C */
 #define bool _Bool
 #define true 1
 #define false 0
 
 #else
 
-/* In C++, `bool`, `true`, and `false` are already defined as keywords. */
+/* In C++, bool, true, and false are already defined as keywords. */
+/* Do not redefine them. */
 #define _Bool bool
 
 #endif
 
 #define __bool_true_false_are_defined 1
 
-#endif /* __STDBOOL_H__ */
+#endif /* STDBOOL_H */

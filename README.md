@@ -6,7 +6,7 @@
 ## What's Working So Far? ✅
 - **Memory allocation with paging.** 🧠  
 - **32-bit 2D and 3D graphics** (via MicroGL and PortableGL) 🎨  
-- **Standard C library functions.** 📚  
+- **Standard C11 library functions.** 📚  
 
 ### Screenshots and Demos 📸🎥
 ![PortableGL Screenshot](docs/portablegl.png)
@@ -17,7 +17,7 @@ https://github.com/user-attachments/assets/6d8a7e6f-908b-4a36-80ee-c61700db3488
 
 
 ## Licensing Info 📜
-- **Kernel**: Public Domain 🙌  
+- **Luna-OS and Luna-OS Kernel**: Public Domain 🙌  
 - **uFat Library**: BSD License 📝  
 - **pdlibc**: Public Domain 🆓  
 - **MicroGL & PortableGL**: Follow their own respective licensing. 🔍  

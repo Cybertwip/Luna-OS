@@ -11,7 +11,6 @@
 #include <pdclib/_PDCLIB_internal.h>
 #include <pdclib/_PDCLIB_config.h>
 
-
 // PDCLIB internal flags (adjust according to your PDCLIB configuration)
 #define _PDCLIB_FOPEN   0x0001
 #define _PDCLIB_FBYTE   0x0008

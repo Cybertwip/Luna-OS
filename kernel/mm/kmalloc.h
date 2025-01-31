@@ -1,9 +1,6 @@
 #ifndef KMALLOC_H
 #define KMALLOC_H
 
-#include <stdint.h>
-#include <stddef.h>
-
 /*
  * This header file contains the declarations for memory allocation routines.
  * All `kmalloc0*` functions ensure that the allocated memory is initialized 

@@ -13,16 +13,7 @@ extern "C" {
 
 #include "pdclib/_PDCLIB_lib_ext1.h"
 #include "pdclib/_PDCLIB_internal.h"
-
-#ifndef _PDCLIB_SIZE_T_DEFINED
-#define _PDCLIB_SIZE_T_DEFINED _PDCLIB_SIZE_T_DEFINED
-typedef _PDCLIB_size_t size_t;
-#endif
-
-#ifndef _PDCLIB_NULL_DEFINED
-#define _PDCLIB_NULL_DEFINED _PDCLIB_NULL_DEFINED
-#define NULL _PDCLIB_NULL
-#endif
+#include <stddef.h>
 
 /* Numeric conversion functions */
 
@@ -92,12 +83,36 @@ _PDCLIB_PUBLIC void srand( unsigned int seed );
 
 /* Memory management functions */
 
+/* Allocate a chunk of heap memory of given size. If request could not be
+   satisfied, return NULL. Otherwise, return a pointer to the allocated
+   memory. Memory contents are undefined.
+*/
+_PDCLIB_PUBLIC void * malloc( size_t size );
+
 /* Allocate a chunk of heap memory that is large enough to hold nmemb elements
    of the given size, and zero-initialize that memory. If request could not be
    satisfied, return NULL. Otherwise, return a pointer to the allocated
    memory.
 */
 _PDCLIB_PUBLIC void * calloc( size_t nmemb, size_t size );
+
+/* De-allocate a chunk of heap memory previously allocated using malloc(),
+   calloc(), or realloc(), and pointed to by ptr. If ptr does not match a
+   pointer previously returned by the mentioned allocation functions, or
+   free() has already been called for this ptr, behaviour is undefined.
+*/
+_PDCLIB_PUBLIC void free( void * ptr );
+
+/* Resize a chunk of memory previously allocated with malloc() and pointed to
+   by ptr to the given size (which might be larger or smaller than the original
+   size). Returns a pointer to the reallocated memory, or NULL if the request
+   could not be satisfied. Note that the resizing might include a memcpy()
+   from the original location to a different one, so the return value might or
+   might not equal ptr. If size is larger than the original size, the value of
+   memory beyond the original size is undefined. If ptr is NULL, realloc()
+   behaves like malloc().
+*/
+_PDCLIB_PUBLIC void * realloc( void * ptr, size_t size );
 
 /* Communication with the environment */
 
@@ -227,13 +242,12 @@ _PDCLIB_PUBLIC lldiv_t lldiv( long long int numer, long long int denom );
 
 /* TODO: Macro MB_CUR_MAX */
 
-/*
 _PDCLIB_PUBLIC int mblen( const char * s, size_t n );
 _PDCLIB_PUBLIC int mbtowc( wchar_t * _PDCLIB_restrict pwc, const char * _PDCLIB_restrict s, size_t n );
 _PDCLIB_PUBLIC int wctomb( char * s, wchar_t wc );
 _PDCLIB_PUBLIC size_t mbstowcs( wchar_t * _PDCLIB_restrict pwcs, const char * _PDCLIB_restrict s, size_t n );
 _PDCLIB_PUBLIC size_t wcstombs( char * _PDCLIB_restrict s, const wchar_t * _PDCLIB_restrict pwcs, size_t n );
-*/
+
 
 /* Annex K -- Bounds-checking interfaces */
 

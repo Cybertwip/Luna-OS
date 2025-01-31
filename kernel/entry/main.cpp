@@ -6,7 +6,8 @@ extern "C" {
 #include "drivers/ide.h"
 #include "drivers/voltron.h"
 #include "drivers/fat32.h"
-
+#include <kernel.h>
+#include <mm/kmalloc.h>
 }
 
 #include "luna/Graphics.h"

@@ -21,6 +21,8 @@ void * sbrk( intptr_t );
 #include "pdclib/_PDCLIB_config.h"
 #include "pdclib/_PDCLIB_defguard.h"
 
+#include "mm/kmalloc.h"
+
 /* Have all functions herein use the dl* prefix */
 #define USE_DL_PREFIX 1
 
@@ -35,10 +37,6 @@ void * sbrk( intptr_t );
    are declared _PDCLIB_PUBLIC in <stdlib.h>, marking them
    exported from the library.)
 */
-
-#define malloc luna_malloc
-#define realloc luna_realloc
-#define free luna_free
 #define dlrealloc  realloc
 #if __STDC_VERSION__ >= 201112L
 #define dlmemalign aligned_alloc

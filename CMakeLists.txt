@@ -2,13 +2,13 @@ cmake_minimum_required(VERSION 2.8)
 cmake_policy(SET CMP0079 NEW)
 
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -nostdinc++ -ffreestanding")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ffreestanding")
 
 # Ensure Clang/GCC do not use system headers
 if(CLANG)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 endif()
 
 
@@ -21,7 +21,6 @@ endif(${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_BINARY_DIR} AND NOT W
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 include(profile_detection)
-include(patch_cxx)
 include(patch_pdclib)
 
 # http://wiki.osdev.org/CMake_Build_System
@@ -49,7 +48,7 @@ option(USE_GCC_TOOLCHAIN "Use the GCC toolchain from tools/mkcrosscompiler_gcc.s
 
 # these are any additional flags which should be added to the base compiles. Things like 32 bit or elf binaries
 set(CFLAGS "${ISA_C_FLAGS} -m32 -fcheck-new -ffreestanding -fno-builtin")
-set(CFLAGS "${CFLAGS} -nostdlib -nostdinc -finline-functions -fno-stack-protector -fomit-frame-pointer")
+set(CFLAGS "${CFLAGS} -nostdlib -finline-functions -fno-stack-protector -fomit-frame-pointer")
 set(CFLAGS "${CFLAGS} -mno-sse")
 # linker flags and Assembler flags too -Wl,--oformat,binary
 set(LINKFLAGS "${ISA_LINKER_FLAGS} ${PLATFORM_LINKER_FLAGS}")
@@ -82,18 +81,8 @@ include(CheckLibraryExists)
 include(CheckCCompilerFlag)
 include(TestBigEndian)
 
+add_subdirectory(external/EASTL)
 
-# Configure libcxx for freestanding environment
-set(LIBCXX_ENABLE_SHARED OFF)
-set(LIBCXX_ENABLE_RTTI OFF)
-set(LIBCXX_ENABLE_EXCEPTIONS OFF)
-set(LIBCXX_ENABLE_WIDE_CHARACTERS OFF) # Disable wchar_t support
-set(LIBCXX_ENABLE_MONOTONIC_CLOCK OFF) # Disable monotonic clock
-set(LIBCXX_ENABLE_THREADS OFF) # disable threads (for now)
-set(LIBCXX_ENABLE_FILESYSTEM OFF) # disable fs (for now)
-set(LIBCXX_ENABLE_LOCALIZATION OFF) # disable locale (for now)
-
-add_subdirectory(external/cxx/libcxx)
 
 # If we're using clang..
 if(${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
@@ -111,7 +100,7 @@ if(${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
 	SET (CMAKE_C_FLAGS_RELEASE        "-O3 -DNDEBUG ${BASE_CFLAGS}")
 	SET (CMAKE_C_FLAGS_RELWITHDEBINFO "-O2 -g ${BASE_CFLAGS}")
 
-	SET (CMAKE_CXX_FLAGS                "-std=c++17 ${BASE_CFLAGS}")
+	SET (CMAKE_CXX_FLAGS                "-std=c++14 ${BASE_CFLAGS}")
 	SET (CMAKE_CXX_FLAGS_DEBUG          "-g -D_DEBUG ${BASE_CFLAGS}")
 	SET (CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG ${BASE_CFLAGS}")
 	SET (CMAKE_CXX_FLAGS_RELEASE        "-O3 -DNDEBUG ${BASE_CFLAGS}")
@@ -139,7 +128,7 @@ if(${USE_GCC_TOOLCHAIN} OR ${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
 	SET (CMAKE_C_FLAGS_RELEASE        "-O3 -DNDEBUG ${BASE_CFLAGS}")
 	SET (CMAKE_C_FLAGS_RELWITHDEBINFO "-O2 -g ${BASE_CFLAGS}")
 
-	set(CXXFLAGS "${BASE_CXXFLAGS} -std=c++17 -fno-rtti -fno-exceptions -fno-threadsafe-statics")
+	set(CXXFLAGS "${BASE_CXXFLAGS} -std=c++14 -fno-rtti -fno-exceptions -fno-threadsafe-statics")
 
 	SET (CMAKE_CXX_FLAGS                "${CXXFLAGS}")
 	SET (CMAKE_CXX_FLAGS_DEBUG          "-g -D_DEBUG ${CXXFLAGS}")
@@ -206,23 +195,17 @@ set(BAREMETAL ON CACHE BOOL "Configure as baremetal libc" FORCE)
 # Add the subdirectories
 add_subdirectory(external/pdclib)
 
-target_include_directories(pdclibs PRIVATE
-	${CMAKE_CURRENT_LIST_DIR}/external/cxx/libcxx/include  # Ensure libc++ headers are first
+target_include_directories(pdclibs PUBLIC
+	${CMAKE_CURRENT_LIST_DIR}/external/EASTL/include  # Ensure libc++ headers are first
     ${CMAKE_SOURCE_DIR}/libc/stdlib
     ${CMAKE_SOURCE_DIR}/kernel
     ${CMAKE_SOURCE_DIR}/kernel/sys
     ${CMAKE_SOURCE_DIR}/kernel/lib
     ${CMAKE_SOURCE_DIR}/kernel/luna
+    ${CMAKE_SOURCE_DIR}/kernel/luna/std
     ${CMAKE_CURRENT_LIST_DIR}/external/micro-gl/include
     ${CMAKE_CURRENT_LIST_DIR}/external/pdclib/include
     ${CMAKE_BINARY_DIR}/external/pdclib/configured_include
-)
-
-target_include_directories(cxx_static BEFORE PRIVATE
-${CMAKE_CURRENT_LIST_DIR}/external/cxx/libcxx/include  # Ensure libc++ headers are first
-${CMAKE_SOURCE_DIR}/kernel
-${CMAKE_CURRENT_LIST_DIR}/external/pdclib/include
-${CMAKE_BINARY_DIR}/external/pdclib/configured_include
 )
 
 # Finally, Tell CMake to build our kernel.
@@ -232,10 +215,26 @@ set_source_files_properties(kernel/arch/i386/boot.s PROPERTIES LANGUAGE ASM_NASM
 set_source_files_properties(kernel/arch/i386/interrupt.s PROPERTIES LANGUAGE ASM_NASM)
 set_source_files_properties(kernel/arch/i386/thread_asm.s PROPERTIES LANGUAGE ASM_NASM)
 
+target_compile_options(EASTL PRIVATE -ffreestanding -fpermissive)
+target_compile_definitions(EASTL PRIVATE 
+-DEA_NO_HAVE_DINKUMWARE_CPP_LIBRARY
+-DEA_NO_HAVE_LIBSTDCPP_LIBRARY
+-DEA_NO_HAVE_LIBCPP_LIBRARY
+-DEA_NO_HAVE_WCHAR_H
+-DEA_WCHAR_T_NON_NATIVE
+-DEA_NO_HAVE_nullptr_t_IMPL
+-DEA_NO_HAVE_PTHREAD_H
+-DEASTL_SIZE_T_32BIT=0
+-DEASTL_RTTI_ENABLED=0
+-DEASTL_EXCEPTIONS_ENABLED=0
+-DEA_PLATFORM_LINUX 
+-DBAREMETAL
+-D__cplusplus=201402L 
+)
 
-target_link_libraries(cxx_static PRIVATE pdclibs)
+target_link_libraries(EASTL PUBLIC pdclibs)
 
-target_link_libraries(${PROJECT_NAME}.bin PRIVATE pdclibs cxx_static)
+target_link_libraries(${PROJECT_NAME}.bin PRIVATE EASTL)
 
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -nostdlib -nodefaultlibs -Wl,-m,elf_i386 ${LINKFLAGS}")
 

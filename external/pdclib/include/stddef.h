@@ -21,9 +21,7 @@ typedef _PDCLIB_ptrdiff_t ptrdiff_t;
 typedef _PDCLIB_size_t size_t;
 #endif
 
-#ifndef __cplusplus
 typedef _PDCLIB_wchar_t   wchar_t;
-#endif
 
 #ifndef _PDCLIB_NULL_DEFINED
 #define _PDCLIB_NULL_DEFINED _PDCLIB_NULL_DEFINED
@@ -39,6 +37,15 @@ typedef _PDCLIB_wchar_t   wchar_t;
 #define _PDCLIB_RSIZE_T_DEFINED _PDCLIB_RSIZE_T_DEFINED
 typedef size_t rsize_t;
 #endif
+#endif
+
+/* Declaration of max_align_t for C11 compliance */
+#ifndef _PDCLIB_MAX_ALIGN_T_DEFINED
+#define _PDCLIB_MAX_ALIGN_T_DEFINED _PDCLIB_MAX_ALIGN_T_DEFINED
+typedef struct {
+    long long __max_align_ll __attribute__((__aligned__(__alignof__(long long))));
+    long double __max_align_ld __attribute__((__aligned__(__alignof__(long double))));
+} max_align_t;
 #endif
 
 /* Extension hook for downstream projects that want to have non-standard

@@ -15,9 +15,6 @@ void srand(unsigned int seed);
 void* kmalloc(size_t size);
 void kfree(void* ptr);
 
-// System call declaration matching PDCLib expectations
-#define MAX_FDS 1024  // Adjust this value as needed
-
 ssize_t write(int fd, const void *buf, size_t count);
 
 int close(int fd);

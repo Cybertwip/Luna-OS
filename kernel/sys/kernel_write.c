@@ -1,6 +1,7 @@
-#include <stdlib.h>
+#include <kernel.h>
 #include <string.h>
 #include <errno.h>
+#include <sys/types.h>
 
 // Device driver table
 static struct {

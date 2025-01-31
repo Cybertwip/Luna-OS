@@ -1,4 +1,3 @@
-// wchar.h - Minimal kernel implementation for wchar.h
 #ifndef _KERNEL_MBSTATE_H
 #define _KERNEL_MBSTATE_H
 

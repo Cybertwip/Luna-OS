@@ -913,10 +913,9 @@ typedef union { unsigned char _PDCLIB_thrd_attr_t_data[ 56 ]; long int _PDCLIB_t
 #define atexit _PDCLIB_atexit
 #endif
 
-
 #define malloc luna_malloc
-#define calloc luna_calloc
 #define realloc luna_realloc
+#define calloc luna_calloc
 #define free luna_free
 
 #endif
