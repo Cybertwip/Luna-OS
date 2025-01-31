@@ -6,6 +6,10 @@
 - **32-bit 2D and 3D graphics** (via MicroGL and PortableGL) 🎨  
 - **Standard C library functions.** 📚  
 
+### Screenshots and Demos 📸🎥
+- **[PortableGL Screenshot](docs/portablegl.png)**
+- **[Luna Demo](docs/luna.mp4)**
+
 ## Licensing Info 📜
 - **Kernel**: Public Domain 🙌  
 - **uFat Library**: BSD License 📝  
