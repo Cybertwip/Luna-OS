@@ -195,19 +195,6 @@ set(BAREMETAL ON CACHE BOOL "Configure as baremetal libc" FORCE)
 # Add the subdirectories
 add_subdirectory(external/pdclib)
 
-target_include_directories(pdclibs PUBLIC
-	${CMAKE_CURRENT_LIST_DIR}/external/EASTL/include  # Ensure libc++ headers are first
-    ${CMAKE_SOURCE_DIR}/libc/stdlib
-    ${CMAKE_SOURCE_DIR}/kernel
-    ${CMAKE_SOURCE_DIR}/kernel/sys
-    ${CMAKE_SOURCE_DIR}/kernel/lib
-    ${CMAKE_SOURCE_DIR}/kernel/luna
-    ${CMAKE_SOURCE_DIR}/kernel/luna/std
-    ${CMAKE_CURRENT_LIST_DIR}/external/micro-gl/include
-    ${CMAKE_CURRENT_LIST_DIR}/external/pdclib/include
-    ${CMAKE_BINARY_DIR}/external/pdclib/configured_include
-)
-
 # Finally, Tell CMake to build our kernel.
 add_executable(${PROJECT_NAME}.bin ${SOURCE_FILES} ${KERN_MAIN_SOURCES} ${KERN_LUNA_SOURCES} ${KERN_LUNA_C_STD_SOURCES} ${KERN_LUNA_CXX_STD_SOURCES})
 set_source_files_properties(${SOURCE_FILES} PROPERTIES LANGUAGE C COMPILE_FLAGS "")
@@ -232,9 +219,38 @@ target_compile_definitions(EASTL PRIVATE
 -D__cplusplus=201402L 
 )
 
+target_compile_definitions(${PROJECT_NAME}.bin PRIVATE 
+-DEA_NO_HAVE_DINKUMWARE_CPP_LIBRARY
+-DEA_NO_HAVE_LIBSTDCPP_LIBRARY
+-DEA_NO_HAVE_LIBCPP_LIBRARY
+-DEA_NO_HAVE_WCHAR_H
+-DEA_WCHAR_T_NON_NATIVE
+-DEA_NO_HAVE_nullptr_t_IMPL
+-DEA_NO_HAVE_PTHREAD_H
+-DEASTL_SIZE_T_32BIT=0
+-DEASTL_RTTI_ENABLED=0
+-DEASTL_EXCEPTIONS_ENABLED=0
+-DEA_PLATFORM_LINUX 
+-DBAREMETAL
+)
+
+
 target_link_libraries(EASTL PUBLIC pdclibs)
 
 target_link_libraries(${PROJECT_NAME}.bin PRIVATE EASTL)
+
+target_include_directories(pdclibs PUBLIC
+	${CMAKE_CURRENT_LIST_DIR}/external/EASTL/include  # Ensure libc++ headers are first
+    ${CMAKE_SOURCE_DIR}/libc/stdlib
+    ${CMAKE_SOURCE_DIR}/kernel
+    ${CMAKE_SOURCE_DIR}/kernel/sys
+    ${CMAKE_SOURCE_DIR}/kernel/lib
+    ${CMAKE_SOURCE_DIR}/kernel/luna
+    ${CMAKE_SOURCE_DIR}/kernel/luna/std
+    ${CMAKE_CURRENT_LIST_DIR}/external/micro-gl/include
+    ${CMAKE_CURRENT_LIST_DIR}/external/pdclib/include
+    ${CMAKE_BINARY_DIR}/external/pdclib/configured_include
+)
 
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -nostdlib -nodefaultlibs -Wl,-m,elf_i386 ${LINKFLAGS}")
 
