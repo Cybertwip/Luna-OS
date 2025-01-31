@@ -9,7 +9,7 @@
 ### Screenshots and Demos 📸🎥
 ![PortableGL Screenshot](docs/portablegl.png)
 
-<video src="docs/luna.mp4" controls>Your browser does not support the video tag.</video>
+[![Luna Demo](docs/luna_thumbnail.png)](docs/luna.mp4)
 
 ## Licensing Info 📜
 - **Kernel**: Public Domain 🙌  
