@@ -64,25 +64,11 @@ project(Luna LANGUAGES C CXX ASM_NASM)
 enable_language(ASM_NASM)
 
 # include cmake stuff for checking various system specific defines
-# include(CheckTypeSize)
 include(CheckFunctionExists)
 include(CheckIncludeFile)
 include(CheckLibraryExists)
-# include(CheckCXXCompilerFlag) 
 include(CheckCCompilerFlag)
 include(TestBigEndian)
-# include(TargetArch)
-
-# Because we don't have a libc with the compiler, these tests fail.
-# Check type sizes since we need them
-# check_type_size(int8_t INT8_T)
-# check_type_size(uint8_t UINT8_T)
-# check_type_size(int16_t INT16_T)
-# check_type_size(uint16_t UINT16_T)
-# check_type_size(int32_t INT32_T)
-# check_type_size(uint32_t UINT32_T)
-# check_type_size(int64_t INT64_T)
-# check_type_size(uint64_t UINT64_T)
 
 include_directories(
 	${CMAKE_SOURCE_DIR}/libc/stdlib
@@ -92,7 +78,18 @@ include_directories(
 	${CMAKE_CURRENT_LIST_DIR}/external/micro-gl/include
 	${CMAKE_CURRENT_LIST_DIR}/external/pdclib/include
 	${CMAKE_BINARY_DIR}/external/pdclib/configured_include
+	# Add libcxx includes
+	${CMAKE_CURRENT_LIST_DIR}/external/libcxx/libcxx/include
 )
+
+# Configure libcxx for freestanding environment
+set(LIBCXX_ENABLE_SHARED OFF)
+set(LIBCXX_ENABLE_THREADS OFF)
+set(LIBCXX_ENABLE_FILESYSTEM OFF)
+set(LIBCXX_ENABLE_RTTI OFF)
+set(LIBCXX_ENABLE_EXCEPTIONS OFF)
+set(LIBCXX_ENABLE_FREESTANDING ON)
+add_subdirectory(external/libcxx/libcxx)
 
 # If we're using clang..
 if(${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
@@ -202,7 +199,7 @@ set(AS_C11 OFF CACHE BOOL "Configure with the latest C11" FORCE)
 set(BAREMETAL ON CACHE BOOL "Configure as baremetal libc" FORCE)
 
 
-# Add the subdirectory
+# Add the subdirectories
 add_subdirectory(external/pdclib)
 
 # Finally, Tell CMake to build our kernel.
@@ -213,8 +210,7 @@ set_source_files_properties(kernel/arch/i386/interrupt.s PROPERTIES LANGUAGE ASM
 set_source_files_properties(kernel/arch/i386/thread_asm.s PROPERTIES LANGUAGE ASM_NASM)
 
 
-target_link_libraries(${PROJECT_NAME}.bin PRIVATE pdclibs)
-
+target_link_libraries(${PROJECT_NAME}.bin PRIVATE pdclibs cxx)
 
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -nostdlib -nodefaultlibs -Wl,-m,elf_i386 ${LINKFLAGS}")
 

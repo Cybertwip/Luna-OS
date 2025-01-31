@@ -13,3 +13,7 @@
 [submodule "external/pdclib"]
 	path = external/pdclib
 	url = git@github.com:DevSolar/pdclib.git
+[submodule "external/libcxx"]
+	path = external/libcxx
+	url = git@github.com:llvm/llvm-project.git
+	branch = release/17.x
