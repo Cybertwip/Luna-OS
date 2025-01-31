@@ -115,7 +115,7 @@ _PDCLIB_PUBLIC FILE *fopen(const char *pathname, const char *mode) {
 
     // Allocate buffer
     stream->bufsize = 1024;
-    stream->buffer = luna_malloc(stream->bufsize);
+    stream->buffer = malloc(stream->bufsize);
     if (!stream->buffer) {
         free(handle);
         free(stream);
