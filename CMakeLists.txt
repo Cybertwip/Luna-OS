@@ -1,21 +1,8 @@
 cmake_minimum_required(VERSION 2.8)
 cmake_policy(SET CMP0079 NEW)
 
-
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ffreestanding")
-
-# Ensure Clang/GCC do not use system headers
-if(CLANG)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-endif()
-
-
-# Force external build
-if(${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_BINARY_DIR} AND NOT WIN32)
-	message(FATAL_ERROR "You can not use CMake to build from the root of it's source tree! Remove the CMakeCache.txt file from this directory, then create a separate directory (either below this directory or elsewhere), and then re-run CMake from there.")
-endif(${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_BINARY_DIR} AND NOT WIN32)
 
 # Cmake module path (if exists)
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
@@ -23,8 +10,6 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 include(profile_detection)
 include(patch_pdclib)
 
-# http://wiki.osdev.org/CMake_Build_System
-# This was very helpful in this build system
 LOAD_PROFILE("i386" "pc") # Generic for now
 
 set(KERNEL_SRC_DIR ${CMAKE_CURRENT_LIST_DIR}/kernel)
@@ -42,9 +27,6 @@ file(GLOB_RECURSE OS_SOURCES
     ${OS_SRC_DIR}/*.cpp
 )
 
-# Various options we need
-option(USE_GCC_TOOLCHAIN "Use the GCC toolchain from tools/mkcrosscompiler_gcc.sh" OFF)
-
 # these are any additional flags which should be added to the base compiles. Things like 32 bit or elf binaries
 set(CFLAGS "-m32 -fcheck-new -ffreestanding -fno-builtin")
 set(CFLAGS "${CFLAGS} -nostdlib -finline-functions -fno-stack-protector -fomit-frame-pointer")
@@ -53,35 +35,10 @@ set(CFLAGS "${CFLAGS} -mno-sse")
 set(LINKFLAGS "${ISA_LINKER_FLAGS} ${PLATFORM_LINKER_FLAGS}")
 set(ASM_FLAGS "${ISA_ASM_FLAGS}")
 
-# Find clang (if the system has it)
-find_program(CLANG clang)
-find_program(CLANGXX clang++)
-
-# prefer clang instead of gcc (or whatever shit compiler they're using)
-if (CLANG)
-	set(CMAKE_C_COMPILER ${CLANG})
-endif (CLANG)
-
-# In case we need to compile C++ in the future (which I doubt we will)
-if (CLANGXX)
-	set(CMAKE_CXX_COMPILER ${CLANGXX})
-endif (CLANGXX)
-
-
-# Finally name our project now that we have picked our compiler.
-# this is way down here so the compiler can be tested
 project(Luna LANGUAGES C CXX ASM_NASM)
 enable_language(ASM_NASM)
 
-# include cmake stuff for checking various system specific defines
-include(CheckFunctionExists)
-include(CheckIncludeFile)
-include(CheckLibraryExists)
-include(CheckCCompilerFlag)
-include(TestBigEndian)
-
 add_subdirectory(external/EASTL)
-
 
 SET (BASE_CFLAGS "${CFLAGS} -std=c11 -fpermissive -fstrength-reduce -fno-builtin-time -fno-builtin-puts -fno-builtin-printf -fno-builtin-function")
 SET (BASE_CXXFLAGS "${CFLAGS} -fpermissive -fstrength-reduce -fno-builtin-time -fno-builtin-puts -fno-builtin-printf -fno-builtin-function")
@@ -99,10 +56,6 @@ if(${USE_GCC_TOOLCHAIN} OR ${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
 	SET (LINKFLAGS "-T ${PLATFORM_LAYOUT} -N ${LINKFLAGS}")
 endif(${USE_GCC_TOOLCHAIN} OR ${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
 
-# Concatenate and sort
-set(SOURCE_FILES ${KERNEL_SOURCES} ${OS_SOURCES})
-list(SORT SOURCE_FILES)
-
 set(USE_THREADS OFF CACHE BOOL "Disable threads" FORCE)
 set(AS_C11 OFF CACHE BOOL "Configure with the latest C11" FORCE)
 set(BAREMETAL ON CACHE BOOL "Configure as baremetal libc" FORCE)
@@ -112,7 +65,7 @@ add_subdirectory(external/pdclib)
 #add_subdirectory(external/leif)
 
 # Finally, Tell CMake to build our kernel.
-add_executable(${PROJECT_NAME}.bin ${SOURCE_FILES})
+add_executable(${PROJECT_NAME}.bin ${KERNEL_SOURCES} ${OS_SOURCES})
 set_source_files_properties(kernel/arch/i386/interrupt.s PROPERTIES LANGUAGE ASM_NASM)
 set_source_files_properties(kernel/arch/i386/thread_asm.s PROPERTIES LANGUAGE ASM_NASM)
 
