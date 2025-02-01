@@ -104,6 +104,10 @@ static inline u32 fat_clust_to_sect(struct volume_s* vol, u32 clust);
 static fstatus fat_follow_path(IDE& ide, struct dir_s* dir, const char* path, u32 length);
 static fstatus fat_get_vol_label(IDE& ide, struct volume_s* vol, char* label);
 
+/// Volume functions
+struct volume_s* volume_get_first(void);
+struct volume_s* volume_get(char letter);
+
 
 
 /// Compares two memory blocks with size `count`
@@ -608,13 +612,21 @@ static fstatus fat_get_vol_label(IDE& ide, struct volume_s* vol, char* label) {
 }
 
 
+Fat32::Fat32(IDE& ide) : mIde(ide) {
+
+}
+
+void Fat32::mount() {
+	disk_mount(mIde);
+}
+
 /// Mounts a physical disk. It checks for a valid FAT32 file system in all
 /// available disk partitions. All valid file system is dynamically allocated
 /// and added to the system volumes
 /// 
 /// Note that this is the only functions referencing the `disk` parameter. All
 /// further interactions happend will via the volume letter e.g. D: drive.
-u8 disk_mount(IDE& ide) {
+u8 Fat32::disk_mount(IDE& ide) {
 	static fat_device_s fat_device;
 
 	fat_device.mIde = &ide;
@@ -726,7 +738,7 @@ u8 disk_mount(IDE& ide) {
 /// Remove the volumes corresponding with a physical disk and delete the memory.
 /// This function must be called before a storage device is unplugged, if not,
 /// cached data may be lost. 
-u8 disk_eject(disk_e disk) {
+u8 Fat32::disk_eject(disk_e disk) {
 	struct volume_s* vol = volume_get_first();
 	
 	while (vol != NULL) {

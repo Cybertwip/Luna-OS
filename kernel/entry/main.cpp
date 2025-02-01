@@ -5,9 +5,9 @@ extern "C" {
 #include "drivers/timer.h"
 #include "drivers/ide.h"
 #include "drivers/voltron.h"
-#include "drivers/fat32.h"
 #include <kernel.h>
 }
+#include "drivers/fat32.h"
 
 #include "luna/Graphics.h"
 
@@ -66,9 +66,12 @@ int main(uint32_t magic, multiboot_info_t* mb_info) {
     kernel_io_init();
 
     IDE ide;
-    disk_mount(ide);
-    init_filesystem();
+    Fat32 fat32(ide);
 
+    fat32.mount();
+
+    
+    init_filesystem();
 
     init_paging(mb_info);
     init_timer(20);
@@ -77,8 +80,8 @@ int main(uint32_t magic, multiboot_info_t* mb_info) {
     init_scheduler(init_threading());
 
     // start operations here
-    // uint32_t *stack = kmalloc(0x400) + 0x3F0;
-    // thread_t *t = create_thread(&fn, (void *)0x567, stack);
+    uint32_t *stack = kmalloc(0x400) + 0x3F0;
+    thread_t *t = create_thread(&fn, (void *)0x567, stack);
 
     Graphics gfx;
 

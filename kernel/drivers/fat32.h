@@ -1,7 +1,3 @@
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #ifndef FAT32_H
 #define FAT32_H
 
@@ -214,16 +210,18 @@ struct fat_fmt_s {
 
 #define FAT32_EOC 0x0FFFFFFF
 
-/// Disk functions
-u8 disk_mount(IDE& disk);
-u8 disk_eject(disk_e disk);
+class Fat32 {
+public:
+	Fat32(IDE& ide);
 
-/// Volume functions
-struct volume_s* volume_get_first(void);
-struct volume_s* volume_get(char letter);
+	void mount();
 
-#endif
+private:
+	u8 disk_mount(IDE& disk);
+	u8 disk_eject(disk_e disk);
 
-#ifdef __cplusplus
-}
+	IDE& mIde;
+};
+
+
 #endif
