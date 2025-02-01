@@ -1,3 +1,7 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #pragma once
 
 #include <stdbool.h>
@@ -20,3 +24,6 @@ bool write_file(const char* path, const void* data, uint32_t size);
 
 // Deletes a file at the specified path
 bool delete_file(const char* path);
+#ifdef __cplusplus
+}
+#endif

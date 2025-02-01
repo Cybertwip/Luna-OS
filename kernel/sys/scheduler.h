@@ -1,3 +1,7 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef SCHEDULER_H
 #define SCHEDULER_H
 
@@ -39,3 +43,7 @@ void thread_not_ready(thread_t *t);
 void schedule();
 
 #endif /* SCHEDULER_H */
+
+#ifdef __cplusplus
+}
+#endif

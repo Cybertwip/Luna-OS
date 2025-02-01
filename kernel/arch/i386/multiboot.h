@@ -1,4 +1,8 @@
-// multiboot.h
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef MULTIBOOT_H
 #define MULTIBOOT_H
 
@@ -80,3 +84,7 @@ struct multiboot_mmap_entry {
 #define MULTIBOOT_MEMORY_BADRAM        5
 
 #endif // MULTIBOOT_H
+
+#ifdef __cplusplus
+}
+#endif

@@ -1,4 +1,7 @@
-// kernel_stdlib.h
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #pragma once
 
 #include <stddef.h>
@@ -32,4 +35,8 @@ extern void *luna_malloc(size_t size);
 extern void *luna_realloc(void *ptr, size_t size);
 
 extern void luna_free(void *ptr);
+
+#ifdef __cplusplus
+}
+#endif
 
