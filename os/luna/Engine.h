@@ -1,8 +1,8 @@
 #pragma once
 
 #include <stdint.h>
-#include "Graphics.h"
-#include "Renderer.h"
+#include "graphics.h"
+#include "renderer.h"
 
 #include <microgl/camera.h>
 #include <microgl/z_buffer.h>

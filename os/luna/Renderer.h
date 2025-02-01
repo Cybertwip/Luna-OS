@@ -1,7 +1,7 @@
-// Renderer.h
+// renderer.h
 #pragma once
-#include "Graphics.h"
-#include "GLContext.h"
+#include "graphics.h"
+#include "gl_context.h"
 
 class Renderer {
 private:

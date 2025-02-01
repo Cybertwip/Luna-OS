@@ -1,5 +1,5 @@
 #pragma once
-#include "Graphics.h"
+#include "graphics.h"
 
 #include <math.h>
 
