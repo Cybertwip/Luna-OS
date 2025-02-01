@@ -127,27 +127,3 @@ add_custom_target(run
     WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
     COMMENT "Running 32-bit kernel with QEMU"
 )
-
-add_custom_target(run_vbox
-    DEPENDS ${PROJECT_NAME}.bin
-    COMMAND ${CMAKE_COMMAND} -E echo "Creating 1024 MB disk image..."
-    # Create a raw disk image
-    COMMAND dd if=/dev/zero of=${CMAKE_BINARY_DIR}/luna.img bs=512 count=2880
-    # Attach the disk image and format it as FAT32
-    COMMAND python3 ${CMAKE_SOURCE_DIR}/format_disk.py ${CMAKE_BINARY_DIR}/luna.img
-    # Mount the disk image and copy the kernel
-    COMMAND mkdir -p ${CMAKE_BINARY_DIR}/mnt
-    COMMAND hdiutil attach -mountpoint ${CMAKE_BINARY_DIR}/mnt ${CMAKE_BINARY_DIR}/luna.img
-    COMMAND cp $<TARGET_FILE:${PROJECT_NAME}.bin> ${CMAKE_BINARY_DIR}/mnt/kernel.elf
-    COMMAND hdiutil detach ${CMAKE_BINARY_DIR}/mnt
-    COMMAND rm -rf ${CMAKE_BINARY_DIR}/mnt
-    # VirtualBox setup
-    # COMMAND VBoxManage convertfromraw ${CMAKE_BINARY_DIR}/disk.img ${CMAKE_BINARY_DIR}/disk.vdi --format VDI
-    # COMMAND VBoxManage createvm --name "LunaOS" --register
-    # COMMAND VBoxManage modifyvm "LunaOS" --memory 1024 --acpi on --boot1 disk --ostype Other
-    # COMMAND VBoxManage storagectl "LunaOS" --name "IDE Controller" --add ide
-    # COMMAND VBoxManage storageattach "LunaOS" --storagectl "IDE Controller" --port 0 --device 0 --type hdd --medium ${CMAKE_BINARY_DIR}/disk.vdi
-    # COMMAND VBoxManage startvm "LunaOS"
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-    COMMENT "Running 32-bit kernel with VirtualBox on macOS (1024 MB disk image)"
-)
