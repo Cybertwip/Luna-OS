@@ -46,7 +46,7 @@ file(GLOB_RECURSE OS_SOURCES
 option(USE_GCC_TOOLCHAIN "Use the GCC toolchain from tools/mkcrosscompiler_gcc.sh" OFF)
 
 # these are any additional flags which should be added to the base compiles. Things like 32 bit or elf binaries
-set(CFLAGS "${ISA_C_FLAGS} -m32 -fcheck-new -ffreestanding -fno-builtin")
+set(CFLAGS "-m32 -fcheck-new -ffreestanding -fno-builtin")
 set(CFLAGS "${CFLAGS} -nostdlib -finline-functions -fno-stack-protector -fomit-frame-pointer")
 set(CFLAGS "${CFLAGS} -mno-sse")
 # linker flags and Assembler flags too -Wl,--oformat,binary
@@ -85,7 +85,8 @@ add_subdirectory(external/EASTL)
 
 SET (BASE_CFLAGS "${CFLAGS} -std=c11 -fpermissive -fstrength-reduce -fno-builtin-time -fno-builtin-puts -fno-builtin-printf -fno-builtin-function")
 SET (BASE_CXXFLAGS "${CFLAGS} -fpermissive -fstrength-reduce -fno-builtin-time -fno-builtin-puts -fno-builtin-printf -fno-builtin-function")
-set(CMAKE_CXX_FLAGS "${BASE_CXXFLAGS} -std=c++14 -fno-rtti -fno-exceptions -fno-threadsafe-statics")
+set (CMAKE_C_FLAGS "${BASE_CFLAGS}")
+set (CMAKE_CXX_FLAGS "${BASE_CXXFLAGS} -std=c++14 -fno-rtti -fno-exceptions -fno-threadsafe-statics")
 SET (CMAKE_ASM_NASM_FLAGS            "-Werror -felf")
 
 if(${CMAKE_C_COMPILER_ID} STREQUAL "Clang")

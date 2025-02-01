@@ -9,7 +9,7 @@ extern "C" {
 #include <stddef.h>
 
 /* Block device class structure */
-typedef struct blkdev_class {
+typedef struct {
     const char *name;                          // Name of the block device class
     unsigned int major;                        // Major number for the device class
     int (*read_blocks)(unsigned int minor, uint32_t block, unsigned int nblocks, void *buffer);  // Read function pointer
@@ -18,7 +18,7 @@ typedef struct blkdev_class {
 } blkdev_class_t;
 
 /* Block device instance structure */
-typedef struct blkdev_instance {
+typedef struct {
     blkdev_class_t *dev_class;                     // Pointer to the block device class
     uint32_t major;                            // Major number
     uint32_t minor;                            // Minor number
