@@ -284,7 +284,7 @@ typedef struct _PDCLIB_imaxdiv_t imaxdiv_t;
 #endif
 
 #if _PDCLIB_INT_LEAST32_MAX == 0x7fffffffl
-#if _PDCLIB_INT_LEAST32_MAX > _PDCLIB_INT_MAX
+#if _PDCLIB_INT_LEAST32_MAX >= _PDCLIB_INT_MAX
 #define PRId32 _PDCLIB_value2string( _PDCLIB_concat( _PDCLIB_INT_LEAST32_PREFIX, d ) )
 #define PRIi32 _PDCLIB_value2string( _PDCLIB_concat( _PDCLIB_INT_LEAST32_PREFIX, i ) )
 #define PRIo32 _PDCLIB_value2string( _PDCLIB_concat( _PDCLIB_INT_LEAST32_PREFIX, o ) )

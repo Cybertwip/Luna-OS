@@ -101,7 +101,9 @@ target_include_directories(pdclibs PUBLIC
 #target_link_libraries(leif PUBLIC pdclibs)
 target_link_libraries(EASTL PUBLIC pdclibs)
 
-target_link_libraries(${PROJECT_NAME}.bin PRIVATE EASTL)
+target_link_libraries(lvgl PUBLIC EASTL)
+
+target_link_libraries(${PROJECT_NAME}.bin PRIVATE lvgl)
 
 
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -nostdlib -nodefaultlibs -Wl,-m,elf_i386 ${LINKFLAGS}")
