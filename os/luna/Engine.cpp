@@ -1,4 +1,4 @@
-#include "Engine.h"
+#include "engine.h"
 #include <string.h>
 
 #include <microgl/samplers/fast_radial_gradient.h>

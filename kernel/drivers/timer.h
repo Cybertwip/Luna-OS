@@ -17,6 +17,8 @@ extern "C" {
  */
 void init_timer(uint32_t freq);
 
+uint32_t ticks();
+
 void udelay(uint32_t microseconds);
 
 void mdelay(uint32_t milliseconds);

@@ -20,6 +20,10 @@ static void timer_callback(registers_t *regs) {
   schedule ();
 }
 
+uint32_t ticks() {
+  return tick;
+}
+
 /**
  * @brief Initialize the Programmable Interval Timer (PIT).
  * 

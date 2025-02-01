@@ -34,12 +34,9 @@ public:
     }
 
     void clear(uint32_t color = 0x0000FF00) {
-        disable_paging();
-        // Fill the back buffer with the specified color
         for (uint32_t i = 0; i < WIDTH * HEIGHT; ++i) {
-            getFrontBuffer()[i] = color;
+            getBackBuffer()[i] = color;
         }
-        switch_page_directory(kernel_directory);
     }
 
 
@@ -60,6 +57,8 @@ public:
         return (uint32_t*)0xFD000000;
     }
     uint32_t getPitch() const { return WIDTH; }
+
+    uint32_t getBitsPerPixel() const { return BPP; }
 
     void swapBuffers() {
         // Copy from backBuffer to video memory

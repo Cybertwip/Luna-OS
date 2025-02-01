@@ -20,6 +20,6 @@ Kernel::Kernel(uint32_t magic, multiboot_info_t* mb_info)
     init_paging(mMbInfo);
     init_timer(20);
 
-    __asm__ volatile ("sti");
-    init_scheduler(init_threading());
+    // __asm__ volatile ("sti");
+    // init_scheduler(init_threading());
 }

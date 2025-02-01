@@ -12,7 +12,7 @@ struct ElfNote {
 };
 
 // Forward declaration of _start as a function
-void _start(unsigned long addr);
+extern "C" void _start(unsigned long addr);
 
 
 __attribute__((section(".note.Xen"), used))

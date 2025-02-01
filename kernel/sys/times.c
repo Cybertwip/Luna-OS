@@ -1,3 +1,4 @@
+#include <drivers/timer.h>
 #include <sys/times.h>
 #include <time.h>
 
@@ -10,7 +11,7 @@ long int times(struct tms *buf) {
     // Placeholder implementation:
     // - Use clock() to get the current process time (if available)
     // - In a bare-metal environment, you may need to implement your own timing logic
-    long int current_time = clock();
+    long int current_time = ticks();
 
     // Fill the tms structure with placeholder values
     buf->tms_utime  = current_time;  // User CPU time

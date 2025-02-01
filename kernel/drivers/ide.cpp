@@ -496,7 +496,6 @@ static int ide_write_blocks(unsigned int minor, uint32_t block,
 
 static void handle_ide_controller_interrupt()
 {
-    panic("PAN");
     /* This wakes up the task waiting for the I/O operation to complete. */
     //ksema_up(controller->ksema);
 }
