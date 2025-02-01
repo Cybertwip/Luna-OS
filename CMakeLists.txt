@@ -68,8 +68,7 @@ add_executable(${PROJECT_NAME}.bin ${KERNEL_SOURCES} ${OS_SOURCES})
 set_source_files_properties(kernel/arch/i386/interrupt.s PROPERTIES LANGUAGE ASM_NASM)
 set_source_files_properties(kernel/arch/i386/thread_asm.s PROPERTIES LANGUAGE ASM_NASM)
 
-target_compile_options(EASTL PRIVATE -ffreestanding -fpermissive)
-target_compile_definitions(EASTL PRIVATE 
+target_compile_definitions(pdclibs PUBLIC 
 -DEA_NO_HAVE_DINKUMWARE_CPP_LIBRARY
 -DEA_NO_HAVE_LIBSTDCPP_LIBRARY
 -DEA_NO_HAVE_LIBCPP_LIBRARY
@@ -82,8 +81,15 @@ target_compile_definitions(EASTL PRIVATE
 -DEASTL_EXCEPTIONS_ENABLED=0
 -DEA_PLATFORM_LINUX 
 -DBAREMETAL
+)
+
+target_compile_options(EASTL PRIVATE -ffreestanding -fpermissive)
+
+target_compile_definitions(EASTL PRIVATE 
 -D__cplusplus=201402L 
 )
+
+
 
 target_include_directories(pdclibs PUBLIC
 	${CMAKE_CURRENT_LIST_DIR}/external/EASTL/include  # Ensure libc++ headers are first

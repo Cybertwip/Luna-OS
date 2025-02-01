@@ -1,3 +1,7 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef PAGING_H
 #define PAGING_H
 
@@ -107,3 +111,7 @@ void enable_paging();
 void disable_paging();
 
 #endif /* ndef PAGING_H */
+
+#ifdef __cplusplus
+}
+#endif

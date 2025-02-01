@@ -1,5 +1,7 @@
 #include "multiboot.h"
 
+#include "kernel.hpp"
+
 // Define the structure for the ELF note for Xen
 struct ElfNote {
     uint32_t namesz;  // Size of the name field
@@ -42,7 +44,7 @@ const multiboot_header_t mboot_header = {
 };
 
 // Function prototype for main
-void main(unsigned long magic, multiboot_info_t* mbd);
+int main(int argc, char** argv);
 
 // Kernel entry point
 void _start(unsigned long addr) {
@@ -53,7 +55,9 @@ void _start(unsigned long addr) {
     multiboot_info_t* mbd = (multiboot_info_t*)addr;
 
     // Call main with the magic number and pointer to multiboot_info structure
-    main(MBOOT_HEADER_MAGIC, mbd);
+    Kernel kernel(MBOOT_HEADER_MAGIC, mbd);
+
+    main(0, NULL);
 
     // If main returns, enter an infinite loop
     for(;;);
