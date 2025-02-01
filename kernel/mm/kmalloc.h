@@ -83,6 +83,8 @@ void *kmalloc_ap(size_t len, uint32_t *phys);  /* page aligned and physical addr
  */
 void *kmalloc0_ap(size_t len, uint32_t *phys);
 
+void *kmalloc0_ap_low(size_t len, uint32_t *phys);
+
 /**
  * @brief Frees a previously allocated block of memory.
  * 

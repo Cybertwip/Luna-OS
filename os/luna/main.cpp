@@ -40,22 +40,18 @@ static void close_cb(lv_event_t* e) {
 
 int main(int argc, char** argv) {
     // eastl::allocator_malloc ma;
-    eastl::unique_ptr<Graphics> gfx_ptr = 
-    eastl::unique_ptr<Graphics>((Graphics*)malloc(sizeof(Graphics)));
-
-    panic("%d", gfx_ptr.get());
-    auto& gfx = *gfx_ptr;
-    
+    eastl::unique_ptr<Graphics> gfx = 
+    eastl::make_unique<Graphics>();
 
     lv_init();
     lv_tick_set_cb(tick_get);
 
-    uint32_t w = gfx.getWidth();
-    uint32_t h = gfx.getHeight();
+    uint32_t w = gfx->getWidth();
+    uint32_t h = gfx->getHeight();
 
     lv_display_t* disp = lv_display_create(w, h);
     lv_display_set_color_format(disp, LV_COLOR_FORMAT_ARGB8888);
-    disp->user_data = &gfx;
+    disp->user_data = gfx.get();
 
     const size_t buf_size = (w * h) * sizeof(lv_color32_t);
     lv_color32_t* draw_buf = static_cast<lv_color32_t*>(malloc(buf_size));
@@ -79,7 +75,7 @@ int main(int argc, char** argv) {
 
     while (1) {
         lv_timer_handler();
-        gfx.swapBuffers();
+        gfx->swapBuffers();
     }
 
     free(draw_buf);

@@ -4,12 +4,17 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "mm/kmalloc.h"
-#include "mm/kmemdetect.h"
-#include "mm/paging.h"
-#include "mm/heap.h"
+extern "C" {
+    #include "mm/kmalloc.h"
+    #include "mm/kmemdetect.h"
+    #include "mm/paging.h"
+    #include "mm/heap.h"
 
-#include "vbe.h" 
+    #include "vbe.h" 
+
+}
+
+static uint32_t physBackBuffer; // until we solve identity mapping for paging.
 
 class Graphics {
 private:
@@ -17,14 +22,11 @@ private:
     static const uint32_t HEIGHT = 768;   // Reduced height
     static const uint32_t BPP = 32;
     uint32_t* backBuffer;  // Physical address of backBuffer
-    uint32_t physBackBuffer;
 public:
     Graphics() {
-        // init(WIDTH, HEIGHT, BPP);
-
+        init(WIDTH, HEIGHT, BPP);
         // Allocate backBuffer with the correct size and get its physical address
         backBuffer = static_cast<uint32_t*>(kmalloc0_ap(WIDTH * HEIGHT * sizeof(uint32_t), &physBackBuffer));
-
     }
 
     ~Graphics() {
