@@ -7,8 +7,8 @@
 #include <arch/i386/descriptor_tables.h>
 #include <drivers/ide.h>
 #include <drivers/timer.h>
-#include <luna/VBE.h>
-#include <luna/std/assert.h>
+#include <vbe.h>
+#include <assert.h>
 #include <sys/blkdev.h>
 #include <sys/sync.h>
 

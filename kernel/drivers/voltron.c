@@ -1,6 +1,6 @@
 #include "voltron.h"
 #include <drivers/ufat.h>
-#include <luna/std/string.h>
+#include <strutil.h>
 #include <sys/system.h>
 
 #include <stddef.h>

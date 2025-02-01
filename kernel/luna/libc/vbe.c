@@ -1,4 +1,4 @@
-#include "VBE.h"
+#include "vbe.h"
 
 void outw(uint16_t port, uint16_t value) {
     __asm__ volatile ("outw %0, %w1" : : "a"(value), "Nd"(port));

@@ -27,24 +27,20 @@ include(patch_pdclib)
 # This was very helpful in this build system
 LOAD_PROFILE("i386" "pc") # Generic for now
 
+set(KERNEL_SRC_DIR ${CMAKE_CURRENT_LIST_DIR}/kernel)
+set(OS_SRC_DIR ${CMAKE_CURRENT_LIST_DIR}/os)
+
 # Get all the files needed
-file(GLOB KERN_LIB_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "kernel/lib/*.c")
-file(GLOB KERN_MM_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "kernel/mm/*.c")
-file(GLOB KERN_DRIVERS_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "kernel/drivers/*.c")
-file(GLOB KERN_DRIVERS_CPP_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "kernel/drivers/*.cpp")
-file(GLOB KERN_SYS_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "kernel/sys/*.c")
-file(GLOB KERN_BOOT_C_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "kernel/arch/i386/*.c")
-file(GLOB KERN_BOOT_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "kernel/arch/i386/*.cpp")
-file(GLOB KERN_MAIN_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "kernel/entry/*.cpp")
-file(GLOB KERN_LUNA_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "kernel/luna/*.cpp")
-file(GLOB KERN_LUNA_C_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "kernel/luna/*.c")
-file(GLOB KERN_LUNA_C_STD_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "kernel/luna/std/*.c")
-file(GLOB KERN_LUNA_CXX_STD_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "kernel/luna/std/*.cpp")
+file(GLOB_RECURSE KERNEL_SOURCES
+    ${KERNEL_SRC_DIR}/*.c
+    ${KERNEL_SRC_DIR}/*.cpp
+    ${KERNEL_SRC_DIR}/*.s
+)
 
-
-set(KERN_SOURCES ${KERN_TTY_SOURCES} ${KERN_LIB_SOURCES} ${KERN_MM_SOURCES} ${KERN_SYS_SOURCES} ${KERN_DRIVERS_SOURCES} ${KERN_DRIVERS_CPP_SOURCES} ${KERN_LUNA_C_SOURCES})
-# file(GLOB KERN_TTY_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "kern/tty/*.c")
-file(GLOB LIBC_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "libc/stdlib/*.c")
+file(GLOB_RECURSE OS_SOURCES
+    ${OS_SRC_DIR}/*.c
+    ${OS_SRC_DIR}/*.cpp
+)
 
 # Various options we need
 option(USE_GCC_TOOLCHAIN "Use the GCC toolchain from tools/mkcrosscompiler_gcc.sh" OFF)
@@ -87,120 +83,34 @@ include(TestBigEndian)
 add_subdirectory(external/EASTL)
 
 
-# If we're using clang..
-if(${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
-	# Clang isn't needy
-	SET (BASE_CFLAGS "${CFLAGS} -std=c11 -Werror=implicit-function-declaration")
-	
-	# Tell clang to pass our linker script to the linker and not try and compile it
-	# also tell the linker to set text and data sections to be readable and writable.
-	# Do not page align. (see man ld(1))
-	SET (LINKFLAGS "-Wl,--script=${PLATFORM_LAYOUT} -Wl,--omagic ${LINKFLAGS}")
-	
-	SET (CMAKE_C_FLAGS                "-g ${BASE_CFLAGS}")
-	SET (CMAKE_C_FLAGS_DEBUG          "-g -D_DEBUG ${BASE_CFLAGS}")
-	SET (CMAKE_C_FLAGS_MINSIZEREL     "-Os -DNDEBUG ${BASE_CFLAGS}")
-	SET (CMAKE_C_FLAGS_RELEASE        "-O3 -DNDEBUG ${BASE_CFLAGS}")
-	SET (CMAKE_C_FLAGS_RELWITHDEBINFO "-O2 -g ${BASE_CFLAGS}")
+SET (BASE_CFLAGS "${CFLAGS} -std=c11 -fpermissive -fstrength-reduce -fno-builtin-time -fno-builtin-puts -fno-builtin-printf -fno-builtin-function")
+SET (BASE_CXXFLAGS "${CFLAGS} -fpermissive -fstrength-reduce -fno-builtin-time -fno-builtin-puts -fno-builtin-printf -fno-builtin-function")
+set(CMAKE_CXX_FLAGS "${BASE_CXXFLAGS} -std=c++14 -fno-rtti -fno-exceptions -fno-threadsafe-statics")
+SET (CMAKE_ASM_NASM_FLAGS            "-Werror -felf")
 
-	SET (CMAKE_CXX_FLAGS                "-std=c++14 ${BASE_CFLAGS}")
-	SET (CMAKE_CXX_FLAGS_DEBUG          "-g -D_DEBUG ${BASE_CFLAGS}")
-	SET (CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG ${BASE_CFLAGS}")
-	SET (CMAKE_CXX_FLAGS_RELEASE        "-O3 -DNDEBUG ${BASE_CFLAGS}")
-	SET (CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g ${BASE_CFLAGS}")
-	# Error on *ANY* assembler error. We don't want to fuck up assembly.
-	SET (CMAKE_ASM_NASM_FLAGS            "-Werror -f elf")
-	
+if(${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
+	SET (LINKFLAGS "-Wl,--script=${PLATFORM_LAYOUT} -Wl,--omagic ${LINKFLAGS}")
 endif(${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
 
 
-# If we're using our custom gcc from /usr/local/cross/bin
 if(${USE_GCC_TOOLCHAIN} OR ${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
-	
-	# additional GCC options cuz GNU.
-	
-	SET (BASE_CFLAGS "${CFLAGS} -std=c11 -fpermissive -fstrength-reduce -fno-builtin-time -fno-builtin-puts -fno-builtin-printf -fno-builtin-function")
-	SET (BASE_CXXFLAGS "${CFLAGS} -fpermissive -fstrength-reduce -fno-builtin-time -fno-builtin-puts -fno-builtin-printf -fno-builtin-function")
-	#SET (LINKFLAGS "${LINKFLAGS} -melf_i386")
-	
 	SET (LINKFLAGS "-T ${PLATFORM_LAYOUT} -N ${LINKFLAGS}")
-	
-	SET (CMAKE_C_FLAGS                "-g -DHAVE_MMAP=0 -DLACKS_UNISTD_H=1 -DLACKS_SCHED_H=1 -DLACKS_SYS_PARAM_H=1 ${BASE_CFLAGS}") #Fix memory mappings, later
-	SET (CMAKE_C_FLAGS_DEBUG          "-g -D_DEBUG ${BASE_CFLAGS}")
-	SET (CMAKE_C_FLAGS_MINSIZEREL     "-Os -DNDEBUG ${BASE_CFLAGS}")
-	SET (CMAKE_C_FLAGS_RELEASE        "-O3 -DNDEBUG ${BASE_CFLAGS}")
-	SET (CMAKE_C_FLAGS_RELWITHDEBINFO "-O2 -g ${BASE_CFLAGS}")
-
-	set(CXXFLAGS "${BASE_CXXFLAGS} -std=c++14 -fno-rtti -fno-exceptions -fno-threadsafe-statics")
-
-	SET (CMAKE_CXX_FLAGS                "${CXXFLAGS}")
-	SET (CMAKE_CXX_FLAGS_DEBUG          "-g -D_DEBUG ${CXXFLAGS}")
-	SET (CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG ${CXXFLAGS}")
-	SET (CMAKE_CXX_FLAGS_RELEASE        "-O3 -DNDEBUG ${CXXFLAGS}")
-	SET (CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g ${CXXFLAGS}")
-		
-	SET (CMAKE_ASM_NASM_FLAGS            "-Werror -felf")
-
-	find_program(GCC_AR ${CMAKE_SYSTEM_PROCESSOR}-elf-ar REQUIRED PATHS /usr/local/cross/bin)
-	find_program(GCC_LD ${CMAKE_SYSTEM_PROCESSOR}-elf-ld REQUIRED PATHS /usr/local/cross/bin)
-	find_program(GCC_NM ${CMAKE_SYSTEM_PROCESSOR}-elf-nm REQUIRED PATHS /usr/local/cross/bin)
-	find_program(GCC_OBJDUMP ${CMAKE_SYSTEM_PROCESSOR}-elf-objdump REQUIRED PATHS /usr/local/cross/bin)
-	find_program(GCC_RANLIB ${CMAKE_SYSTEM_PROCESSOR}-elf-ranlib REQUIRED PATHS /usr/local/cross/bin)
-	find_program(GCC ${CMAKE_SYSTEM_PROCESSOR}-elf-gcc REQUIRED PATHS /usr/local/cross/bin)
-	find_program(GPP ${CMAKE_SYSTEM_PROCESSOR}-elf-g++ REQUIRED PATHS /usr/local/cross/bin)
-	message(STATUS "GCC-ar: ${GCC_AR}")
-	message(STATUS "GCC-ld: ${GCC_LD}")
-	message(STATUS "GCC-nm: ${GCC_NM}")
-	message(STATUS "GCC-objdump: ${GCC_OBJDUMP}")
-	message(STATUS "GCC-ranlib: ${GCC_RANLIB}")
-	message(STATUS "GCC: ${GCC}")
-	message(STATUS "G++: ${GPP}")
-
-	SET (CMAKE_AR      "${GCC_AR}")
-	SET (CMAKE_LINKER  "${GCC_LD}")
-	SET (CMAKE_NM      "${GCC_NM}")
-	SET (CMAKE_OBJDUMP "${GCC_OBJDUMP}")
-	SET (CMAKE_RANLIB  "${GCC_RANLIB}")
-	SET (CMAKE_CXX_COMPILER "${GPP}")
-	SET (CMAKE_C_COMPILER "${GCC}")
-	
 endif(${USE_GCC_TOOLCHAIN} OR ${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
 
 # Concatenate and sort
-set(SOURCE_FILES ${LIBC_SOURCES} ${KERN_SOURCES} ${ISA_SRCS} ${PLATFORM_SRCS})
+set(SOURCE_FILES ${KERNEL_SOURCES} ${OS_SOURCES})
 list(SORT SOURCE_FILES)
-
-# Find perl - for run-cc.pl to colorize errors/warnings during compile
-find_program(PERL perl)
-if(PERL AND NOT CMAKE_C_COMPILER_ID STREQUAL "Clang")
-	# C++ compiles
-	set(CMAKE_CXX_COMPILE_OBJECT "${PERL} ${CMAKE_SOURCE_DIR}/run-cc.pl -q ${CMAKE_CXX_COMPILE_OBJECT}")
-	set(CMAKE_CXX_LINK_EXECUTABLE "${PERL} ${CMAKE_SOURCE_DIR}/run-cc.pl -q ${CMAKE_CXX_LINK_EXECUTABLE}")
-	set(CMAKE_CXX_CREATE_SHARED_MODULE "${PERL} ${CMAKE_SOURCE_DIR}/run-cc.pl -q ${CMAKE_CXX_CREATE_SHARED_MODULE}")
-	# C compiles
-	set(CMAKE_C_COMPILE_OBJECT "${PERL} ${CMAKE_SOURCE_DIR}/run-cc.pl -q ${CMAKE_C_COMPILE_OBJECT}")
-	set(CMAKE_C_LINK_EXECUTABLE "${PERL} ${CMAKE_SOURCE_DIR}/run-cc.pl -q ${CMAKE_C_LINK_EXECUTABLE}")
-	set(CMAKE_C_CREATE_SHARED_MODULE "${PERL} ${CMAKE_SOURCE_DIR}/run-cc.pl -q ${CMAKE_C_CREATE_SHARED_MODULE}")
-	# Assembly compiles
-	set(CMAKE_ASM_COMPILE_OBJECT "${PERL} ${CMAKE_SOURCE_DIR}/run-cc.pl -q <CMAKE_ASM-ATT_COMPILER> ${ASM_FLAGS} -o <OBJECT> <SOURCE>")
-else(PERL AND NOT CMAKE_C_COMPILER_ID STREQUAL "Clang")
-	# We're not doing colored builds or we're clang.
-	# Assembly compiles
-	SET(CMAKE_ASM-ATT_COMPILE_OBJECT  "<CMAKE_ASM-ATT_COMPILER> ${ASM_FLAGS} -o <OBJECT> <SOURCE>")
-endif(PERL AND NOT CMAKE_C_COMPILER_ID STREQUAL "Clang")
-
 
 set(USE_THREADS OFF CACHE BOOL "Disable threads" FORCE)
 set(AS_C11 OFF CACHE BOOL "Configure with the latest C11" FORCE)
 set(BAREMETAL ON CACHE BOOL "Configure as baremetal libc" FORCE)
 
-
 # Add the subdirectories
 add_subdirectory(external/pdclib)
+#add_subdirectory(external/leif)
 
 # Finally, Tell CMake to build our kernel.
-add_executable(${PROJECT_NAME}.bin ${SOURCE_FILES} ${KERN_BOOT_C_SOURCES} ${KERN_BOOT_SOURCES} ${KERN_MAIN_SOURCES} ${KERN_LUNA_SOURCES} ${KERN_LUNA_C_STD_SOURCES} ${KERN_LUNA_CXX_STD_SOURCES})
-set_source_files_properties(${SOURCE_FILES} PROPERTIES LANGUAGE C COMPILE_FLAGS "")
+add_executable(${PROJECT_NAME}.bin ${SOURCE_FILES})
 set_source_files_properties(kernel/arch/i386/interrupt.s PROPERTIES LANGUAGE ASM_NASM)
 set_source_files_properties(kernel/arch/i386/thread_asm.s PROPERTIES LANGUAGE ASM_NASM)
 
@@ -223,17 +133,18 @@ target_compile_definitions(EASTL PRIVATE
 
 target_include_directories(pdclibs PUBLIC
 	${CMAKE_CURRENT_LIST_DIR}/external/EASTL/include  # Ensure libc++ headers are first
-    ${CMAKE_SOURCE_DIR}/libc/stdlib
+    ${CMAKE_SOURCE_DIR}/kernel/luna/libc
     ${CMAKE_SOURCE_DIR}/kernel
-    ${CMAKE_SOURCE_DIR}/kernel/sys
+    ${CMAKE_SOURCE_DIR}/os
     ${CMAKE_SOURCE_DIR}/kernel/lib
-    ${CMAKE_SOURCE_DIR}/kernel/luna
-    ${CMAKE_SOURCE_DIR}/kernel/luna/std
+    ${CMAKE_SOURCE_DIR}/kernel/luna/c++
     ${CMAKE_CURRENT_LIST_DIR}/external/micro-gl/include
+    ${CMAKE_CURRENT_LIST_DIR}/external/gl/include
     ${CMAKE_CURRENT_LIST_DIR}/external/pdclib/include
     ${CMAKE_BINARY_DIR}/external/pdclib/configured_include
 )
 
+#target_link_libraries(leif PUBLIC pdclibs)
 target_link_libraries(EASTL PUBLIC pdclibs)
 
 target_link_libraries(${PROJECT_NAME}.bin PRIVATE EASTL)

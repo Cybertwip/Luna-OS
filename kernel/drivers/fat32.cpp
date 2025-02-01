@@ -11,7 +11,7 @@
 #include <mm/kmalloc.h>
 #include <sys/system.h>
 
-#include <luna/std/string.h>
+#include <strutil.h>
 #include <ctype.h>
 
 

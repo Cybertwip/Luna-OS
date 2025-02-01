@@ -1,4 +1,4 @@
-#include "luna/std/string.h"
+#include "strutil.h"
 #include <ctype.h> // For tolower()
 #include <stdlib.h>
 

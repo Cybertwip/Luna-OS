@@ -11,7 +11,7 @@ extern "C" {
 
 #include "drivers/fat32.h"
 
-#include "luna/Graphics.h"
+#include "luna/graphics.h"
 
 #define PORTABLEGL_IMPLEMENTATION
 #define PGL_DISABLE_COLOR_MASK

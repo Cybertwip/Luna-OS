@@ -38,7 +38,7 @@ int register_blkdev_class(unsigned int major, const char *name,
 
     /* Add the class to the linked list */
     kmutex_lock(&blkdev_mutex);
-    dev_class->next = (blkdev_class_t*)blkdev_classes;
+    dev_class->next = blkdev_classes;
     blkdev_classes = dev_class;
     kmutex_unlock(&blkdev_mutex);
 
@@ -90,7 +90,7 @@ int register_blkdev_instance(unsigned int major, unsigned int minor, const char 
 
     /* Add the instance to the linked list */
     kmutex_lock(&blkdev_mutex);
-    instance->next = (blkdev_instance_t*)blkdev_instances;
+    instance->next = blkdev_instances;
     blkdev_instances = instance;
     kmutex_unlock(&blkdev_mutex);
 

@@ -10,7 +10,7 @@ extern "C" {
     #include "mm/paging.h"
     #include "mm/heap.h"
 
-    #include "VBE.h" 
+    #include "vbe.h" 
 
 }
 
