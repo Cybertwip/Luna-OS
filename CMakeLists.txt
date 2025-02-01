@@ -32,6 +32,8 @@ file(GLOB KERN_LIB_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "kernel/lib/*.c"
 file(GLOB KERN_MM_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "kernel/mm/*.c")
 file(GLOB KERN_DRIVERS_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "kernel/drivers/*.c")
 file(GLOB KERN_SYS_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "kernel/sys/*.c")
+file(GLOB KERN_BOOT_C_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "kernel/arch/i386/*.c")
+file(GLOB KERN_BOOT_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "kernel/arch/i386/*.cpp")
 file(GLOB KERN_MAIN_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "kernel/entry/*.cpp")
 file(GLOB KERN_LUNA_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "kernel/luna/*.cpp")
 file(GLOB KERN_LUNA_C_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "kernel/luna/*.c")
@@ -196,9 +198,8 @@ set(BAREMETAL ON CACHE BOOL "Configure as baremetal libc" FORCE)
 add_subdirectory(external/pdclib)
 
 # Finally, Tell CMake to build our kernel.
-add_executable(${PROJECT_NAME}.bin ${SOURCE_FILES} ${KERN_MAIN_SOURCES} ${KERN_LUNA_SOURCES} ${KERN_LUNA_C_STD_SOURCES} ${KERN_LUNA_CXX_STD_SOURCES})
+add_executable(${PROJECT_NAME}.bin ${SOURCE_FILES} ${KERN_BOOT_C_SOURCES} ${KERN_BOOT_SOURCES} ${KERN_MAIN_SOURCES} ${KERN_LUNA_SOURCES} ${KERN_LUNA_C_STD_SOURCES} ${KERN_LUNA_CXX_STD_SOURCES})
 set_source_files_properties(${SOURCE_FILES} PROPERTIES LANGUAGE C COMPILE_FLAGS "")
-set_source_files_properties(kernel/arch/i386/boot.s PROPERTIES LANGUAGE ASM_NASM)
 set_source_files_properties(kernel/arch/i386/interrupt.s PROPERTIES LANGUAGE ASM_NASM)
 set_source_files_properties(kernel/arch/i386/thread_asm.s PROPERTIES LANGUAGE ASM_NASM)
 

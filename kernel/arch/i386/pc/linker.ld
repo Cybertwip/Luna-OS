@@ -8,6 +8,10 @@ SECTIONS
     /* Start at 2M to avoid conflicts with BIOS and UEFI */
     . = 2M;
 
+    .note.Xen : {
+        *(.note.Xen)
+    }
+
 	.text BLOCK(4K) : ALIGN(4K)
 	{
 		code = .; _code = .; __code = .;

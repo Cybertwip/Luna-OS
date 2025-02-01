@@ -4,7 +4,7 @@ idt_flush:
     lidt [eax]        ; Load the IDT pointer.
     ret
 .end:
-        
+
 ; This macro creates a stub for an ISR which does NOT pass it's own
 ; error code (adds a dummy errcode byte).
 %macro ISR_NOERRCODE 1
@@ -70,32 +70,31 @@ global isr_common_stub:function isr_common_stub.end-isr_common_stub
 isr_common_stub:
     pusha                    ; Pushes edi,esi,ebp,esp,ebx,edx,ecx,eax
 
-    mov ax, ds               ; Lower 16-bits of eax = ds.
-    push eax                 ; Save the data segment descriptor
+mov ax, ds               ; Lower 16-bits of eax = ds.
+push eax                 ; Save the data segment descriptor
 
-    mov ax, 0x10             ; Load the kernel data segment descriptor
-    mov ds, ax
-    mov es, ax
-    mov fs, ax
-    mov gs, ax
-    mov ss, ax
+mov ax, 0x10             ; Load the kernel data segment descriptor
+mov ds, ax
+mov es, ax
+mov fs, ax
+mov gs, ax
+mov ss, ax
 
-    push esp    	     ; Push a pointer to the current top of stack - this becomes the registers_t* parameter.
-    call idt_handler         ; Call into our C code.
-    add esp, 4		     ; Remove the registers_t* parameter.
+push esp    	     ; Push a pointer to the current top of stack - this becomes the registers_t* parameter.
+call idt_handler         ; Call into our C code.
+add esp, 4		     ; Remove the registers_t* parameter.
 
-    pop ebx                  ; Reload the original data segment descriptor
-    mov ds, bx
-    mov es, bx
-    mov fs, bx
-    mov gs, bx
-    mov ss, bx
+pop ebx                  ; Reload the original data segment descriptor
+mov ds, bx
+mov es, bx
+mov fs, bx
+mov gs, bx
+mov ss, bx
 
-    popa                     ; Pops edi,esi,ebp...
-    add esp, 8               ; Cleans up the pushed error code and pushed ISR number
-    iret                     ; pops 5 things at once: CS, EIP, EFLAGS, SS, and ESP
+popa                     ; Pops edi,esi,ebp...
+add esp, 8               ; Cleans up the pushed error code and pushed ISR number
+iret                     ; pops 5 things at once: CS, EIP, EFLAGS, SS, and ESP
 .end:
-
 
 ; This macro creates a stub for an IRQ - the first parameter is
 ; the IRQ number, the second is the ISR number it is remapped to.
@@ -124,7 +123,7 @@ IRQ  12,    44
 IRQ  13,    45
 IRQ  14,    46
 IRQ  15,    47
-        
+
 ; C function in idt.c
 extern irq_handler
 
@@ -136,30 +135,30 @@ global irq_common_stub:function irq_common_stub.end-irq_common_stub
 irq_common_stub:
     pusha                    ; Pushes edi,esi,ebp,esp,ebx,edx,ecx,eax
 
-    mov ax, ds               ; Lower 16-bits of eax = ds.
-    push eax                 ; Save the data segment descriptor
+mov ax, ds               ; Lower 16-bits of eax = ds.
+push eax                 ; Save the data segment descriptor
 
-    mov ax, 0x10             ; Load the kernel data segment descriptor
-    mov ds, ax
-    mov es, ax
-    mov fs, ax
-    mov gs, ax
-    mov ss, ax
+mov ax, 0x10             ; Load the kernel data segment descriptor
+mov ds, ax
+mov es, ax
+mov fs, ax
+mov gs, ax
+mov ss, ax
 
-    push esp    	     ; Push a pointer to the current top of stack - this becomes the registers_t* parameter.
-    call irq_handler         ; Call into our C code.
-    add esp, 4		     ; Remove the registers_t* parameter.
+push esp    	     ; Push a pointer to the current top of stack - this becomes the registers_t* parameter.
+call irq_handler         ; Call into our C code.
+add esp, 4		     ; Remove the registers_t* parameter.
 
-    pop ebx                  ; Reload the original data segment descriptor
-    mov ds, bx
-    mov es, bx
-    mov fs, bx
-    mov gs, bx
-    mov ss, bx
+pop ebx                  ; Reload the original data segment descriptor
+mov ds, bx
+mov es, bx
+mov fs, bx
+mov gs, bx
+mov ss, bx
 
-    popa                     ; Pops edi,esi,ebp...
-    add esp, 8               ; Cleans up the pushed error code and pushed ISR number
-    iret                     ; pops 5 things at once: CS, EIP, EFLAGS, SS, and ESP
+popa                     ; Pops edi,esi,ebp...
+add esp, 8               ; Cleans up the pushed error code and pushed ISR number
+iret                     ; pops 5 things at once: CS, EIP, EFLAGS, SS, and ESP
 .end:
 
 global gdt_flush:function gdt_flush.end-gdt_flush ; Allows the C code to call gdt_flush().
@@ -168,13 +167,13 @@ gdt_flush:
     mov eax, [esp+4]  ; Get the pointer to the GDT, passed as a parameter.
     lgdt [eax]        ; Load the new GDT pointer
 
-    mov ax, 0x10      ; 0x10 is the offset in the GDT to our data segment
-    mov ds, ax        ; Load all data segment selectors
-    mov es, ax
-    mov fs, ax
-    mov gs, ax
-    mov ss, ax
-    jmp 0x08:.flush   ; 0x08 is the offset to our code segment: Far jump!
+mov ax, 0x10      ; 0x10 is the offset in the GDT to our data segment
+mov ds, ax        ; Load all data segment selectors
+mov es, ax
+mov fs, ax
+mov gs, ax
+mov ss, ax
+jmp 0x08:.flush   ; 0x08 is the offset to our code segment: Far jump!
 .flush:
     ret
 .end:

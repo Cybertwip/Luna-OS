@@ -42,10 +42,21 @@ int handle_events(void);
 void identity_vs(float* vs_output, vec4* vertex_attribs, Shader_Builtins* builtins, void* uniforms);
 void uniform_color_fs(float* fs_input, Shader_Builtins* builtins, void* uniforms);
 
+int fn(void *arg) {
+    for (;;) {
+        int i;
+        for (i = 0; i < 80; i++) {
+            printk("a = %d\n", i);
+        }
+    }
+    return 6;
+}
+
+
 
 int main(uint32_t magic, multiboot_info_t* mb_info) {
     if (magic != 0x2BADB002) {
-        panic("Invalid Boot Record");
+        panic("0x%X\n Invalid Boot Record", magic);
         // Optionally: print error, halt, or return an error code
         return -1; // Return error code
     }
@@ -63,6 +74,8 @@ int main(uint32_t magic, multiboot_info_t* mb_info) {
     init_scheduler(init_threading());
 
     // start operations here
+    // uint32_t *stack = kmalloc(0x400) + 0x3F0;
+    // thread_t *t = create_thread(&fn, (void *)0x567, stack);
 
     Graphics gfx;
 
