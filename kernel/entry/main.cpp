@@ -3,10 +3,12 @@ extern "C" {
 #include "arch/i386/multiboot.h"
 #include "sys/scheduler.h"
 #include "drivers/timer.h"
-#include "drivers/ide.h"
 #include "drivers/voltron.h"
 #include <kernel.h>
 }
+
+#include "drivers/ide.h"
+
 #include "drivers/fat32.h"
 
 #include "luna/Graphics.h"
@@ -70,7 +72,7 @@ int main(uint32_t magic, multiboot_info_t* mb_info) {
 
     fat32.mount();
 
-    
+
     init_filesystem();
 
     init_paging(mb_info);

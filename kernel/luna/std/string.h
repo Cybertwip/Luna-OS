@@ -1,3 +1,7 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #pragma once
 
 #include <stddef.h> // For size_t
@@ -9,3 +13,7 @@ char *strdup(const char *s);
 char *strtok_r(char *s, const char *delim, char **saveptr);
 
 #include_next <string.h>
+
+#ifdef __cplusplus
+}
+#endif
