@@ -37,7 +37,6 @@ void * sbrk( intptr_t );
    are declared _PDCLIB_PUBLIC in <stdlib.h>, marking them
    exported from the library.)
 */
-#define dlrealloc  realloc
 #if __STDC_VERSION__ >= 201112L
 #define dlmemalign aligned_alloc
 #endif
