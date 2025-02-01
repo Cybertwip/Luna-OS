@@ -18,7 +18,7 @@
 https://github.com/user-attachments/assets/6d8a7e6f-908b-4a36-80ee-c61700db3488
 
 ## Licensing Info 📜
-- **Luna-OS and Luna-OS Kernel**: MIT License 🙌  
+- **Luna-OS and Luna-OS Kernel**: Public Domain 🙌  
 - **uFat Library**: BSD License 📝  
 - **pdlibc**: Public Domain 🆓  
 - **EASTL**: BSD License 📜  
