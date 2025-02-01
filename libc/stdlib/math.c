@@ -410,3 +410,117 @@ float ceilf(float x) {
 int isnan(float x) {
     return x != x;
 }
+
+// Implementation of ldexp and ldexpf
+double ldexp(double x, int exp) {
+    if (x == 0.0 || isinf(x) || isnan(x)) {
+        return x;
+    }
+
+    union {
+        double d;
+        uint64_t u;
+    } u;
+    u.d = x;
+
+    uint64_t sign = u.u & 0x8000000000000000ULL;
+    int64_t exponent = (u.u >> 52) & 0x7FF;
+    uint64_t mantissa = u.u & 0x000FFFFFFFFFFFFFULL;
+
+    if (exponent == 0) {
+        // Handle subnormal by multiplying with pow
+        return x * pow(2.0, exp);
+    }
+
+    int64_t new_biased_exponent = exponent + exp;
+
+    if (new_biased_exponent >= 0x7FF) {
+        // Overflow to infinity
+        u.u = sign | 0x7FF0000000000000ULL;
+        return u.d;
+    } else if (new_biased_exponent <= 0) {
+        // Underflow to zero
+        u.u = sign;
+        return u.d;
+    } else {
+        u.u = sign | ((uint64_t)new_biased_exponent << 52) | mantissa;
+        return u.d;
+    }
+}
+
+float ldexpf(float x, int exp) {
+    if (x == 0.0f) return x;
+
+    union {
+        float f;
+        uint32_t u;
+    } u;
+    u.f = x;
+
+    uint32_t sign = u.u & 0x80000000UL;
+    uint32_t exponent = (u.u >> 23) & 0xFF;
+    uint32_t mantissa = u.u & 0x007FFFFFUL;
+
+    // Check for NaN or Inf
+    if (exponent == 0xFF) {
+        return x;
+    }
+
+    if (exponent == 0) {
+        // Handle subnormal by multiplying with powf
+        return x * powf(2.0f, exp);
+    }
+
+    int32_t new_biased_exponent = exponent + exp;
+
+    if (new_biased_exponent >= 0xFF) {
+        // Overflow to infinity
+        u.u = sign | 0x7F800000UL;
+        return u.f;
+    } else if (new_biased_exponent <= 0) {
+        // Underflow to zero
+        u.u = sign;
+        return u.f;
+    } else {
+        u.u = sign | ((uint32_t)new_biased_exponent << 23) | mantissa;
+        return u.f;
+    }
+}
+
+float fmodf(float x, float y) {
+    if (y == 0.0f) {
+        // Division by zero is undefined, return NaN
+        return NAN;
+    }
+
+    // Handle infinity cases
+    if (isinf(x) || isnan(x) || isnan(y)) {
+        return NAN;
+    }
+
+    // Handle case where y is infinity
+    if (isinf(y)) {
+        return x;
+    }
+
+    // Compute the absolute values of x and y
+    float abs_x = fabsf(x);
+    float abs_y = fabsf(y);
+
+    // If x is less than y, the remainder is x
+    if (abs_x < abs_y) {
+        return x;
+    }
+
+    // Repeatedly subtract y from x until x < y
+    while (abs_x >= abs_y) {
+        abs_x -= abs_y;
+    }
+
+    // Restore the sign of the result
+    if (x < 0.0f) {
+        abs_x = -abs_x;
+    }
+
+    return abs_x;
+}

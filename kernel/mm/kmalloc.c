@@ -5,6 +5,8 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <string.h>
+
 
 // External references
 extern uint32_t __end;                          // End of the kernel (defined in the linker script)

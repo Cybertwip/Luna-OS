@@ -219,26 +219,6 @@ target_compile_definitions(EASTL PRIVATE
 -D__cplusplus=201402L 
 )
 
-target_compile_definitions(${PROJECT_NAME}.bin PRIVATE 
--DEA_NO_HAVE_DINKUMWARE_CPP_LIBRARY
--DEA_NO_HAVE_LIBSTDCPP_LIBRARY
--DEA_NO_HAVE_LIBCPP_LIBRARY
--DEA_NO_HAVE_WCHAR_H
--DEA_WCHAR_T_NON_NATIVE
--DEA_NO_HAVE_nullptr_t_IMPL
--DEA_NO_HAVE_PTHREAD_H
--DEASTL_SIZE_T_32BIT=0
--DEASTL_RTTI_ENABLED=0
--DEASTL_EXCEPTIONS_ENABLED=0
--DEA_PLATFORM_LINUX 
--DBAREMETAL
-)
-
-
-target_link_libraries(EASTL PUBLIC pdclibs)
-
-target_link_libraries(${PROJECT_NAME}.bin PRIVATE EASTL)
-
 target_include_directories(pdclibs PUBLIC
 	${CMAKE_CURRENT_LIST_DIR}/external/EASTL/include  # Ensure libc++ headers are first
     ${CMAKE_SOURCE_DIR}/libc/stdlib
@@ -251,6 +231,11 @@ target_include_directories(pdclibs PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/external/pdclib/include
     ${CMAKE_BINARY_DIR}/external/pdclib/configured_include
 )
+
+target_link_libraries(EASTL PUBLIC pdclibs)
+
+target_link_libraries(${PROJECT_NAME}.bin PRIVATE EASTL)
+
 
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -nostdlib -nodefaultlibs -Wl,-m,elf_i386 ${LINKFLAGS}")
 
@@ -298,5 +283,3 @@ add_custom_target(run_vbox
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     COMMENT "Running 32-bit kernel with VirtualBox on macOS (1024 MB disk image)"
 )
-
-

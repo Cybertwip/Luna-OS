@@ -1,4 +1,5 @@
 #include <sys/times.h>
+#include <time.h>
 
 long int times(struct tms *buf) {
     if (buf == NULL) {

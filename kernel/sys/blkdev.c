@@ -1,9 +1,12 @@
 #include "blkdev.h"
 #include "mm/heap.h"
+#include "mm/kmalloc.h"
 #include "string.h"
 #include "sync.h"
 
 #include "stdlib.h"
+#include <string.h>
+
 
 static kmutex_t blkdev_mutex;                  // Mutex for thread-safe operations
 static blkdev_class_t *blkdev_classes = NULL;  // Linked list of block device classes

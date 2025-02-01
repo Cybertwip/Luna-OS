@@ -73,6 +73,11 @@ extern float nearbyintf(float x);
 extern float ceilf(float x);
 extern int isnan(float x);
 
+extern double ldexp(double x, int exp);
+extern float ldexpf(float x, int exp);
+
+extern float fmodf(float x, float y);
+
 #define M_PI        3.14159265358979323846
 #define M_PI_2      1.57079632679489661923
 #define NAN         (0.0 / 0.0)

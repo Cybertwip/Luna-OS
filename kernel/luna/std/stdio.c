@@ -6,10 +6,11 @@
 #include "drivers/voltron.h"
 #include "mm/kmalloc.h"
 #include "sys/system.h"
-#include "string.h"
 #include <pdclib/_PDCLIB_glue.h>
 #include <pdclib/_PDCLIB_internal.h>
 #include <pdclib/_PDCLIB_config.h>
+
+#include <string.h>
 
 // PDCLIB internal flags (adjust according to your PDCLIB configuration)
 #define _PDCLIB_FOPEN   0x0001
