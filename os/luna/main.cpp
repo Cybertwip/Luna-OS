@@ -4,6 +4,7 @@
 #include <lvgl.h>
 #include <drivers/timer.h>
 #include <eastl/unique_ptr.h>
+#include <eastl/allocator_malloc.h>
 
 #include <src/display/lv_display_private.h>
 
@@ -38,7 +39,13 @@ static void close_cb(lv_event_t* e) {
 }
 
 int main(int argc, char** argv) {
-    Graphics gfx;
+    // eastl::allocator_malloc ma;
+    eastl::unique_ptr<Graphics> gfx_ptr = 
+    eastl::unique_ptr<Graphics>((Graphics*)malloc(sizeof(Graphics)));
+
+    panic("%d", gfx_ptr.get());
+    auto& gfx = *gfx_ptr;
+    
 
     lv_init();
     lv_tick_set_cb(tick_get);

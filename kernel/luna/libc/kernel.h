@@ -30,11 +30,11 @@ typedef ssize_t (*device_write_fn)(int fd, const void *buf, size_t count);
 // Initialize standard I/O devices
 void kernel_io_init(void);
 
-extern void *luna_malloc(size_t size);
+void *luna_malloc(size_t size);
 
-extern void *luna_realloc(void *ptr, size_t size);
+void *luna_realloc(void *ptr, size_t size);
 
-extern void luna_free(void *ptr);
+void luna_free(void *ptr);
 
 #ifdef __cplusplus
 }

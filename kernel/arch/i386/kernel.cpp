@@ -10,6 +10,12 @@ Kernel::Kernel(uint32_t magic, multiboot_info_t* mb_info)
 
     kernel_io_init();
 
+    init_paging(mMbInfo);
+    init_timer(20);
+
+    __asm__ volatile ("sti");
+    init_scheduler(init_threading());
+
     ide = eastl::make_unique<IDE>();
     fat32 = eastl::make_unique<Fat32>(*ide);
 
@@ -17,9 +23,6 @@ Kernel::Kernel(uint32_t magic, multiboot_info_t* mb_info)
 
     init_filesystem();
 
-    init_paging(mMbInfo);
-    init_timer(20);
+    panic("%d", (int)ide.get());
 
-    // __asm__ volatile ("sti");
-    // init_scheduler(init_threading());
 }

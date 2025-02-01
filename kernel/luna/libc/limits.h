@@ -1,4 +1,7 @@
-// kernel_limits.h
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #pragma once
 
 #define CHAR_BIT  8
@@ -23,3 +26,7 @@
 
 #define CHAR_MIN  (-128)  // Minimum value for an object of type char if char is signed
 #define CHAR_MAX  127     // Maximum value for an object of type char if char is signed
+
+#ifdef __cplusplus
+}
+#endif

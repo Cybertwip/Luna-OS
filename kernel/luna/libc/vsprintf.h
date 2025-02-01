@@ -1,3 +1,7 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef VSPRINTF_H
 #define VSPRINTF_H
 
@@ -5,4 +9,8 @@
 
 int vsprintf(char *buf, const char *fmt, va_list args);
 
+#endif
+
+#ifdef __cplusplus
+}
 #endif

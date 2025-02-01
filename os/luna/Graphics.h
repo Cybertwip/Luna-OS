@@ -4,15 +4,12 @@
 #include <stdint.h>
 #include <string.h>
 
-extern "C" {
-    #include "mm/kmalloc.h"
-    #include "mm/kmemdetect.h"
-    #include "mm/paging.h"
-    #include "mm/heap.h"
+#include "mm/kmalloc.h"
+#include "mm/kmemdetect.h"
+#include "mm/paging.h"
+#include "mm/heap.h"
 
-    #include "vbe.h" 
-
-}
+#include "vbe.h" 
 
 class Graphics {
 private:
@@ -23,7 +20,7 @@ private:
     uint32_t physBackBuffer;
 public:
     Graphics() {
-        init(WIDTH, HEIGHT, BPP);
+        // init(WIDTH, HEIGHT, BPP);
 
         // Allocate backBuffer with the correct size and get its physical address
         backBuffer = static_cast<uint32_t*>(kmalloc0_ap(WIDTH * HEIGHT * sizeof(uint32_t), &physBackBuffer));

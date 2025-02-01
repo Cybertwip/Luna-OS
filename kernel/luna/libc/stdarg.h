@@ -1,3 +1,7 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef __STDARG_H__
 #define __STDARG_H__
 
@@ -34,3 +38,7 @@ typedef char* va_list;
 #endif
 
 #endif // __STDARG_H__
+
+#ifdef __cplusplus
+}
+#endif
