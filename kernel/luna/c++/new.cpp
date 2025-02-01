@@ -1,10 +1,7 @@
 #include <new>
 
-extern "C" 
-{
-    #include "mm/kmalloc.h"
+#include "mm/kmalloc.h"
 
-}
 
 // Global new and delete operators
 void* operator new(size_t size) {
@@ -55,9 +52,4 @@ void operator delete(void*, void*) noexcept {
 
 void operator delete[](void*, void*) noexcept {
     // Placement delete[] does nothing
-}
-
-void* operator new[](unsigned long size, char const* file, int line, unsigned int alignment, char const* function, int flags) noexcept {
-    // Implement the allocation logic here
-    return operator new(size); // For now, just delegate to the standard new operator
 }
