@@ -1,13 +1,10 @@
 #pragma once
 
-#include <drivers/disk_interface.h>
-
 #include <stdbool.h>
 #include <stdint.h>
 
-
 // Filesystem initialization and directory listing
-bool init_filesystem(disk_e disk);
+bool init_filesystem();
 
 // File operations (abstracted)
 bool create_directory(const char* path);

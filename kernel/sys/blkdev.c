@@ -16,7 +16,7 @@ static blkdev_instance_t *blkdev_instances = NULL; // Linked list of block devic
 int register_blkdev_class(unsigned int major, const char *name,
                           int (*read_blocks)(unsigned int minor, uint32_t block, unsigned int nblocks, void *buffer),
                           int (*write_blocks)(unsigned int minor, uint32_t block, unsigned int nblocks, void *buffer)) {
-    blkdev_class_t *class;
+    blkdev_class_t *dev_class;
 
     /* Validate input parameters */
     if (!name || !read_blocks || !write_blocks) {
@@ -24,22 +24,22 @@ int register_blkdev_class(unsigned int major, const char *name,
     }
 
     /* Allocate memory for the new class */
-    class = kmalloc(sizeof(blkdev_class_t));
-    if (!class) {
+    dev_class = kmalloc(sizeof(blkdev_class_t));
+    if (!dev_class) {
         return -1; // Memory allocation failed
     }
 
     /* Initialize the class */
-    class->major = major;
-    class->name = name;
-    class->read_blocks = read_blocks;
-    class->write_blocks = write_blocks;
-    class->next = NULL;
+    dev_class->major = major;
+    dev_class->name = name;
+    dev_class->read_blocks = read_blocks;
+    dev_class->write_blocks = write_blocks;
+    dev_class->next = NULL;
 
     /* Add the class to the linked list */
     kmutex_lock(&blkdev_mutex);
-    class->next = (blkdev_class_t*)blkdev_classes;
-    blkdev_classes = class;
+    dev_class->next = (blkdev_class_t*)blkdev_classes;
+    blkdev_classes = dev_class;
     kmutex_unlock(&blkdev_mutex);
 
     return 0; // Success
@@ -72,17 +72,17 @@ int register_blkdev_instance(unsigned int major, unsigned int minor, const char 
 
     /* Find the corresponding class */
     kmutex_lock(&blkdev_mutex);
-    blkdev_class_t *class = blkdev_classes;
-    while (class) {
-        if (class->major == major) {
-            instance->class = class;
+    blkdev_class_t *dev_class = blkdev_classes;
+    while (dev_class) {
+        if (dev_class->major == major) {
+            instance->dev_class = dev_class;
             break;
         }
-        class = (blkdev_class_t*)class->next;
+        dev_class = (blkdev_class_t*)dev_class->next;
     }
     kmutex_unlock(&blkdev_mutex);
 
-    if (!instance->class) {
+    if (!instance->dev_class) {
         kfree(instance);
         return -1; // No matching class found
     }

@@ -1,3 +1,7 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef _KERNEL_BLKDEV_H
 #define _KERNEL_BLKDEV_H
 
@@ -15,7 +19,7 @@ typedef struct {
 
 /* Block device instance structure */
 typedef struct {
-    blkdev_class_t *class;                     // Pointer to the block device class
+    blkdev_class_t *dev_class;                     // Pointer to the block device class
     uint32_t major;                            // Major number
     uint32_t minor;                            // Minor number
     const char *name;                          // Device name
@@ -33,3 +37,6 @@ int register_blkdev_instance(unsigned int major, unsigned int minor, const char 
                              uint32_t block_size, uint64_t capacity);
 
 #endif // _KERNEL_BLKDEV_H
+#ifdef __cplusplus
+}
+#endif

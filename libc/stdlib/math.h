@@ -1,3 +1,7 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef __MATH_H__
 #define __MATH_H__
 
@@ -83,3 +87,7 @@ extern float fmodf(float x, float y);
 #define NAN         (0.0 / 0.0)
 
 #endif // __MATH_H__
+
+#ifdef __cplusplus
+}
+#endif

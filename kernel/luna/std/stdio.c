@@ -1,7 +1,6 @@
 #include "stddef.h"
 #include "stdio.h"
 #include "stdlib.h"
-#include "drivers/fat32.h"
 #include "drivers/ufat.h"
 #include "drivers/voltron.h"
 #include "mm/kmalloc.h"

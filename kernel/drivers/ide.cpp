@@ -12,9 +12,6 @@
 #include <sys/blkdev.h>
 #include <sys/sync.h>
 
-
-extern hd_ata hd_slot_0;
-
 /* We support up to 2 IDE controllers in Simplix. */
 #define NR_IDE_CONTROLLERS 2
 
@@ -76,6 +73,8 @@ extern hd_ata hd_slot_0;
 
 /* The max. number of blocks this IDE driver can read/write in one operation. */
 #define MAX_NBLOCKS 256
+
+
 
 struct ide_device {
     /* Pointer to the controller managing this device. */
@@ -148,6 +147,8 @@ static struct ide_controller controllers[NR_IDE_CONTROLLERS] = {
         }
     }
 };
+
+
 
 /*
  * The characters in the strings returned by the IDENTIFY command are
@@ -510,12 +511,8 @@ static void handle_secondary_ide_controller_interrupt(registers_t*)
     handle_ide_controller_interrupt();
 }
 
-/*
- * Detect IDE devices and register IRQ handlers.
- * This function is called at boot time only!
- */
-void init_ide(void)
-{
+
+IDE::IDE(disk_e disk) : mDisk(disk), mHdSlot{0, false} {
     int i, j;
     struct ide_device *device;
     struct ide_controller *controller;
@@ -544,10 +541,10 @@ void init_ide(void)
                 continue;
 
             // Assign the first found device to hd_slot_0
-            if (!hd_slot_0.initialized) {
-                hd_slot_0.minor = i * NR_DEVICES_PER_CONTROLLER + j;
-                hd_slot_0.initialized = true;
-                printk("IDE: Assigned minor %u to hd_slot_0\n", hd_slot_0.minor);
+            if (!mHdSlot.initialized) {
+                mHdSlot.minor = i * NR_DEVICES_PER_CONTROLLER + j;
+                mHdSlot.initialized = true;
+                printk("IDE: Assigned minor %u to hd_slot_0\n", mHdSlot.minor);
             }
 
             /* Show the device information on the screen.
@@ -586,30 +583,32 @@ void init_ide(void)
     enable_irq_line(IRQ15);
 }
 
-
-// Implement the new disk interface functions
-u8 hd_ata_get_status(hd_ata* hd) {
-    struct ide_device *device = get_ide_device(hd->minor);
-    if (!device->present || !hd->initialized) {
-        return 0;
-    }
-    return 1;
-}
-
-u8 hd_ata_protocol_config(hd_ata *hd) {
+u8 IDE::initialize() {
     // Configuration is handled during init_ide; just check initialization
-    if (hd->initialized) {
+    if (mHdSlot.initialized) {
         return 1; // Success
     }
     return 0; // Error (not initialized)
 }
 
-u8 hd_ata_protocol_read(hd_ata* hd, u8* buffer, u32 lba, u32 count) {
-    unsigned int n = ide_read_blocks(hd->minor, lba, count, buffer);
+u8 IDE::status() {
+    struct ide_device *device = get_ide_device(mHdSlot.minor);
+    if (!device->present || !mHdSlot.initialized) {
+        return 0;
+    }
+    return 1;
+}
+
+u8 IDE::read(u8* buffer, u32 lba, u32 count) {
+    unsigned int n = ide_read_blocks(mHdSlot.minor, lba, count, buffer);
     return (n == count) ? 1 : 0;
 }
 
-u8 hd_ata_protocol_write(hd_ata* hd, const u8* buffer, u32 lba, u32 count) {
-    unsigned int n = ide_write_blocks(hd->minor, lba, count, (void*)buffer);
+u8 IDE::write(const u8* buffer, u32 lba, u32 count) {
+    unsigned int n = ide_write_blocks(mHdSlot.minor, lba, count, (void*)buffer);
     return (n == count) ? 1 : 0;
+}
+
+disk_e IDE::disk() {
+    return mDisk;
 }

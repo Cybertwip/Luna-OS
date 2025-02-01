@@ -1,3 +1,7 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef KMALLOC_H
 #define KMALLOC_H
 
@@ -93,3 +97,7 @@ extern void *luna_realloc(void *ptr, size_t size);
 extern void luna_free(void *ptr);
 
 #endif /* KMALLOC_H */
+
+#ifdef __cplusplus
+}
+#endif

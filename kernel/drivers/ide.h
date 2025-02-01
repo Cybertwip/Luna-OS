@@ -1,17 +1,29 @@
 #pragma once
+#include <drivers/fat_types.h>
+#include <stdbool.h>
 #include <stdint.h>
 
-#include <drivers/disk_interface.h>
+typedef enum {
+	DISK_HD_ATA
+} disk_e;
 
-extern void init_ide(void);
+typedef struct {
+    unsigned int minor;
+    bool initialized;
+} hd_ata;
 
-extern u8 disk_get_status(disk_e disk);
+class IDE {
+public:
+    IDE(disk_e disk = DISK_HD_ATA);
+    
+    u8 initialize();
+    u8 status();
+    u8 read(u8* buffer, u32 lba, u32 count);
+    u8 write(const u8* buffer, u32 lba, u32 count);
 
-/// Initializes at disk intrface
-extern u8 disk_initialize(disk_e disk);
+    disk_e disk();
 
-/// Read a number of sectors from the MSD
-extern u8 disk_read(disk_e disk, u8* buffer, u32 lba, u32 count);
-
-/// Write a number of sectors to the MSD
-extern u8 disk_write(disk_e disk, const u8* buffer, u32 lba, u32 count);
+private:
+    disk_e mDisk;
+    hd_ata mHdSlot;
+};

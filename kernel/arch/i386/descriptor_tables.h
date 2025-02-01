@@ -1,3 +1,7 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef DESCRIPTOR_TABLES_H
 #define DESCRIPTOR_TABLES_H
 
@@ -174,3 +178,7 @@ void irq_handler(registers_t *regs);
 void enable_irq_line(int numirq);
 
 #endif /* DESCRIPTOR_TABLES_H */
+
+#ifdef __cplusplus
+}
+#endif

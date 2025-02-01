@@ -65,8 +65,11 @@ int main(uint32_t magic, multiboot_info_t* mb_info) {
 
     kernel_io_init();
 
-    init_ide();
-    init_filesystem(DISK_HD_ATA);
+    IDE ide;
+    disk_mount(ide);
+    init_filesystem();
+
+
     init_paging(mb_info);
     init_timer(20);
 

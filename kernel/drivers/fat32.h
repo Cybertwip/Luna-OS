@@ -1,22 +1,12 @@
-// DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
-//                    Version 2, December 2004
-//  
-// Copyright (C) 2025 Victor Lopez
-// 
-// Everyone is permitted to copy and distribute verbatim or modified
-// copies of this license document, and changing it is allowed as long
-// as the name is changed.
-//  
-//            DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
-//   TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
-// 
-//  0. You just DO WHAT THE FUCK YOU WANT TO.
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #ifndef FAT32_H
 #define FAT32_H
 
 #include "fat_types.h"
-#include "disk_interface.h"
+#include "ide.h"
 
 /// Most of the FAT32 file system functions returns one of these status codes
 typedef enum {
@@ -225,11 +215,15 @@ struct fat_fmt_s {
 #define FAT32_EOC 0x0FFFFFFF
 
 /// Disk functions
-u8 disk_mount(disk_e disk);
+u8 disk_mount(IDE& disk);
 u8 disk_eject(disk_e disk);
 
 /// Volume functions
 struct volume_s* volume_get_first(void);
 struct volume_s* volume_get(char letter);
 
+#endif
+
+#ifdef __cplusplus
+}
 #endif

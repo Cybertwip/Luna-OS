@@ -1,3 +1,7 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef TIMER_H
 #define TIMER_H
 
@@ -17,5 +21,8 @@ void udelay(uint32_t microseconds);
 
 void mdelay(uint32_t milliseconds);
 
-
 #endif /* TIMER_H */
+
+#ifdef __cplusplus
+}
+#endif

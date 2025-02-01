@@ -1,3 +1,7 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef SYSTEM_H
 #define SYSTEM_H
 
@@ -12,9 +16,9 @@
     _panic("%s:%u in %s: " s, __FILE__, __LINE__, __func__, ##__VA_ARGS__)
 
 #define kassert(msg, cond) (                                       \
-		(cond) ?                                           \
-		(void)0 :                                          \
-		panic("assertion failed: %s (%s)", (msg), (#cond)) \
+        (cond) ?                                           \
+        (void)0 :                                          \
+        panic("assertion failed: %s (%s)", (msg), (#cond)) \
 )
 
 /**
@@ -64,7 +68,6 @@ void _panic(const char *fmt, ...);
  */
 void *memset(void *b, int c, size_t len);
 
-
 /**
  * printk
  * Outputs a formatted string to the system log or screen, similar to printf.
@@ -86,3 +89,7 @@ void printk(const char *fmt, ...);
 void bzero(void *b, size_t len);
 
 #endif /* SYSTEM_H */
+
+#ifdef __cplusplus
+}
+#endif

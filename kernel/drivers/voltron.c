@@ -1,6 +1,4 @@
 #include "voltron.h"
-#include <drivers/ide.h>
-#include <drivers/fat32.h>
 #include <drivers/ufat.h>
 #include <luna/std/string.h>
 #include <sys/system.h>
@@ -23,13 +21,12 @@ struct PartitionEntry {
     uint32_t num_sectors;
 } __attribute__((packed));
 
+
 // Initialize the filesystem
-bool init_filesystem(disk_e disk) {
-
-    disk_mount(disk);
-
+bool init_filesystem() {
     return ufat_open(&uf, &device) == 0;
 }
+
 // Creates a directory at the specified path (if it doesn't exist)
 bool create_directory(const char* path) {
     printk("create_directory: Attempting to create directory at path: %s\n", path);

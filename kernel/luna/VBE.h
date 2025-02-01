@@ -1,3 +1,7 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #pragma once
 
 #include <stdint.h>
@@ -9,3 +13,6 @@ extern void outw(uint16_t port, uint16_t value);
 
 extern void vbe_write(uint16_t index, uint16_t value);
 
+#ifdef __cplusplus
+}
+#endif
