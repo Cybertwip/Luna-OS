@@ -85,6 +85,7 @@ add_subdirectory(external/EASTL)
 
 SET (BASE_CFLAGS "${CFLAGS} -std=c11 -fpermissive -fstrength-reduce -fno-builtin-time -fno-builtin-puts -fno-builtin-printf -fno-builtin-function")
 SET (BASE_CXXFLAGS "${CFLAGS} -fpermissive -fstrength-reduce -fno-builtin-time -fno-builtin-puts -fno-builtin-printf -fno-builtin-function")
+
 set (CMAKE_C_FLAGS "${BASE_CFLAGS}")
 set (CMAKE_CXX_FLAGS "${BASE_CXXFLAGS} -std=c++14 -fno-rtti -fno-exceptions -fno-threadsafe-statics")
 SET (CMAKE_ASM_NASM_FLAGS            "-Werror -felf")
