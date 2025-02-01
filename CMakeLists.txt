@@ -62,7 +62,7 @@ set(BAREMETAL ON CACHE BOOL "Configure as baremetal libc" FORCE)
 
 # Add the subdirectories
 add_subdirectory(external/pdclib)
-#add_subdirectory(external/leif)
+add_subdirectory(external/lvgl)
 
 add_executable(${PROJECT_NAME}.bin ${KERNEL_SOURCES} ${OS_SOURCES})
 set_source_files_properties(kernel/arch/i386/interrupt.s PROPERTIES LANGUAGE ASM_NASM)

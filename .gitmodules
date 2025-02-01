@@ -11,6 +11,3 @@
 [submodule "external/EASTL"]
 	path = external/EASTL
 	url = git@github.com:electronicarts/EASTL.git
-[submodule "external/leif"]
-	path = external/leif
-	url = git@github.com:cococry/leif.git
