@@ -20,6 +20,11 @@ static void timer_callback(registers_t *regs) {
   schedule ();
 }
 
+void reset_timer() {
+  tick = 0;
+}
+
+
 uint32_t ticks() {
   return tick;
 }

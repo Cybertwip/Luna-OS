@@ -4,15 +4,12 @@
 #include <stdint.h>
 #include <string.h>
 
-extern "C" {
-    #include "mm/kmalloc.h"
-    #include "mm/kmemdetect.h"
-    #include "mm/paging.h"
-    #include "mm/heap.h"
+#include "mm/kmalloc.h"
+#include "mm/kmemdetect.h"
+#include "mm/paging.h"
+#include "mm/heap.h"
 
-    #include "vbe.h" 
-
-}
+#include "vbe.h" 
 
 static uint32_t physBackBuffer; // until we solve identity mapping for paging.
 

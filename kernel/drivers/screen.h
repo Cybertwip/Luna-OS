@@ -1,3 +1,7 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef SCREEN_H
 #define SCREEN_H
 
@@ -27,3 +31,8 @@ void cls(void);
 void screen_write(char *c);
 
 #endif /* SCREEN_H */
+
+#ifdef __cplusplus
+}
+#endif
+

@@ -1,6 +1,6 @@
 #include "kernel.hpp"
 
-#include <drivers/keyboard.h>
+#include <drivers/dev.h>
 
 Kernel::Kernel(uint32_t magic, multiboot_info_t* mb_info) 
 : mMbInfo(mb_info) {
@@ -18,7 +18,7 @@ Kernel::Kernel(uint32_t magic, multiboot_info_t* mb_info)
     __asm__ volatile ("sti");
     init_scheduler(init_threading());
 
-    keyboard_init();
+    init_ps2();
 
     ide = eastl::make_unique<IDE>();
     

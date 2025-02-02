@@ -46,6 +46,27 @@ uint16_t inw(uint16_t port)
     return ret;
 }
 
+
+
+void outw(uint16_t port, uint16_t value) {
+    __asm__ volatile ("outw %0, %w1" : : "a"(value), "Nd"(port));
+}
+
+unsigned long inl (unsigned short _port){
+    __asm__ volatile ("cli");
+    unsigned long rv;
+    __asm__ __volatile__ ("inl %1, %0" : "=a" (rv) : "dN" (_port));
+    __asm__ volatile ("sti");
+    return rv;
+}
+
+void outl (unsigned short _port, unsigned long _data){
+    __asm__ volatile ("cli");
+    __asm__ __volatile__ ("outl %1, %0" : : "dN" (_port), "a" (_data));
+    __asm__ volatile ("sti");
+}
+
+
 /**
  * memset
  * Fills a block of memory with a specified value.
