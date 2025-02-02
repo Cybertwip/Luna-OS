@@ -130,6 +130,11 @@ add_custom_target(run
 		-drive id=disk,file=${CMAKE_CURRENT_LIST_DIR}/disk.img,format=raw,if=none,index=0,media=disk
 		-device ide-hd,drive=disk,bus=ide.0
 		-serial stdio
+        -device isa-serial,chardev=char0
+        -chardev stdio,id=char0,mux=on
+        -device usb-ehci,id=usb,bus=pci.0,addr=0x4
+        -device usb-kbd
+
     WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
     COMMENT "Running 32-bit kernel with QEMU"
 )

@@ -1,6 +1,7 @@
 #include "strutil.h"
 #include <ctype.h> // For tolower()
 #include <stdlib.h>
+#include <string.h>
 
 // Case-insensitive string comparison
 int strcasecmp(const char *s1, const char *s2) {
@@ -60,4 +61,48 @@ char *strtok_r(char *s, const char *delim, char **saveptr)
     }
 
     return token;
+}
+
+char* itoa(int value, char* str, int base) {
+    if (base < 2 || base > 36) { 
+        *str = '\0'; 
+        return str;
+    }
+
+    char* ptr = str;
+    int tmp_value;
+    
+    // Handle 0 separately to simplify the loop logic
+    if (value == 0) {
+        *ptr++ = '0';
+        *ptr = '\0';
+        return str;
+    }
+
+    // Handle negative numbers for base 10
+    if (value < 0 && base == 10) {
+        *ptr++ = '-';
+        value = -value;
+    }
+
+    // Calculate the length of the number in the given base
+    tmp_value = value;
+    while (tmp_value) {
+        tmp_value /= base;
+        ptr++;
+    }
+
+    *ptr = '\0';
+
+    // Now convert the number to string from back to front
+    char* ptr1 = ptr - 1;
+    do {
+        *ptr1-- = "zyxwvutsrqponmlkjihgfedcba9876543210123456789abcdefghijklmnopqrstuvwxyz"[35 + (value % base)];
+        value /= base;
+    } while (value);
+
+    // Move the string to the beginning of the buffer if we wrote from the end
+    strcpy(str, ptr1 + 1);
+
+    return str;
 }

@@ -1,5 +1,7 @@
 #include "kernel.hpp"
 
+#include <drivers/keyboard.h>
+
 Kernel::Kernel(uint32_t magic, multiboot_info_t* mb_info) 
 : mMbInfo(mb_info) {
     // if (magic != 0x2BADB002) {
@@ -15,6 +17,8 @@ Kernel::Kernel(uint32_t magic, multiboot_info_t* mb_info)
 
     __asm__ volatile ("sti");
     init_scheduler(init_threading());
+
+    keyboard_init();
 
     ide = eastl::make_unique<IDE>();
     
