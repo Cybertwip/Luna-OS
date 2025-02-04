@@ -26,7 +26,7 @@ https://github.com/user-attachments/assets/6d8a7e6f-908b-4a36-80ee-c61700db3488
 - **MicroGL & PortableGL**: Follow their own respective licensing. 🔍  
 - **PortableGL** will be replaced with **LunaGL** (a Public Domain implementation of the OpenGL 3.0 standard) 🌟  
 - **LVGL**: MIT License 📜  
-- **BLESK**: MIT License 📜  
+- **Blesk**: MIT License 📜  
 
 ## Future Developments 🔮
 - **rUgly Library**: Our Public Domain replacement for uFat is in the works! 🛠️
