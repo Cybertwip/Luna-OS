@@ -8,6 +8,12 @@
 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#pragma once 
+
 #define STATUS_GOOD 1
 #define STATUS_ERROR 0
 
@@ -19,9 +25,9 @@
 
 #define BOOT_OPTION_DEBUG_MESSAGES 0x1
 
-#define BLESKOS_NUMBER_OF_START_SCREEN_MESSAGES 9
+#define BLESKOS_NUMBER_OF_START_SCREEN_MESSAGES 10
 
-typedef unsigned int size_t;
+typedef unsigned long size_t;
 typedef unsigned char byte_t;
 typedef unsigned short word_t;
 typedef unsigned int dword_t;
@@ -36,3 +42,7 @@ void bleskos(dword_t bootloader_passed_value);
 void bleskos_show_message_on_starting_screen(char *string);
 void bleskos_boot_debug_top_screen_color(dword_t color);
 void bleskos_boot_debug_log_message(void);
+
+#ifdef __cplusplus
+}
+#endif

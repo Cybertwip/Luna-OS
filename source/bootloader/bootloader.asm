@@ -1,4 +1,4 @@
-;BleskOS bootloader v04/05/2024
+;Luna OS bootloader v04/05/2024
 
 ;;;;;
 ;; MIT License
@@ -125,9 +125,9 @@ bootloader_of_extended_bootloader:
   hlt
  jmp .halt
  
- ;signature of BleskOS code partition
+ ;signature of Luna OS code partition
  times 1000-($-$$) db 0
- db 'BleskOS boot partition'
+ db 'Luna OS boot partition'
 dw 0xAA55 ;bootable partition
 
 extended_bootloader:
@@ -759,14 +759,14 @@ print_hex:
  ret
 
  boot_up_str db 'Please choose system you want to boot:', 0
- boot_bleskos_str db 'BleskOS', 0
- boot_bleskos_boot_options_str db 'BleskOS special boot options', 0
+ boot_bleskos_str db 'Luna OS', 0
+ boot_bleskos_boot_options_str db 'Luna OS for Emulation', 0
  boot_options_str db '[a] Boot options', 0
- boot_down_str db 'BleskOS live bootloader', 0
- boot_loading_str db 'Loading BleskOS', 0
+ boot_down_str db 'Luna OS live bootloader', 0
+ boot_loading_str db 'Loading Luna Os', 0
  
  boot_error_memory db 'Size of RAM memory can not be readed', 0
- boot_error_loading db 'Error during loading BleskOS', 0
+ boot_error_loading db 'Error during loading Luna OS', 0
  boot_error_graphic_info db 'Informations about graphic mode can not be readed', 0
  boot_error_graphic_mode db 'Error during setting graphic mode', 0
  boot_error_0x100000_not_available db 'Memory at 0x100000 is not free', 0
@@ -824,7 +824,7 @@ load_bleskos:
  mov si, boot_loading_str
  call print
 
- ;clear memory where we will load informations for BleskOS
+ ;clear memory where we will load informations for Luna OS
  mov ax, 0
  mov es, ax
  mov di, 0x1000
@@ -879,10 +879,10 @@ load_bleskos:
  loop .test_one_memory_block
  jmp error_0x100000_not_available
 
- ;1 MB of memory is for BleskOS code
+ ;1 MB of memory is for Luna OS code
  .0x100000_is_available:
  add dword [es:di+0], 0x100000 ;start of memory entry
- sub dword [es:di+8], 0x100000 ;length of memory entry - if it is bigger than 4GB this may cause ovewflow, but we do not need to worry about it, because BleskOS will read this as 4 GB long entry because of higher bits, not caring about these lesser bits
+ sub dword [es:di+8], 0x100000 ;length of memory entry - if it is bigger than 4GB this may cause ovewflow, but we do not need to worry about it, because Luna OS will read this as 4 GB long entry because of higher bits, not caring about these lesser bits
  
  ;get EDID
  mov ax, 0x0200
@@ -1000,7 +1000,7 @@ load_bleskos:
  jmp .floppy_load_cylinder
  
  .hard_disk_boot:
- mov dword [0xF008], 10 ;first sector of BleskOS code
+ mov dword [0xF008], 10 ;first sector of Luna OS code
  mov edx, 10 ;we will store sector number here
  mov cx, 30 ;load 30x64 sectors = 960 KB
  .load_bleskos_from_hard_disk:
@@ -1086,7 +1086,7 @@ load_bleskos:
  mov esp, 0x80000 ;set stack pointer
  mov eax, dword [boot_options]
  push eax ;push value of boot option to stack for bleskos() method
- jmp 0x100000 ;execute BleskOS
+ jmp 0x100000 ;execute Luna OS
 
  unreal_mode_gdt:
   dq 0 ;first item is null

@@ -4,22 +4,30 @@ cmake_policy(SET CMP0079 NEW)
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 project(BleskOS)
 enable_language(ASM_NASM)
+enable_language(C)
+enable_language(CXX)
 
 # Toolchain setup
 set(CMAKE_C_COMPILER /usr/local/bin/i686-elf-gcc)
+set(CMAKE_CXX_COMPILER /usr/local/bin/i686-elf-g++)
 set(CMAKE_ASM_NASM_COMPILER /usr/local/bin/nasm)
 set(CMAKE_LINKER /usr/local/bin/i686-elf-ld)
 
 # Compilation flags
-set(COMMON_C_FLAGS -m32 -ffreestanding -fno-PIC -fno-stack-protector -std=c99)
+# Separate flags for C and C++ to avoid inappropriate use of -std=gnu99 for C++
+set(COMMON_C_FLAGS -m32 -ffreestanding -fno-PIC -fno-stack-protector)
+set(CXX_FLAGS -m32 -ffreestanding -fno-exceptions -fno-rtti -fno-stack-protector)
 set(NASM_FLAGS -felf32)
 
 if(WALL)
     set(C_OPTIONS ${COMMON_C_FLAGS} -O0 -Wall -Wno-pointer-sign -Wno-unused-variable)
+    set(CXX_OPTIONS ${CXX_FLAGS} -O0 -Wall -Wno-pointer-sign -Wno-unused-variable)
 elseif(FAST)
     set(C_OPTIONS ${COMMON_C_FLAGS} -O0)
+    set(CXX_OPTIONS ${CXX_FLAGS} -O0)
 else()
     set(C_OPTIONS ${COMMON_C_FLAGS} -Os)
+    set(CXX_OPTIONS ${CXX_FLAGS} -Os)
 endif()
 
 # Bootloader (binary format)
@@ -32,10 +40,13 @@ add_custom_command(
     DEPENDS ${CMAKE_SOURCE_DIR}/source/bootloader/bootloader.asm
 )
 
-# C Object Library
+# Separate C and C++ libraries for appropriate compilation flags
 add_library(c_objects OBJECT ${CMAKE_SOURCE_DIR}/source/bleskos.c)
 target_compile_options(c_objects PRIVATE ${C_OPTIONS})
-target_link_options(c_objects PRIVATE -nostdlib)  # Move -nostdlib here
+
+add_library(cpp_objects OBJECT ${CMAKE_SOURCE_DIR}/kernel/arch/i386/boot.cpp)
+target_compile_options(cpp_objects PRIVATE ${CXX_OPTIONS} -fpermissive)
+target_include_directories(cpp_objects PRIVATE source kernel/luna/libc)
 
 # ASM Object Library
 add_library(asm_objects OBJECT ${CMAKE_SOURCE_DIR}/source/assembly/bleskos.asm)
@@ -55,12 +66,13 @@ add_custom_command(
         -o ${CMAKE_BINARY_DIR}/bleskos.bin
         $<TARGET_OBJECTS:asm_objects>
         $<TARGET_OBJECTS:c_objects>
-    DEPENDS asm_objects c_objects
+        $<TARGET_OBJECTS:cpp_objects>
+    DEPENDS asm_objects c_objects cpp_objects
 )
 
 add_custom_target(image ALL
     COMMAND mkdir -p ${CMAKE_BINARY_DIR}/compile
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_BINARY_DIR}/bleskos.bin ${CMAKE_BINARY_DIR}/bleskos.img
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/bleskos.bin ${CMAKE_BINARY_DIR}/bleskos.img
     COMMAND dd if=/dev/zero of=${CMAKE_BINARY_DIR}/bleskos.img bs=1024 count=1440
     COMMAND dd if=${CMAKE_BINARY_DIR}/bootloader.bin of=${CMAKE_BINARY_DIR}/bleskos.img conv=notrunc seek=0
     COMMAND dd if=${CMAKE_BINARY_DIR}/bleskos.bin of=${CMAKE_BINARY_DIR}/bleskos.img conv=notrunc seek=10

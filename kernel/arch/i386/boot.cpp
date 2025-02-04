@@ -1,64 +1,98 @@
-#include "multiboot.h"
+#include <stddef.h>
+#include <stdint.h>
+#include <malloc.h>
 
-#include "kernel.hpp"
 
-// Define the structure for the ELF note for Xen
-struct ElfNote {
-    uint32_t namesz;  // Size of the name field
-    uint32_t descsz;  // Size of the descriptor field
-    uint32_t type;    // Type of the note
-    char name[4];     // Name of the note (null-terminated "Xen")
-    uint32_t desc;    // Descriptor data
+
+
+extern "C" void bleskos(dword_t bootloader_passed_value);
+extern "C" void run(dword_t bootloader_passed_value);
+
+
+extern "C" {
+    extern dword_t screen_width;
+    extern word_t screen_height;
+    extern dword_t screen_bpp;
+    extern byte_t* screen_double_buffer_memory_pointer;
+    extern void redraw_screen(void);
+    extern void clear_screen(dword_t color);
+    extern void copy_raw_image_data(
+                         dword_t source_memory, 
+                         dword_t source_width, 
+                         dword_t source_x, 
+                         dword_t source_y, 
+                         dword_t image_width, 
+                         dword_t image_height, 
+                         dword_t dest_memory, 
+                         dword_t dest_width, 
+                         dword_t dest_x, 
+                         dword_t dest_y);
+
+    extern void move_mouse_cursor(void);
+    extern void wait_for_user_input(void);
+
+}
+
+
+class Graphics {
+private:
+    uint32_t* backBuffer;  // Physical address of backBuffer
+public:
+    Graphics() {
+        // Allocate backBuffer with the correct size and get its physical address
+        backBuffer = static_cast<uint32_t*>(malloc(screen_width * screen_height * sizeof(uint32_t)));
+    }
+
+    ~Graphics() {
+    }
+
+    void clear(uint32_t color = 0x0000FF) {
+        for (uint32_t i = 0; i < getWidth() * getHeight(); ++i) {
+            getBackBuffer()[i] = color;
+        }
+    }
+
+
+    const uint32_t getWidth() const { return screen_width; }
+    const uint32_t getHeight() const { return screen_height; }
+
+    // Return backBuffer instead of video memory address
+    uint32_t* getBackBuffer() { return backBuffer; }
+    uint32_t* getFrontBuffer() { 
+        return (uint32_t*)screen_double_buffer_memory_pointer;
+    }
+    uint32_t getPitch() const { return screen_width; }
+
+    uint32_t getBitsPerPixel() const { return screen_bpp; }
+
+    void swapBuffers() {
+        // Copy from backBuffer to video memory
+        size_t bufferSizeBytes = getWidth() * getHeight() * (getBitsPerPixel() / 8);
+        copy_raw_image_data(backBuffer, 
+                            screen_width, 
+                            0, 
+                            0, 
+                            screen_width, 
+                            screen_height, 
+                            (dword_t)screen_double_buffer_memory_pointer, 
+                            screen_width, 
+                            0, 
+                            0);
+
+        redraw_screen();
+    }
 };
 
-// Forward declaration of _start as a function
-extern "C" void _start(unsigned long addr);
-
-
-__attribute__((section(".note.Xen"), used))
-const struct ElfNote xen_phys32_entry_note = {
-    4,          // namesz
-    4,          // descsz
-    0x12,       // type (XEN_ELFNOTE_PHYS32_ENTRY)
-    "Xen",      // name (as char[4])
-    (uint32_t)_start // desc (entry point address)
-};
-
-#define MBOOT_PAGE_ALIGN    (1 << 0)
-#define MBOOT_MEM_INFO      (1 << 1)
-#define MBOOT_HEADER_MAGIC  0x2BADB002
-#define MBOOT_HEADER_FLAGS  (MBOOT_PAGE_ALIGN | MBOOT_MEM_INFO)
-#define MBOOT_CHECKSUM      (-(MBOOT_HEADER_MAGIC + MBOOT_HEADER_FLAGS))
-
-extern char code, bss, end;
-
-const multiboot_header_t mboot_header = {
-    MBOOT_HEADER_MAGIC,      // magic
-    MBOOT_HEADER_FLAGS,      // flags
-    MBOOT_CHECKSUM,          // checksum
-    (uint32_t)&mboot_header, // header_addr
-    (uint32_t)&code,         // load_addr
-    (uint32_t)&bss,          // load_end_addr
-    (uint32_t)&end,          // bss_end_addr
-    (uint32_t)_start         // entry_addr
-};
-
-// Function prototype for main
-int main(int argc, char** argv);
-
-// Kernel entry point
-void _start(unsigned long addr) {
-    // Disable interrupts
-    __asm__ __volatile__("cli");
-
-    // Cast the address to a pointer to multiboot_info_t
-    multiboot_info_t* mbd = (multiboot_info_t*)addr;
-
+extern "C" void run(dword_t bootloader_passed_value) {
     // Call main with the magic number and pointer to multiboot_info structure
-    Kernel kernel(MBOOT_HEADER_MAGIC, mbd);
+    bleskos(bootloader_passed_value);
 
-    main(0, NULL);
+    Graphics gfx;
 
-    // If main returns, enter an infinite loop
-    for(;;);
+    for(;;) {
+        gfx.clear();
+        gfx.swapBuffers();
+        wait_for_user_input();
+        move_mouse_cursor();
+    }
 }

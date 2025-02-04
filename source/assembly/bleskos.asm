@@ -13,10 +13,10 @@ bits 32
 global start
 global call
 global call_bleskos_binary_program
-extern bleskos
+extern run
 
 start:
- call bleskos
+ call run
 
  halt:
   hlt
