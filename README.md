@@ -18,6 +18,11 @@
 
 https://github.com/user-attachments/assets/6d8a7e6f-908b-4a36-80ee-c61700db3488
 
+## Bootloader and User Interface
+
+https://github.com/user-attachments/assets/85d44415-f20a-47f9-8e29-4aa35cdc39c1
+
+
 ## Licensing Info 📜
 - **Luna-OS and Luna-OS Kernel**: Public Domain 🙌  
 - **uFat Library**: BSD License 📝  
