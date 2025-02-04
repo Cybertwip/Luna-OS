@@ -29,7 +29,7 @@ void redraw_message_window(dword_t width, dword_t height) {
 void print_to_message_window(byte_t *string, dword_t line) {
  for(int i=0, width=0; i<1000; i++) {
   if(string[i]==0) {
-   print(string, screen_x_center-(width/2), line, BLACK);
+   print(string, screen_x_center-(width/2), line, WHITE);
    return;
   }
   width += 8;

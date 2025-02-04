@@ -23,7 +23,7 @@ struct timezone {
 // Get the current time and time zone
 int gettimeofday(struct timeval *tv, struct timezone *tz);
 
-long int ticks();
+long int mtime();
 
 #endif // _TIME_H_
 

@@ -66,100 +66,146 @@
 #include "libraries/binary_programs_interface/include.c"
 #include "boot.c"
 
+void draw_gradient(int x, int y, int width, int height, dword_t start_color, dword_t end_color);
+dword_t interpolate_color(dword_t start_color, dword_t end_color, int step, int total_steps);
+void draw_glow(int x, int y, int width, int height, dword_t color, int intensity);
+
 void bleskos(dword_t bootloader_passed_value) {
- boot_options = bootloader_passed_value;
+    boot_options = bootloader_passed_value;
 
- bleskos_boot_debug_top_screen_color(0xFF0000); //red top of screen
- initalize_memory();
+    bleskos_boot_debug_top_screen_color(0xFF0000); //red top of screen
+    initalize_memory();
 
- bleskos_boot_debug_top_screen_color(0x00FF00); //green top of screen
- initalize_logging();
- bleskos_boot_debug_top_screen_color(0x0000FF); //blue top of screen
- log("Blesk Loader 2025 update 2\n\nPress F2 to save System log as TXT file");
- log_starting_memory();
+    bleskos_boot_debug_top_screen_color(0x00FF00); //green top of screen
+    initalize_logging();
+    bleskos_boot_debug_top_screen_color(0x0000FF); //blue top of screen
+    log("Blesk Loader 2025 update 2\n\nPress F2 to save System log as TXT file");
+    log_starting_memory();
 
- bleskos_boot_debug_top_screen_color(0xFFFF00); //yellow top of screen
- initalize_scheduler();
- scan_pci();
- set_interrupts();
- set_pit();
- bleskos_boot_debug_top_screen_color(0xFF00FF); //pink top of screen
+    bleskos_boot_debug_top_screen_color(0xFFFF00); //yellow top of screen
+    initalize_scheduler();
+    scan_pci();
+    set_interrupts();
+    set_pit();
+    bleskos_boot_debug_top_screen_color(0xFF00FF); //pink top of screen
 
- initalize_graphic();
- mouse_cursor_x = 0;
- mouse_cursor_y = 0;
- clear_screen(0x00C000);
- set_scalable_char_size(64);
- scalable_font_print("Luna OS", screen_x_center-(64*7/2), screen_y_center-92, BLACK);
- print_to_message_window("Version 2025 update 2", screen_y_center);
- draw_empty_square(screen_x_center-161, screen_y_center+30, 322, 15, BLACK);
- number_of_start_screen_messages = 0;
- (*redraw_framebuffer)();
+    initalize_graphic();
+    mouse_cursor_x = 0;
+    mouse_cursor_y = 0;
+    clear_screen(0x001F2F); // Dark blue background
+    set_scalable_char_size(64);
 
- bleskos_show_message_on_starting_screen("Reading time format...");
- read_time_format();
- bleskos_show_message_on_starting_screen("Reading ACPI tables...");
- read_acpi_tables();
- initalize_hpet();
- bleskos_boot_debug_log_message();
- 
- bleskos_show_message_on_starting_screen("Initalizing PS/2 controller...");
- initalize_ps2_controller();
- initalize_ps2_keyboard();
- initalize_ps2_mouse();
- bleskos_show_message_on_starting_screen("Initalizing keyboard...");
- initalize_keyboard();
- bleskos_show_message_on_starting_screen("Initalizing mouse...");
- initalize_mouse();
- bleskos_boot_debug_log_message();
+    // Draw a gradient background
+    draw_gradient(0, 0, screen_width, screen_height, 0x001F2F, 0x003F5F);
 
- bleskos_show_message_on_starting_screen("Initalizing storage controllers...");
- initalize_list_of_connected_partitions();
- initalize_drivers_of_filesystems();
- initalize_storage_controllers();
- bleskos_boot_debug_log_message();
- 
- bleskos_show_message_on_starting_screen("Initalizing sound card...");
- initalize_sound_card();
- bleskos_boot_debug_log_message();
+    // Draw a glowing logo
+    draw_glow(screen_x_center-(64*7/2), screen_y_center-92, 64*7, 64, 0x00FFFF, 20);
+    scalable_font_print("Luna OS", screen_x_center-(64*7/2), screen_y_center-92, 0xFFFFFF); // Cyan color
 
- bleskos_show_message_on_starting_screen("Initalizing network...");
- initalize_network_connection();
+    print_to_message_window("Version 2025 update 2", screen_y_center);
+    draw_empty_square(screen_x_center-161, screen_y_center+30, 322, 15, 0x00FFFF);
+    number_of_start_screen_messages = 0;
+    (*redraw_framebuffer)();
 
- bleskos_show_message_on_starting_screen("Initalizing USB controllers...");
- initalize_usb_controllers();
- bleskos_boot_debug_log_message();
+    bleskos_show_message_on_starting_screen("Reading time format...");
+    read_time_format();
+    bleskos_show_message_on_starting_screen("Reading ACPI tables...");
+    read_acpi_tables();
+    
+    initalize_hpet();
+    bleskos_boot_debug_log_message();
+    
+    bleskos_show_message_on_starting_screen("Initalizing PS/2 controller...");
+    initalize_ps2_controller();
+    initalize_ps2_keyboard();
+    initalize_ps2_mouse();
+    bleskos_show_message_on_starting_screen("Initalizing keyboard...");
+    initalize_keyboard();
+    bleskos_show_message_on_starting_screen("Initalizing mouse...");
+    initalize_mouse();
+    bleskos_boot_debug_log_message();
 
- bleskos_show_message_on_starting_screen("Starting Luna...");
- bleskos_boot_debug_log_message();
+    bleskos_show_message_on_starting_screen("Initalizing storage controllers...");
+    initalize_list_of_connected_partitions();
+    initalize_drivers_of_filesystems();
+    initalize_storage_controllers();
+    bleskos_boot_debug_log_message();
+    
+    bleskos_show_message_on_starting_screen("Initalizing sound card...");
+    initalize_sound_card();
+    bleskos_boot_debug_log_message();
+
+    bleskos_show_message_on_starting_screen("Initalizing network...");
+    initalize_network_connection();
+
+    bleskos_show_message_on_starting_screen("Initalizing USB controllers...");
+    initalize_usb_controllers();
+    bleskos_boot_debug_log_message();
+
+    bleskos_show_message_on_starting_screen("Starting Luna...");
+    bleskos_boot_debug_log_message();
+
+    wait(2000);
+
 }
 
 void bleskos_show_message_on_starting_screen(char *string) {
- if((boot_options & BOOT_OPTION_DEBUG_MESSAGES)==BOOT_OPTION_DEBUG_MESSAGES) {
-  return;
- }
+    if((boot_options & BOOT_OPTION_DEBUG_MESSAGES)==BOOT_OPTION_DEBUG_MESSAGES) {
+        return;
+    }
 
- draw_full_square(0, screen_y_center+65, screen_width, 8, 0x00C000);
- print_to_message_window(string, screen_y_center+65);
- number_of_start_screen_messages++;
- draw_full_square(screen_x_center-160, screen_y_center+31, (320*number_of_start_screen_messages/BLESKOS_NUMBER_OF_START_SCREEN_MESSAGES), 13, 0x0900FF);
- redraw_part_of_screen(0, screen_y_center+31, screen_width, 42);
+    draw_full_square(0, screen_y_center+65, screen_width, 8, 0x001F2F);
+    print_to_message_window(string, screen_y_center+65);
+    number_of_start_screen_messages++;
+    draw_full_square(screen_x_center-160, screen_y_center+31, (320*number_of_start_screen_messages/BLESKOS_NUMBER_OF_START_SCREEN_MESSAGES), 13, 0x0000FF);
+    redraw_part_of_screen(0, screen_y_center+31, screen_width, 42);
 }
 
 void bleskos_boot_debug_top_screen_color(dword_t color) {
- if((boot_options & BOOT_OPTION_DEBUG_MESSAGES)==BOOT_OPTION_DEBUG_MESSAGES) {
-  dword_t *vesa_lfb_pointer = (dword_t *) (0x3828);
-  dword_t *monitor = (dword_t *) (*vesa_lfb_pointer);
-  for(dword_t i=0; i<10000; i++) {
-   monitor[i] = color;
-  }
- }
+    if((boot_options & BOOT_OPTION_DEBUG_MESSAGES)==BOOT_OPTION_DEBUG_MESSAGES) {
+        dword_t *vesa_lfb_pointer = (dword_t *) (0x3828);
+        dword_t *monitor = (dword_t *) (*vesa_lfb_pointer);
+        for(dword_t i=0; i<10000; i++) {
+            monitor[i] = color;
+        }
+    }
 }
 
 void bleskos_boot_debug_log_message(void) {
- if((boot_options & BOOT_OPTION_DEBUG_MESSAGES)==BOOT_OPTION_DEBUG_MESSAGES) {
-  show_log();
-  wait(4000);
-  skip_logs();
- }
+    if((boot_options & BOOT_OPTION_DEBUG_MESSAGES)==BOOT_OPTION_DEBUG_MESSAGES) {
+        show_log();
+        wait(4000);
+        skip_logs();
+    }
+}
+
+// Additional functions for enhanced visuals
+void draw_gradient(int x, int y, int width, int height, dword_t start_color, dword_t end_color) {
+    for (int i = 0; i < height; i++) {
+        dword_t color = interpolate_color(start_color, end_color, i, height);
+        draw_full_square(x, y + i, width, 1, color);
+    }
+}
+
+dword_t interpolate_color(dword_t start_color, dword_t end_color, int step, int total_steps) {
+    int start_r = (start_color >> 16) & 0xFF;
+    int start_g = (start_color >> 8) & 0xFF;
+    int start_b = start_color & 0xFF;
+
+    int end_r = (end_color >> 16) & 0xFF;
+    int end_g = (end_color >> 8) & 0xFF;
+    int end_b = end_color & 0xFF;
+
+    int r = start_r + (end_r - start_r) * step / total_steps;
+    int g = start_g + (end_g - start_g) * step / total_steps;
+    int b = start_b + (end_b - start_b) * step / total_steps;
+
+    return (r << 16) | (g << 8) | b;
+}
+
+void draw_glow(int x, int y, int width, int height, dword_t color, int intensity) {
+    for (int i = 0; i < intensity; i++) {
+        dword_t glow_color = (color & 0xFEFEFE) >> 1; // Dim the color
+        draw_empty_square(x - i, y - i, width + 2 * i, height + 2 * i, glow_color);
+    }
 }

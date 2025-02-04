@@ -44,14 +44,13 @@ public:
     }
 
     ~Graphics() {
+        
     }
 
     void clear(uint32_t color = 0x0000FF) {
-        for (uint32_t i = 0; i < getWidth() * getHeight(); ++i) {
-            getBackBuffer()[i] = color;
-        }
+        // Use memset to fill the back buffer with the specified color
+        memset(getBackBuffer(), color, getWidth() * getHeight() * sizeof(uint32_t));
     }
-
 
     const uint32_t getWidth() const { return screen_width; }
     const uint32_t getHeight() const { return screen_height; }

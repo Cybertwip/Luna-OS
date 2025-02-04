@@ -60,5 +60,5 @@ void wait_for_user_input(void) {
     #endif
 
     // Run scheduled tasks
-    scheduler_user_input();
+//     scheduler_user_input(); // this causes delay instead
 }
