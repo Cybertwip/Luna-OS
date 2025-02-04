@@ -31,6 +31,8 @@ extern "C" {
     extern void move_mouse_cursor(void);
     extern void wait_for_user_input(void);
 
+    extern dword_t mouse_cursor_x;
+    extern dword_t mouse_cursor_y;
 }
 
 
@@ -86,6 +88,10 @@ public:
 extern "C" void run(dword_t bootloader_passed_value) {
     // Call main with the magic number and pointer to multiboot_info structure
     bleskos(bootloader_passed_value);
+
+
+    mouse_cursor_x = screen_width / 2;
+    mouse_cursor_y = screen_height / 2;
 
     Graphics gfx;
 
