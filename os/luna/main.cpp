@@ -39,8 +39,6 @@ static void close_cb(lv_event_t* e) {
 }
 
 int main(int argc, char** argv) {
-
-    return 0;
     // eastl::allocator_malloc ma;
     eastl::unique_ptr<Graphics> gfx = 
     eastl::make_unique<Graphics>();

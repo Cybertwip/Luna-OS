@@ -11,7 +11,7 @@ set(CMAKE_ASM_NASM_COMPILER /usr/local/bin/nasm)
 set(CMAKE_LINKER /usr/local/bin/i686-elf-ld)
 
 # Compilation flags
-set(COMMON_C_FLAGS -m32 -ffreestanding -fno-PIC -fno-stack-protector -std=gnu99)
+set(COMMON_C_FLAGS -m32 -ffreestanding -fno-PIC -fno-stack-protector -std=c99)
 set(NASM_FLAGS -felf32)
 
 if(WALL)
