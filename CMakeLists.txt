@@ -1,159 +1,80 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.15)
 cmake_policy(SET CMP0079 NEW)
 
-set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-# Cmake module path (if exists)
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
-
-include(profile_detection)
-include(patch_pdclib)
-
-LOAD_PROFILE("i386" "pc") # Generic for now
-
-set(KERNEL_SRC_DIR ${CMAKE_CURRENT_LIST_DIR}/kernel)
-set(OS_SRC_DIR ${CMAKE_CURRENT_LIST_DIR}/os)
-
-# Get all the files needed
-file(GLOB_RECURSE KERNEL_SOURCES
-    ${KERNEL_SRC_DIR}/*.c
-    ${KERNEL_SRC_DIR}/*.cpp
-    ${KERNEL_SRC_DIR}/*.s
-)
-
-file(GLOB_RECURSE OS_SOURCES
-    ${OS_SRC_DIR}/*.c
-    ${OS_SRC_DIR}/*.cpp
-)
-
-# these are any additional flags which should be added to the base compiles. Things like 32 bit or elf binaries
-set(CFLAGS "-m32 -fcheck-new -ffreestanding -fno-builtin")
-set(CFLAGS "${CFLAGS} -nostdlib -finline-functions -fno-stack-protector -fomit-frame-pointer")
-set(CFLAGS "${CFLAGS} -mno-sse")
-# linker flags and Assembler flags too -Wl,--oformat,binary
-set(LINKFLAGS "${ISA_LINKER_FLAGS} ${PLATFORM_LINKER_FLAGS}")
-set(ASM_FLAGS "${ISA_ASM_FLAGS}")
-
-project(Luna LANGUAGES C CXX ASM_NASM)
+project(BleskOS)
 enable_language(ASM_NASM)
 
-add_subdirectory(external/EASTL)
+# Toolchain setup
+set(CMAKE_C_COMPILER /usr/local/bin/i686-elf-gcc)
+set(CMAKE_ASM_NASM_COMPILER /usr/local/bin/nasm)
+set(CMAKE_LINKER /usr/local/bin/i686-elf-ld)
 
-SET (BASE_CFLAGS "${CFLAGS} -std=c11 -fpermissive -fstrength-reduce -fno-builtin-time -fno-builtin-puts -fno-builtin-printf -fno-builtin-function")
-SET (BASE_CXXFLAGS "${CFLAGS} -fpermissive -fstrength-reduce -fno-builtin-time -fno-builtin-puts -fno-builtin-printf -fno-builtin-function")
+# Compilation flags
+set(COMMON_C_FLAGS -m32 -ffreestanding -fno-PIC -fno-stack-protector -std=gnu99)
+set(NASM_FLAGS -felf32)
 
-set (CMAKE_C_FLAGS "${BASE_CFLAGS}")
-set (CMAKE_CXX_FLAGS "${BASE_CXXFLAGS} -std=c++14 -fno-rtti -fno-exceptions -fno-threadsafe-statics")
-SET (CMAKE_ASM_NASM_FLAGS            "-Werror -felf")
+if(WALL)
+    set(C_OPTIONS ${COMMON_C_FLAGS} -O0 -Wall -Wno-pointer-sign -Wno-unused-variable)
+elseif(FAST)
+    set(C_OPTIONS ${COMMON_C_FLAGS} -O0)
+else()
+    set(C_OPTIONS ${COMMON_C_FLAGS} -Os)
+endif()
 
-if(${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
-	SET (LINKFLAGS "-Wl,--script=${PLATFORM_LAYOUT} -Wl,--omagic ${LINKFLAGS}")
-endif(${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
-
-
-if(${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
-	SET (LINKFLAGS "-T ${PLATFORM_LAYOUT} -N ${LINKFLAGS}")
-endif(${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
-
-set(USE_THREADS OFF CACHE BOOL "Disable threads" FORCE)
-set(AS_C11 OFF CACHE BOOL "Configure with the latest C11" FORCE)
-set(BAREMETAL ON CACHE BOOL "Configure as baremetal libc" FORCE)
-
-# Add the subdirectories
-add_subdirectory(external/pdclib)
-add_subdirectory(external/lvgl)
-
-add_executable(${PROJECT_NAME}.bin ${KERNEL_SOURCES} ${OS_SOURCES})
-set_source_files_properties(kernel/arch/i386/interrupt.s PROPERTIES LANGUAGE ASM_NASM)
-set_source_files_properties(kernel/arch/i386/thread_asm.s PROPERTIES LANGUAGE ASM_NASM)
-
-target_compile_definitions(pdclibs PUBLIC 
--DEA_NO_HAVE_DINKUMWARE_CPP_LIBRARY
--DEA_NO_HAVE_LIBSTDCPP_LIBRARY
--DEA_NO_HAVE_LIBCPP_LIBRARY
--DEA_NO_HAVE_WCHAR_H
--DEA_WCHAR_T_NON_NATIVE
--DEA_NO_HAVE_nullptr_t_IMPL
--DEA_NO_HAVE_PTHREAD_H
--DEASTL_RTTI_ENABLED=0
--DEASTL_EXCEPTIONS_ENABLED=0
--DEA_PLATFORM_LINUX 
--DBAREMETAL
+# Bootloader (binary format)
+add_custom_command(
+    OUTPUT ${CMAKE_BINARY_DIR}/bootloader.bin
+    COMMAND ${CMAKE_ASM_NASM_COMPILER} 
+        -f bin 
+        ${CMAKE_SOURCE_DIR}/source/bootloader/bootloader.asm 
+        -o ${CMAKE_BINARY_DIR}/bootloader.bin
+    DEPENDS ${CMAKE_SOURCE_DIR}/source/bootloader/bootloader.asm
 )
 
-target_compile_options(EASTL PRIVATE -ffreestanding -fpermissive)
+# C Object Library
+add_library(c_objects OBJECT ${CMAKE_SOURCE_DIR}/source/bleskos.c)
+target_compile_options(c_objects PRIVATE ${C_OPTIONS})
+target_link_options(c_objects PRIVATE -nostdlib)  # Move -nostdlib here
 
-target_compile_definitions(EASTL PRIVATE 
--D__cplusplus=201402L 
+# ASM Object Library
+add_library(asm_objects OBJECT ${CMAKE_SOURCE_DIR}/source/assembly/bleskos.asm)
+set_source_files_properties(
+    ${CMAKE_SOURCE_DIR}/source/assembly/bleskos.asm 
+    PROPERTIES 
+    COMPILE_FLAGS "${NASM_FLAGS}"
 )
 
-
-
-target_include_directories(pdclibs PUBLIC
-	${CMAKE_CURRENT_LIST_DIR}/external/EASTL/include  # Ensure libc++ headers are first
-    ${CMAKE_SOURCE_DIR}/kernel/luna/libc
-    ${CMAKE_SOURCE_DIR}/kernel
-    ${CMAKE_SOURCE_DIR}/os
-    ${CMAKE_SOURCE_DIR}/kernel/lib
-    ${CMAKE_SOURCE_DIR}/kernel/luna/c++
-    ${CMAKE_CURRENT_LIST_DIR}/external/micro-gl/include
-    ${CMAKE_CURRENT_LIST_DIR}/external/gl/include
-    ${CMAKE_CURRENT_LIST_DIR}/external/pdclib/include
-    ${CMAKE_BINARY_DIR}/external/pdclib/configured_include
+# Custom linking command to create flat binary
+add_custom_command(
+    OUTPUT ${CMAKE_BINARY_DIR}/bleskos.bin
+    COMMAND ${CMAKE_LINKER}
+        -m elf_i386
+        -T ${CMAKE_SOURCE_DIR}/source/linker.ld
+        --oformat=binary
+        -o ${CMAKE_BINARY_DIR}/bleskos.bin
+        $<TARGET_OBJECTS:asm_objects>
+        $<TARGET_OBJECTS:c_objects>
+    DEPENDS asm_objects c_objects
 )
 
-#target_link_libraries(leif PUBLIC pdclibs)
-target_link_libraries(EASTL PUBLIC pdclibs)
+add_custom_target(image ALL
+    COMMAND mkdir -p ${CMAKE_BINARY_DIR}/compile
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_BINARY_DIR}/bleskos.bin ${CMAKE_BINARY_DIR}/bleskos.img
+    COMMAND dd if=/dev/zero of=${CMAKE_BINARY_DIR}/bleskos.img bs=1024 count=1440
+    COMMAND dd if=${CMAKE_BINARY_DIR}/bootloader.bin of=${CMAKE_BINARY_DIR}/bleskos.img conv=notrunc seek=0
+    COMMAND dd if=${CMAKE_BINARY_DIR}/bleskos.bin of=${CMAKE_BINARY_DIR}/bleskos.img conv=notrunc seek=10
+    DEPENDS ${CMAKE_BINARY_DIR}/bleskos.bin ${CMAKE_BINARY_DIR}/bootloader.bin
+)
 
-target_link_libraries(lvgl PUBLIC EASTL)
-
-target_link_libraries(${PROJECT_NAME}.bin PRIVATE lvgl)
-
-
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -nostdlib -nodefaultlibs -Wl,-m,elf_i386 ${LINKFLAGS}")
-
-#include(make_iso)
-# ========== QEMU Execution Target ========== #
 add_custom_target(run
-    DEPENDS ${PROJECT_NAME}.bin
     COMMAND qemu-system-i386 
-        -accel tcg,thread=multi
-        -smp 4
-        -kernel $<TARGET_FILE:${PROJECT_NAME}.bin> 
-        -vga std 
-        -m 256M
-        -display cocoa 
-        -machine q35 
-        -cpu qemu32 
-		-device piix3-ide,id=ide
-		-drive id=disk,file=${CMAKE_CURRENT_LIST_DIR}/disk.img,format=raw,if=none,index=0,media=disk
-		-device ide-hd,drive=disk,bus=ide.0
-        -serial stdio      
-    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
-    COMMENT "Running 32-bit kernel with QEMU"
-)
-
-add_custom_target(run_vbox
-    DEPENDS ${PROJECT_NAME}.bin
-    COMMAND ${CMAKE_COMMAND} -E echo "Creating 1024 MB disk image..."
-    # Create a raw disk image
-    COMMAND dd if=/dev/zero of=${CMAKE_BINARY_DIR}/luna.img bs=512 count=2880
-    # Attach the disk image and format it as FAT32
-    COMMAND python3 ${CMAKE_SOURCE_DIR}/format_disk.py ${CMAKE_BINARY_DIR}/luna.img
-    # Mount the disk image and copy the kernel
-    COMMAND mkdir -p ${CMAKE_BINARY_DIR}/mnt
-    COMMAND hdiutil attach -mountpoint ${CMAKE_BINARY_DIR}/mnt ${CMAKE_BINARY_DIR}/luna.img
-    COMMAND cp $<TARGET_FILE:${PROJECT_NAME}.bin> ${CMAKE_BINARY_DIR}/mnt/kernel.elf
-    COMMAND hdiutil detach ${CMAKE_BINARY_DIR}/mnt
-    COMMAND rm -rf ${CMAKE_BINARY_DIR}/mnt
-    # VirtualBox setup
-    # COMMAND VBoxManage convertfromraw ${CMAKE_BINARY_DIR}/disk.img ${CMAKE_BINARY_DIR}/disk.vdi --format VDI
-    # COMMAND VBoxManage createvm --name "LunaOS" --register
-    # COMMAND VBoxManage modifyvm "LunaOS" --memory 1024 --acpi on --boot1 disk --ostype Other
-    # COMMAND VBoxManage storagectl "LunaOS" --name "IDE Controller" --add ide
-    # COMMAND VBoxManage storageattach "LunaOS" --storagectl "IDE Controller" --port 0 --device 0 --type hdd --medium ${CMAKE_BINARY_DIR}/disk.vdi
-    # COMMAND VBoxManage startvm "LunaOS"
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-    COMMENT "Running 32-bit kernel with VirtualBox on macOS (1024 MB disk image)"
+    --accel tcg,thread=multi
+    -fda ${CMAKE_BINARY_DIR}/bleskos.img
+    -hda ${CMAKE_CURRENT_LIST_DIR}/disk.img
+    -boot order=a
+    -netdev user,id=net0 
+    -device e1000,netdev=net0 
+    -object filter-dump,id=f1,netdev=net0,file=/tmp/dump.dat
+    DEPENDS image
 )
