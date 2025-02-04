@@ -121,9 +121,9 @@ dword_t zip_extract_file(dword_t zip_file_memory, dword_t zip_file_size, dword_t
 }
 
 dword_t create_zip_file(dword_t number_of_files_inside, dword_t size_of_all_files) {
- new_zip_file_pointer = calloc((number_of_files_inside*sizeof(struct zip_local_file_header))+(number_of_files_inside*256)+(number_of_files_inside*sizeof(struct zip_central_directory_file_header))+(number_of_files_inside*256)+size_of_all_files+(sizeof(struct zip_end_of_central_directory)));
+ new_zip_file_pointer = malloc((number_of_files_inside*sizeof(struct zip_local_file_header))+(number_of_files_inside*256)+(number_of_files_inside*sizeof(struct zip_central_directory_file_header))+(number_of_files_inside*256)+size_of_all_files+(sizeof(struct zip_end_of_central_directory)));
  new_zip_file_size = 0;
- new_zip_file_list_of_relative_offsets = (dword_t *) (calloc((number_of_files_inside+1)*4));
+ new_zip_file_list_of_relative_offsets = (dword_t *) (malloc((number_of_files_inside+1)*4));
  new_zip_actual_processed_file_number = 0;
  new_zip_number_of_files = number_of_files_inside;
  new_zip_size_of_central_directory = 0;

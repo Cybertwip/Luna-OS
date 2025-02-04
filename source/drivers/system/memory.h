@@ -27,18 +27,18 @@ dword_t mem_memory_entries = 0;
 
 void initalize_memory(void);
 void log_starting_memory(void);
-dword_t malloc(dword_t mem_length);
+void* malloc(size_t mem_length);
 dword_t aligned_malloc(dword_t mem_length, dword_t mem_alignment);
-dword_t calloc(dword_t mem_length);
+void* calloc(size_t num, size_t size);
 dword_t aligned_calloc(dword_t mem_length, dword_t mem_alignment);
-dword_t realloc(dword_t mem_pointer, dword_t mem_length);
-void free(dword_t mem_pointer);
+void* realloc(void* mem_pointer, size_t mem_length);
+void free(void* mem_pointer);
 void memory_error_debug(dword_t color);
 void clear_memory(dword_t memory, dword_t length);
 void copy_memory(dword_t source_memory, dword_t destination_memory, dword_t size);
 void copy_memory_back(dword_t source_memory, dword_t destination_memory, dword_t size);
 
 /* C library */
-void *memcpy(void *destination, const void *source, dword_t num);
-void *memset(void *ptr, int value, dword_t num);
-void *memmove(void *destination, const void *source, dword_t num);
+void *memcpy(void *destination, const void *source, size_t num);
+void *memset(void *ptr, int value, size_t num);
+void *memmove(void *destination, const void *source, size_t num);

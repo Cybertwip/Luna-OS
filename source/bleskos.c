@@ -64,6 +64,7 @@
 #include "libraries/program_interface/include.c"
 #include "libraries/file_dialog/include.c"
 #include "libraries/binary_programs_interface/include.c"
+#include "boot.c"
 
 void bleskos(dword_t bootloader_passed_value) {
  boot_options = bootloader_passed_value;

@@ -3,65 +3,66 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
+#include <stdlib.h>
 
-#include "mm/kmalloc.h"
-#include "mm/kmemdetect.h"
-#include "mm/paging.h"
-#include "mm/heap.h"
 
-#include "vbe.h" 
 
-static uint32_t physBackBuffer; // until we solve identity mapping for paging.
+extern "C" {
+    extern dword_t screen_width;
+    extern word_t screen_height;
+    extern dword_t screen_bpp;
+    extern byte_t* screen_double_buffer_memory_pointer;
+    extern void redraw_screen(void);
+    extern void clear_screen(dword_t color);
+    extern void copy_raw_image_data(
+                         dword_t source_memory, 
+                         dword_t source_width, 
+                         dword_t source_x, 
+                         dword_t source_y, 
+                         dword_t image_width, 
+                         dword_t image_height, 
+                         dword_t dest_memory, 
+                         dword_t dest_width, 
+                         dword_t dest_x, 
+                         dword_t dest_y);
+
+    extern void move_mouse_cursor(void);
+    extern void wait_for_user_input(void);
+
+    extern dword_t mouse_cursor_x;
+    extern dword_t mouse_cursor_y;
+}
+
 
 class Graphics {
 private:
-    static const uint32_t WIDTH = 1024;    // Reduced width
-    static const uint32_t HEIGHT = 768;   // Reduced height
-    static const uint32_t BPP = 32;
     uint32_t* backBuffer;  // Physical address of backBuffer
 public:
     Graphics() {
-        init(WIDTH, HEIGHT, BPP);
         // Allocate backBuffer with the correct size and get its physical address
-        backBuffer = static_cast<uint32_t*>(kmalloc0_ap(WIDTH * HEIGHT * sizeof(uint32_t), &physBackBuffer));
+        backBuffer = reinterpret_cast<uint32_t*>(screen_double_buffer_memory_pointer);
     }
 
     ~Graphics() {
     }
 
-    void clear(uint32_t color = 0x0000FF00) {
-        for (uint32_t i = 0; i < WIDTH * HEIGHT; ++i) {
+    void clear(uint32_t color = 0x0000FF) {
+        for (uint32_t i = 0; i < getWidth() * getHeight(); ++i) {
             getBackBuffer()[i] = color;
         }
     }
 
 
-    const uint32_t getWidth() const { return WIDTH; }
-    const uint32_t getHeight() const { return HEIGHT; }
-
-    void init(uint32_t width, uint32_t height, uint32_t bpp) {
-        vbe_write(0x4, 0x00);        // Disable
-        vbe_write(0x1, width);       // XRes
-        vbe_write(0x2, height);      // YRes
-        vbe_write(0x3, bpp);         // BPP
-        vbe_write(0x4, 0x41);        // Enable + LFB
-    }
+    const uint32_t getWidth() const { return screen_width; }
+    const uint32_t getHeight() const { return screen_height; }
 
     // Return backBuffer instead of video memory address
     uint32_t* getBackBuffer() { return backBuffer; }
-    uint32_t* getFrontBuffer() { 
-        return (uint32_t*)0xFD000000;
-    }
-    uint32_t getPitch() const { return WIDTH; }
+    uint32_t getPitch() const { return screen_width; }
 
-    uint32_t getBitsPerPixel() const { return BPP; }
+    uint32_t getBitsPerPixel() const { return screen_bpp; }
 
     void swapBuffers() {
-        // Copy from backBuffer to video memory
-        disable_paging();
-        size_t bufferSizeBytes = WIDTH * HEIGHT * (BPP / 8);
-        memcpy((void*)getFrontBuffer(), (void*)physBackBuffer, bufferSizeBytes);
-
-        switch_page_directory(kernel_directory);
+        redraw_screen();
     }
 };

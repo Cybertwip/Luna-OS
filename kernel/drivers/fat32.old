@@ -8,8 +8,9 @@
 
 #include <drivers/ide.h>
 #include <drivers/ufat.h>
-#include <mm/kmalloc.h>
-#include <sys/system.h>
+#include <stdlib.h>
+#include <stdio.h>
+
 
 #include <strutil.h>
 #include <ctype.h>
@@ -221,7 +222,7 @@ struct fat_fmt_s {
 
 #define FAT32_EOC 0x0FFFFFFF
 
-#define print printk
+#define print printf
 
 struct ufat uf;
 struct ufat_device device;
@@ -861,7 +862,7 @@ u8 Fat32::disk_mount(IDE& ide) {
 				
 				// Allocate the file system structure
 				struct volume_s* vol = (struct volume_s *)
-					kmalloc(sizeof(struct volume_s));
+					malloc(sizeof(struct volume_s));
 				
 				// Update FAT32 information
 				vol->sector_size = fat_load16(mount_buffer + BPB_SECTOR_SIZE);
@@ -939,7 +940,7 @@ u8 Fat32::disk_eject(disk_e disk) {
 			if (!fat_volume_remove(vol->letter)) {
 				return 0;
 			}
-			kfree(vol);
+			free(vol);
 		}
 		vol = vol->next;
 	}

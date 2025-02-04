@@ -44,7 +44,7 @@ void graphic_card_intel_change_backlight(byte_t value) {
 }
 
 void intel_try_read_edid(void) {
- dword_t *edid_memory_pointer = (dword_t *)calloc(128);
+ dword_t *edid_memory_pointer = (dword_t *)malloc(128);
 
  //type of device
  mmio_outd(graphic_cards_info[selected_graphic_card].mmio_base+GRAPHIC_CARD_INTEL_MMIO_GMBUS0, 0b011);

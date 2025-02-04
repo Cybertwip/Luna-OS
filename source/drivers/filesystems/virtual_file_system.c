@@ -350,7 +350,7 @@ struct folder_descriptor_t *vfs_create_folder_path_structure(byte_t partition_nu
  }
 
  //allocate memory for structure
- struct folder_descriptor_t *folder_path_structure = (struct folder_descriptor_t *) (calloc(sizeof(struct folder_descriptor_t)));
+ struct folder_descriptor_t *folder_path_structure = (struct folder_descriptor_t *) (malloc(sizeof(struct folder_descriptor_t)));
 
  //fill structure
  folder_path_structure->partition_number = partition_number;

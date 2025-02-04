@@ -171,7 +171,7 @@ void copy_and_resize_raw_image_data(dword_t source_memory, dword_t source_width,
 }
 
 dword_t create_image(dword_t width, dword_t height) {
- dword_t image_info_mem = calloc(IMAGE_SIZE_OF_INFO_IN_BYTES+(width*height*4));
+ dword_t image_info_mem = malloc(IMAGE_SIZE_OF_INFO_IN_BYTES+(width*height*4));
  dword_t *image_info = (dword_t *) image_info_mem;
 
  image_info[IMAGE_INFO_REAL_WIDTH] = width;

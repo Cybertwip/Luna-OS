@@ -306,6 +306,13 @@ struct _PDCLIB_lldiv_t
 #define _PDCLIB_size_t   __SIZE_TYPE__
 #define _PDCLIB_SIZE_MAX __SIZE_MAX__
 
+// os specific
+typedef unsigned char byte_t;
+typedef unsigned short word_t;
+typedef unsigned int dword_t;
+typedef unsigned long long qword_t;
+
+
 /* Large enough an integer to hold all character codes of the widest          */
 /* supported locale.                                                          */
 #define _PDCLIB_wchar_t   __WCHAR_TYPE__
@@ -912,10 +919,5 @@ typedef union { unsigned char _PDCLIB_thrd_attr_t_data[ 56 ]; long int _PDCLIB_t
 #if defined( __ARM_NEON )
 #define atexit _PDCLIB_atexit
 #endif
-
-#define malloc luna_malloc
-#define realloc luna_realloc
-#define calloc luna_calloc
-#define free luna_free
 
 #endif

@@ -68,7 +68,7 @@ byte_t *read_whole_descriptor_of_file_sector(struct byte_stream_descriptor_t *de
  struct descriptor_of_file_sectors_t *descriptor_of_file_sectors = (struct descriptor_of_file_sectors_t *) (descriptor_of_file_sectors_stream->start_of_allocated_memory);
  
  //allocate memory for file
- byte_t *file_memory = (byte_t *) calloc(descriptor_of_file_sectors->number_of_sectors*descriptor_of_file_sectors->size_of_one_sector);
+ byte_t *file_memory = (byte_t *) malloc(descriptor_of_file_sectors->number_of_sectors*descriptor_of_file_sectors->size_of_one_sector);
  byte_t *file_memory_pointer = file_memory;
 
  //set reading speed according to medium

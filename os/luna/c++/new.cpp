@@ -1,10 +1,10 @@
 #include <new>
 
-#include "mm/kmalloc.h"
+#include <stdlib.h>
 
 // Global new and delete operators
 void* operator new(size_t size) {
-    if (void* ptr = kmalloc(size)) {
+    if (void* ptr = malloc(size)) {
         return ptr;
     }
 #ifdef NO_EXCEPTIONS
@@ -21,19 +21,19 @@ void* operator new[](size_t size) {
 }
 
 void operator delete(void* ptr) noexcept {
-    if (ptr) kfree(ptr);
+    if (ptr) free(ptr);
 }
 
 void operator delete[](void* ptr) noexcept {
-    if (ptr) kfree(ptr);
+    if (ptr) free(ptr);
 }
 
 void operator delete(void* ptr, size_t) noexcept {
-    if (ptr) kfree(ptr);
+    if (ptr) free(ptr);
 }
 
 void operator delete[](void* ptr, size_t) noexcept {
-    if (ptr) kfree(ptr);
+    if (ptr) free(ptr);
 }
 
 // Placement new and delete operators

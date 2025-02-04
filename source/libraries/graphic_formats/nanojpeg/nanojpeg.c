@@ -577,7 +577,7 @@ NJ_INLINE void njConvert(void) {
 }
 
 void njInit(void) {
-    nj = (nj_context_t *) (calloc(sizeof(nj_context_t)));
+    nj = (nj_context_t *) (malloc(sizeof(nj_context_t)));
     njFillMem((void *)(nj), 0, sizeof(nj_context_t));
 }
 

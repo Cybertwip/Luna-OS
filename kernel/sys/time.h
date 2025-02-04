@@ -1,7 +1,12 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef _TIME_H_
 #define _TIME_H_
 
 #include <stdint.h>  // For standard types like int64_t
+#include <stddef.h>
 
 // Structure representing a time value with seconds and microseconds
 struct timeval {
@@ -18,4 +23,10 @@ struct timezone {
 // Get the current time and time zone
 int gettimeofday(struct timeval *tv, struct timezone *tz);
 
+long int ticks();
+
 #endif // _TIME_H_
+
+#ifdef __cplusplus
+}
+#endif

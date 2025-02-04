@@ -73,7 +73,7 @@ struct mp3_info_t *read_mp3_info(byte_t *mp3_memory, dword_t mp3_length) {
  dword_t samples_in_one_frame = samples;
 
  //allocate mp3 info structure
- struct mp3_info_t *mp3_info = (struct mp3_info_t *) (calloc(sizeof(struct mp3_info_t)));
+ struct mp3_info_t *mp3_info = (struct mp3_info_t *) (malloc(sizeof(struct mp3_info_t)));
  mp3_info->mp3_file = mp3_memory;
  mp3_info->size_of_mp3_file = mp3_length;
 

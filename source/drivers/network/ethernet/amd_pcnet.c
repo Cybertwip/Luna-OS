@@ -74,7 +74,7 @@ void ec_amd_pcnet_initalize(dword_t number_of_card) {
  ec_amd_pcnet_write_csr(number_of_card, 3, ~((1 << 10) | (1 << 9))); //set interrupts mask for everything except for receiving and transmitting packets
 
  //allocate memory of receive descriptors
- struct ec_amd_pcnet_rx_descriptor_t *rx_descriptors = (struct ec_amd_pcnet_rx_descriptor_t *) calloc(sizeof(struct ec_amd_pcnet_rx_descriptor_t)*EC_AMD_PCNET_NUMBER_OF_RX_DESCRIPTORS);
+ struct ec_amd_pcnet_rx_descriptor_t *rx_descriptors = (struct ec_amd_pcnet_rx_descriptor_t *) malloc(sizeof(struct ec_amd_pcnet_rx_descriptor_t)*EC_AMD_PCNET_NUMBER_OF_RX_DESCRIPTORS);
  byte_t *rx_packets_memory = (byte_t *) malloc(MAX_SIZE_OF_ONE_PACKET*EC_AMD_PCNET_NUMBER_OF_RX_DESCRIPTORS);
 
  //set variables of receive descriptors
@@ -101,7 +101,7 @@ void ec_amd_pcnet_initalize(dword_t number_of_card) {
  }
 
  //allocate memory of transmit descriptors
- struct ec_amd_pcnet_tx_descriptor_t *tx_descriptors = (struct ec_amd_pcnet_tx_descriptor_t *) calloc(sizeof(struct ec_amd_pcnet_tx_descriptor_t)*EC_AMD_PCNET_NUMBER_OF_TX_DESCRIPTORS);
+ struct ec_amd_pcnet_tx_descriptor_t *tx_descriptors = (struct ec_amd_pcnet_tx_descriptor_t *) malloc(sizeof(struct ec_amd_pcnet_tx_descriptor_t)*EC_AMD_PCNET_NUMBER_OF_TX_DESCRIPTORS);
  byte_t *tx_packets_memory = (byte_t *) malloc(MAX_SIZE_OF_ONE_PACKET*EC_AMD_PCNET_NUMBER_OF_TX_DESCRIPTORS);
 
  //set variables of transmit descriptors

@@ -48,7 +48,7 @@ void set_scalable_char_size(dword_t size) {
  scalable_font_char_size = size;
  
  free(scalable_font_char_mem);
- scalable_font_char_mem = calloc(scalable_font_char_size*scalable_font_char_size*4);
+ scalable_font_char_mem = malloc(scalable_font_char_size*scalable_font_char_size*4);
  
  for(int i=0; i<256; i++) {
   scalable_font_pixel_distance[i] = (i*size/100);

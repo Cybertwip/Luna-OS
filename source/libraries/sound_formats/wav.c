@@ -69,7 +69,7 @@ dword_t convert_wav_to_sound_data(dword_t wav_memory, dword_t wav_length) {
 }
 
 struct wav_info_t *read_wav_info(byte_t *wav_memory, dword_t wav_length) {
- struct wav_info_t *wav_info = (struct wav_info_t *) (calloc(sizeof(struct wav_info_t)));
+ struct wav_info_t *wav_info = (struct wav_info_t *) (malloc(sizeof(struct wav_info_t)));
  
  dword_t *wav32 = (dword_t *) wav_memory;
  dword_t end_of_wav = ((dword_t)wav_memory + wav_length);

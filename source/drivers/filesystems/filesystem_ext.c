@@ -44,7 +44,7 @@ void filesystem_ext_read_specific_info(struct connected_partition_info_t *connec
  }
 
  //allocate memory
- struct ext_specific_info_t *ext_info = (struct ext_specific_info_t *) (calloc(sizeof(struct ext_specific_info_t)));
+ struct ext_specific_info_t *ext_info = (struct ext_specific_info_t *) (malloc(sizeof(struct ext_specific_info_t)));
 
  //read useful values
  ext_info->first_partition_sector = connected_partition_info->first_sector;
@@ -312,7 +312,7 @@ byte_t *read_ext_folder(dword_t folder_location) {
  }
 
  //allocate VFS folder memory
- struct file_descriptor_t *vfs_folder = (struct file_descriptor_t *) (calloc(sizeof(struct file_descriptor_t)*number_of_files_in_ext_folder));
+ struct file_descriptor_t *vfs_folder = (struct file_descriptor_t *) (malloc(sizeof(struct file_descriptor_t)*number_of_files_in_ext_folder));
 
  //convert ext folder to VFS folder
  ext_folder_entry = (struct ext_folder_entry_t *) ext_folder;

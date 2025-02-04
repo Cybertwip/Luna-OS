@@ -137,7 +137,7 @@ void log_starting_memory(void) {
  }
 }
 
-dword_t malloc(dword_t mem_length) {
+void* malloc(size_t mem_length) {
  dword_t *memory_entries = (dword_t *) mem_memory_entries;
  dword_t mem_entry_start = 0;
  dword_t mem_entry_end = 0;
@@ -327,18 +327,27 @@ dword_t aligned_malloc(dword_t mem_length, dword_t mem_alignment) {
  return 0;
 }
 
-dword_t calloc(dword_t mem_length) {
- //allocate memory
- dword_t mem_pointer = malloc(mem_length);
- if(mem_pointer==0) {
-  memory_error_debug(RED);
-  return 0; //some error
- }
- 
- //clear memory
- clear_memory(mem_pointer, mem_length);
- 
- return mem_pointer;
+void *calloc(size_t num, size_t size) {
+    // Calculate the total size to allocate
+    size_t total_size = num * size;
+
+    // Check for overflow in the multiplication
+    if (size != 0 && total_size / size != num) {
+        return NULL; // Overflow occurred
+    }
+
+    dword_t mem_pointer = malloc(total_size);
+
+    // Allocate memory using _kmalloc with the M_ZERO flag to zero the memory
+    if(mem_pointer==0) {
+        memory_error_debug(RED);
+        return 0; //some error
+    }
+    
+    //clear memory
+    clear_memory(mem_pointer, total_size);
+    
+    return mem_pointer;
 }
 
 dword_t aligned_calloc(dword_t mem_length, dword_t mem_alignment) {
@@ -355,7 +364,7 @@ dword_t aligned_calloc(dword_t mem_length, dword_t mem_alignment) {
  return mem_pointer;
 }
 
-dword_t realloc(dword_t mem_pointer, dword_t mem_length) {
+void* realloc(void* mem_pointer, size_t mem_length) {
  dword_t *memory_entries = (dword_t *) mem_memory_entries;
  dword_t *pointed_memory_entry = (dword_t *) 0;
  byte_t *old_mem_ptr;
@@ -420,7 +429,7 @@ dword_t realloc(dword_t mem_pointer, dword_t mem_length) {
  return mem_pointer;
 }
 
-void free(dword_t mem_pointer) {
+void free(void* mem_pointer) {
  dword_t *memory_entries = (dword_t *) mem_memory_entries;
  dword_t mem_entry_below = 0;
  dword_t mem_entry = 0;
@@ -589,8 +598,7 @@ void copy_memory_back(dword_t source_memory, dword_t destination_memory, dword_t
  }
 }
 
-/* C library */
-void *memcpy(void *destination, const void *source, dword_t num) {
+void *memcpy(void *destination, const void *source, size_t num) {
  char *dest = (char *) destination;
  const char *src = (const char *) source;
 
@@ -601,7 +609,7 @@ void *memcpy(void *destination, const void *source, dword_t num) {
  return destination;
 }
 
-void *memset(void *ptr, int value, dword_t num) {
+void *memset(void *ptr, int value, size_t num) {
  char *p = (char *) ptr;
 
  for(dword_t i=0; i<num; i++) {
@@ -611,7 +619,7 @@ void *memset(void *ptr, int value, dword_t num) {
  return ptr;
 }
 
-void *memmove(void *destination, const void *source, dword_t num) {
+void *memmove(void *destination, const void *source, size_t num) {
  char *dest = (char *) destination;
  const char *src = (const char *) source;
 

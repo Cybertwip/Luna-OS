@@ -38,7 +38,7 @@ byte_t *read_cdda_file(dword_t file_location, dword_t file_size_in_bytes) {
 
 byte_t *read_cdda_file_skipping_errors(dword_t file_location, dword_t file_size_in_bytes) {
  //allocate memory for file
- byte_t *file_memory = (byte_t *) calloc(file_size_in_bytes);
+ byte_t *file_memory = (byte_t *) malloc(file_size_in_bytes);
  dword_t file_memory_pointer = (dword_t) file_memory;
 
  //read all sectors without caring about errors
@@ -73,7 +73,7 @@ byte_t *read_cdda_root_folder(void) {
 
  //allocate memory for virtual filesystem folder
  number_of_files_in_cdda_folder = optical_disk_table_of_content.last_track;
- struct file_descriptor_t *vfs_folder = (struct file_descriptor_t *) (calloc(sizeof(struct file_descriptor_t)*number_of_files_in_cdda_folder));
+ struct file_descriptor_t *vfs_folder = (struct file_descriptor_t *) (malloc(sizeof(struct file_descriptor_t)*number_of_files_in_cdda_folder));
 
  //convert TOC to VFS folder
  for(dword_t i=0; i<number_of_files_in_cdda_folder; i++) {

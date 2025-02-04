@@ -11,7 +11,7 @@
 void initalize_deflate(void) { 
  //alocate memory for huffman tables
  deflate_encoding_huffman_table = create_huffman_table(19);
- deflate_huffman_tables_lengths_mem = calloc((288+32));
+ deflate_huffman_tables_lengths_mem = malloc((288+32));
  deflate_fixed_huffman_table = create_huffman_table(288);
  deflate_fixed_huffman_table_distance = create_huffman_table(32);
  deflate_dynamic_huffman_table = create_huffman_table(286);

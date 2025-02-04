@@ -14,10 +14,6 @@ extern "C" {
 int rand(void);
 void srand(unsigned int seed);
 
-// Kernel-specific memory allocation (no user-space malloc!)
-void* kmalloc(size_t size);
-void kfree(void* ptr);
-
 ssize_t write(int fd, const void *buf, size_t count);
 
 int close(int fd);

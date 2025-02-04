@@ -9,7 +9,7 @@
 */
 
 dword_t create_program_interface_memory(dword_t draw_method_pointer, dword_t flags) {
- dword_t program_interface_memory = calloc(256+256*10);
+ dword_t program_interface_memory = malloc(256+256*10);
  dword_t *program_interface = (dword_t *) (program_interface_memory);
  program_interface[PROGRAM_INTERFACE_DRAW_METHOD_POINTER] = draw_method_pointer;
  program_interface[PROGRAM_INTERFACE_FLAGS] = flags;

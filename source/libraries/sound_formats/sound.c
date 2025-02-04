@@ -89,7 +89,7 @@ dword_t convert_pcm_to_2_channels_16_bit_samples_48000_44100_sample_rate(dword_t
  if(how_many_times_to_multiply_sample==0xFFFFFFFF) {
   return STATUS_ERROR;
  }
- dword_t converted_pcm_sound_memory = calloc(4*number_of_samples*how_many_times_to_multiply_sample);
+ dword_t converted_pcm_sound_memory = malloc(4*number_of_samples*how_many_times_to_multiply_sample);
 
  //convert PCM data
  byte_t *pcm_memory_input = (byte_t *) (pcm_sound_memory);

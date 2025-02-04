@@ -55,7 +55,7 @@ void initalize_usb_controllers(void) {
 
  usb_mouse_data_memory = malloc(8);
 
- usb_keyboard_data_memory = calloc(8);
+ usb_keyboard_data_memory = malloc(8);
 
  usb_hub_transfer_setup_packets_mem = malloc(8*8);
  usb_hub_transfer_data_mem = malloc(4*8);
@@ -63,7 +63,7 @@ void initalize_usb_controllers(void) {
  usb_command_block_wrapper = (struct usb_command_block_wrapper_t *) (malloc(sizeof(struct usb_command_block_wrapper_t)));
  usb_command_status_wrapper = (struct usb_command_status_wrapper_t *) (malloc(sizeof(struct usb_command_status_wrapper_t)));
 
- hid_parsed_entries = (struct hid_parsed_entry_t *) (calloc(sizeof(struct hid_parsed_entry_t)*MAX_NUMBER_OF_HID_PARSED_ENTRIES));
+ hid_parsed_entries = (struct hid_parsed_entry_t *) (malloc(sizeof(struct hid_parsed_entry_t)*MAX_NUMBER_OF_HID_PARSED_ENTRIES));
  
  //initalize EHCI USB controllers
  for(int i=0; i<usb_controllers_pointer; i++) {

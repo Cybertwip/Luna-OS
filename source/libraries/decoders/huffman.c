@@ -9,7 +9,7 @@
 */
 
 dword_t create_huffman_table(dword_t number_of_entries) { 
- value32 = calloc((number_of_entries+1)*8);
+ value32 = malloc((number_of_entries+1)*8);
  
  dword_t *huffman_table = (dword_t *) value32;
  huffman_table[0] = 2; //pointer to first entry

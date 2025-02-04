@@ -24,8 +24,8 @@ void initalize_binary_programs_interface(void) {
  text_mode_show_changes_on_screen = STATUS_TRUE;
  
  //allocate memory for text_mode
- text_mode_screen = (struct text_mode_screen_char_t *) (calloc(text_mode_screen_lines*text_mode_screen_columns*sizeof(struct text_mode_screen_char_t)));
- cursor_line_input_buffer = (word_t *) (calloc(text_mode_screen_columns*2+2));
+ text_mode_screen = (struct text_mode_screen_char_t *) (malloc(text_mode_screen_lines*text_mode_screen_columns*sizeof(struct text_mode_screen_char_t)));
+ cursor_line_input_buffer = (word_t *) (malloc(text_mode_screen_columns*2+2));
 
  //set black background with white characters
  for(dword_t i=0; i<text_mode_screen_pixels; i++) {

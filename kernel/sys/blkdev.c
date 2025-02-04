@@ -1,6 +1,5 @@
 #include "blkdev.h"
-#include "mm/heap.h"
-#include "mm/kmalloc.h"
+#include <stdlib.h>
 #include "string.h"
 #include "sync.h"
 
@@ -24,7 +23,7 @@ int register_blkdev_class(unsigned int major, const char *name,
     }
 
     /* Allocate memory for the new class */
-    dev_class = kmalloc(sizeof(blkdev_class_t));
+    dev_class = malloc(sizeof(blkdev_class_t));
     if (!dev_class) {
         return -1; // Memory allocation failed
     }
@@ -57,7 +56,7 @@ int register_blkdev_instance(unsigned int major, unsigned int minor, const char 
     }
 
     /* Allocate memory for the new instance */
-    instance = (blkdev_instance_t*)kmalloc(sizeof(blkdev_instance_t));
+    instance = (blkdev_instance_t*)malloc(sizeof(blkdev_instance_t));
     if (!instance) {
         return -1; // Memory allocation failed
     }
@@ -83,7 +82,7 @@ int register_blkdev_instance(unsigned int major, unsigned int minor, const char 
     kmutex_unlock(&blkdev_mutex);
 
     if (!instance->dev_class) {
-        kfree(instance);
+        free(instance);
         return -1; // No matching class found
     }
 

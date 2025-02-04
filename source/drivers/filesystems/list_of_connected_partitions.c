@@ -9,7 +9,7 @@
 */
 
 void initalize_list_of_connected_partitions(void) {
- connected_partitions = (struct connected_partition_info_t *) (calloc(sizeof(struct connected_partition_info_t)*MAX_NUMBER_OF_CONNECTED_PARTITIONS));
+ connected_partitions = (struct connected_partition_info_t *) (malloc(sizeof(struct connected_partition_info_t)*MAX_NUMBER_OF_CONNECTED_PARTITIONS));
  selected_partition = NO_PARTITION_SELECTED;
 }
 

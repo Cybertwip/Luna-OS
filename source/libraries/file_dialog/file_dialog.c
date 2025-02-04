@@ -10,7 +10,7 @@
 
 void initalize_file_dialog(void) {
  file_dialog_folder_descriptor = 0;
- file_dialog_file_descriptor = (struct file_descriptor_t *) (calloc(sizeof(struct file_descriptor_t)));
+ file_dialog_file_descriptor = (struct file_descriptor_t *) (malloc(sizeof(struct file_descriptor_t)));
  file_dialog_text_area = (dword_t *) create_text_area(TEXT_AREA_INPUT_LINE, 250, 0, 0, 400, 10);
  event_interface_set_text_area(file_dialog_name_input_event_interface, (dword_t)file_dialog_text_area);
 }

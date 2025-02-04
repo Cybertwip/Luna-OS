@@ -11,11 +11,11 @@
 dword_t prepare_xml_file(dword_t raw_xml_memory, dword_t raw_xml_size, dword_t special_attributes) {
  //convert file to unicode
  //TODO: support for more encodings than only UTF-8
- dword_t unicode_xml_memory = calloc(raw_xml_size*2+2);
+ dword_t unicode_xml_memory = malloc(raw_xml_size*2+2);
  convert_utf_8_to_unicode(raw_xml_memory, unicode_xml_memory, raw_xml_size);
 
  //allocate memory for result file
- dword_t xml_memory = calloc(raw_xml_size*2+2);
+ dword_t xml_memory = malloc(raw_xml_size*2+2);
 
  //convert file
  word_t *unicode_xml = (word_t *) (unicode_xml_memory);

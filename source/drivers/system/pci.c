@@ -56,7 +56,7 @@ void scan_pci(void) {
  number_of_ethernet_cards = 0;
 
  //this array is used in System board
- pci_devices_array_mem = calloc(12*1000);
+ pci_devices_array_mem = malloc(12*1000);
  pci_num_of_devices = 0;
  
  log("\n\nPCI devices:");

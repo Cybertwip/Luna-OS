@@ -9,7 +9,7 @@
 */
 
 void initalize_lzw(void) {
- lzw_dictionary_memory = calloc(4096*8);
+ lzw_dictionary_memory = malloc(4096*8);
  
  // dictionary entry:
  // 4 bytes = pointer to memory where dictionary entry data starts

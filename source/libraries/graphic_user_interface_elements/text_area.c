@@ -13,7 +13,7 @@ dword_t create_text_area(dword_t type, dword_t length_in_chars, dword_t x, dword
  dword_t *text_area_info = (dword_t *) text_area_memory;
 
  text_area_info[TEXT_AREA_INFO_TYPE] = type;
- text_area_info[TEXT_AREA_INFO_MEMORY] = calloc((length_in_chars+1)*2); //allocate memory for text
+ text_area_info[TEXT_AREA_INFO_MEMORY] = malloc((length_in_chars+1)*2); //allocate memory for text
  text_area_info[TEXT_AREA_INFO_NUM_OF_CHARS] = length_in_chars; //maximum number of chars in this text area
  text_area_info[TEXT_AREA_INFO_MEMORY_LAST_BYTE] = (text_area_info[TEXT_AREA_INFO_MEMORY] + length_in_chars*2); //last byte in text area memory
  text_area_info[TEXT_AREA_INFO_WIDTH] = width;

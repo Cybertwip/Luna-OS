@@ -73,17 +73,11 @@ GameEngine::GameEngine()
 
 void GameEngine::run() {
     while (true) {
-        uint32_t start = get_clock_ticks(); // Get current clock ticks
 
         update();
         render();
 
-        uint32_t elapsed = get_clock_ticks() - start; // Calculate elapsed time
-        if (elapsed < TARGET_FRAME_TIME_MS) {
-            busy_wait(TARGET_FRAME_TIME_MS - elapsed); // Busy-wait to maintain frame rate
-        }
-
-        frameCounter++;
+        //frameCounter++;
     }
 }
 
@@ -129,7 +123,7 @@ void GameEngine::render() {
 
     // Setup MVP matrix
     vertex3<number> rotation = {t, t, t}; // Rotate the cube
-    vertex3<number> translation = {0, 0, 60}; // Move the cube back
+    vertex3<number> translation = {0, 0, 55}; // Move the cube back
     vertex3<number> scale = {10, 10, 10}; // Scale the cube
 
     matrix_4x4<number> model_matrix = matrix_4x4<number>::transform(rotation, translation);
@@ -161,4 +155,8 @@ void GameEngine::render() {
 
     // Swap buffers
     graphics.swapBuffers();
+
+    wait_for_user_input();
+    move_mouse_cursor();
+
 }

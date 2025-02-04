@@ -9,7 +9,7 @@
 */
 
 void initalize_logging(void) {
- logging_mem = calloc(1024*1024);
+ logging_mem = malloc(1024*1024);
  if(logging_mem==0) {
   memory_error_debug(0x0000FF);
  }

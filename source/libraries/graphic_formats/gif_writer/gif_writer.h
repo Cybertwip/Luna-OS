@@ -286,7 +286,7 @@ CONTINUE:
 static int jo_gif_clamp(int a, int b, int c) { return a < b ? b : a > c ? c : a; }
 
 jo_gif_t *jo_gif_start(short width, short height, short repeat) {
-	jo_gif_t *gif = (jo_gif_t *) (calloc(sizeof(jo_gif_t)));
+	jo_gif_t *gif = (jo_gif_t *) (malloc(sizeof(jo_gif_t)));
 	gif->width = width;
 	gif->height = height;
 	gif->repeat = repeat;

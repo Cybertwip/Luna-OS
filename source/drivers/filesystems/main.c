@@ -9,8 +9,8 @@
 */
 
 void initalize_drivers_of_filesystems(void) {
- array_of_loaded_folders = (struct array_of_loaded_folders_t *) (calloc(sizeof(struct array_of_loaded_folders_t)*MAX_NUMBER_OF_LOADED_FOLDERS));
- array_of_folder_structures = (dword_t *) (calloc(4*MAX_NUMBER_OF_FOLDER_STRUCTURES));
+ array_of_loaded_folders = (struct array_of_loaded_folders_t *) (malloc(sizeof(struct array_of_loaded_folders_t)*MAX_NUMBER_OF_LOADED_FOLDERS));
+ array_of_folder_structures = (dword_t *) (malloc(4*MAX_NUMBER_OF_FOLDER_STRUCTURES));
  number_of_folder_structures = 0;
 }
 

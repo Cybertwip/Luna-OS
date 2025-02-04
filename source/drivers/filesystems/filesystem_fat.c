@@ -36,7 +36,7 @@ void filesystem_fat_read_specific_info(struct connected_partition_info_t *connec
  }
 
  //allocate memory
- struct fat_specific_info_t *fat_info = (struct fat_specific_info_t *) (calloc(sizeof(struct fat_specific_info_t)));
+ struct fat_specific_info_t *fat_info = (struct fat_specific_info_t *) (malloc(sizeof(struct fat_specific_info_t)));
 
  //total number of sectors
  fat_info->total_number_of_sectors = fat16_bpb.total_sectors_word;
@@ -71,7 +71,7 @@ void filesystem_fat_read_specific_info(struct connected_partition_info_t *connec
   free((dword_t)fat_info);
   return;
  }
- //fat_info->loaded_fat_table_sector = 0, already set by calloc()
+ //fat_info->loaded_fat_table_sector = 0, already set by malloc()
 
  //save pointer to info to connected_partition_info 
  connected_partition_info->filesystem_specific_info_pointer = ((byte_t *)fat_info);
@@ -596,7 +596,7 @@ byte_t *read_fat_folder(dword_t cluster) {
  }
 
  //allocate virtual file system folder
- struct file_descriptor_t *vfs_folder = (struct file_descriptor_t *) (calloc(sizeof(struct file_descriptor_t)*number_of_files_in_fat_folder));
+ struct file_descriptor_t *vfs_folder = (struct file_descriptor_t *) (malloc(sizeof(struct file_descriptor_t)*number_of_files_in_fat_folder));
 
  //convert all entries
  for(dword_t fat_entry=0, vfs_entry=0, lfn_entry=0; fat_entry<number_of_fat_folder_entries; fat_entry++) {
@@ -924,7 +924,7 @@ dword_t create_fat_folder(dword_t previous_folder_location) {
    }
 
    //allocate memory for new folder
-   struct fat_folder_entry_t *fat_folder = (struct fat_folder_entry_t *) (calloc(fat_info->cluster_size_in_bytes));
+   struct fat_folder_entry_t *fat_folder = (struct fat_folder_entry_t *) (malloc(fat_info->cluster_size_in_bytes));
 
    //add . entry = pointer to folder itself
    fat_folder[0].name[0] = '.';

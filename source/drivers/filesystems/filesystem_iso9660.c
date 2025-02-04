@@ -67,7 +67,7 @@ void filesystem_iso9660_read_specific_info(struct connected_partition_info_t *co
  }
 
  //allocate memory
- struct iso9660_specific_info_t *iso9660_info = (struct iso9660_specific_info_t *) (calloc(sizeof(struct iso9660_specific_info_t)));
+ struct iso9660_specific_info_t *iso9660_info = (struct iso9660_specific_info_t *) (malloc(sizeof(struct iso9660_specific_info_t)));
 
  //read root folder informations
  iso9660_info->root_directory_sector = iso9660_primary_volume_descriptor.root_directory_entry.location_of_extent;
@@ -147,7 +147,7 @@ byte_t *read_iso9660_folder(dword_t folder_location, dword_t folder_size_in_byte
  }
 
  //allocate VFS folder memory
- struct file_descriptor_t *vfs_folder = (struct file_descriptor_t *) (calloc(sizeof(struct file_descriptor_t)*number_of_files_in_iso9660_folder));
+ struct file_descriptor_t *vfs_folder = (struct file_descriptor_t *) (malloc(sizeof(struct file_descriptor_t)*number_of_files_in_iso9660_folder));
 
  //convert all entries
  iso9660_folder_pointer = (struct iso9660_directory_entry_t *) iso9660_folder;

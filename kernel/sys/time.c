@@ -1,6 +1,8 @@
 #include "stdint.h"
 #include "sys/time.h"  // For struct timeval and struct timezone
 
+extern dword_t get_timer_value_in_microseconds(void);
+
 // SystemTime stores the UNIX EPOCH time.
 // It should be updated by the system periodically.
 
@@ -65,4 +67,9 @@ int gettimeofday(struct timeval *tv, struct timezone *tz) {
     }
 
     return 0; // Success
+}
+
+
+long int ticks() {
+    return get_timer_value_in_microseconds();
 }

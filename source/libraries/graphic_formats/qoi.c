@@ -93,7 +93,7 @@ void convert_image_data_to_qoi(dword_t image_info_memory) {
 
  dword_t *image_info = (dword_t *) (image_info_memory);
  dword_t *image_data = (dword_t *) (get_image_data_memory(image_info_memory));
- dword_t qoi_file_memory = calloc(14+image_info[IMAGE_INFO_REAL_WIDTH]*image_info[IMAGE_INFO_REAL_HEIGHT]*4+8);
+ dword_t qoi_file_memory = malloc(14+image_info[IMAGE_INFO_REAL_WIDTH]*image_info[IMAGE_INFO_REAL_HEIGHT]*4+8);
  dword_t qoi_file_length = 22; //header + ending
  dword_t *qoi_image_header = (dword_t *) (qoi_file_memory);
 

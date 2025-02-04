@@ -55,7 +55,7 @@ void ec_realtek_8139_initalize(dword_t number_of_card) {
  outd(ethernet_cards[number_of_card].base+0x44, (0x1F) | (0b11 << 11) | (0x7 << 13)); //all packets accepted, no rx treshold to immediately process received packet
  
  //initalize transmitting mechanism
- ethernet_cards[number_of_card].tx_descriptors_memory = (void *) calloc(sizeof(struct ec_realtek_8139_bleskos_tx_descriptor_t)*EC_REALTEK_8139_NUMBER_OF_TX_DESCRIPTORS); //card do not use descriptors, this is for driver
+ ethernet_cards[number_of_card].tx_descriptors_memory = (void *) malloc(sizeof(struct ec_realtek_8139_bleskos_tx_descriptor_t)*EC_REALTEK_8139_NUMBER_OF_TX_DESCRIPTORS); //card do not use descriptors, this is for driver
  ethernet_cards[number_of_card].tx_descriptor_pointer = 0;
  ethernet_cards[number_of_card].tx_packets_memory = (byte_t *) malloc(MAX_SIZE_OF_ONE_PACKET*256);
  outd(ethernet_cards[number_of_card].base+0x40, (0x7 << 8) | (0x3 << 24)); //max packet size is 2048 bytes, interframe gap time (0x3 is only allowed value)

@@ -85,9 +85,9 @@ dword_t convert_png_to_image_data(dword_t png_memory, dword_t png_file_length) {
    //create image
    image_memory = create_image(width, height);
    image_data = (dword_t *) (get_image_data_memory(image_memory));
-   deflate_compressed_data_memory = (calloc(png_file_length));
+   deflate_compressed_data_memory = (malloc(png_file_length));
    deflate_compressed_data_memory_length = 0;
-   deflate_decompressed_data_memory = calloc((width*height*bpp+height));
+   deflate_decompressed_data_memory = malloc((width*height*bpp+height));
   }
   else if(png32[1]==0x45544C50) { //PLTE
    palette_memory = ((dword_t)png32+8);
@@ -152,9 +152,9 @@ dword_t convert_png_to_image_data(dword_t png_memory, dword_t png_file_length) {
    //decompress filtering
    byte_t *png_data = (byte_t *) deflate_decompressed_data_memory;
    byte_t *png_palette_data = (byte_t *) palette_memory;
-   dword_t filtering_previous_line_r_memory = calloc(width);
-   dword_t filtering_previous_line_g_memory = calloc(width);
-   dword_t filtering_previous_line_b_memory = calloc(width);
+   dword_t filtering_previous_line_r_memory = malloc(width);
+   dword_t filtering_previous_line_g_memory = malloc(width);
+   dword_t filtering_previous_line_b_memory = malloc(width);
    byte_t pixel_r, pixel_g, pixel_b, previous_pixel_r, previous_pixel_g, previous_pixel_b, previous_up_pixel_r, previous_up_pixel_g, previous_up_pixel_b;
    
    for(int line=0; line<height; line++) {

@@ -26,9 +26,9 @@
 */
 
 struct byte_stream_descriptor_t *create_byte_stream(dword_t size_of_block) {
- struct byte_stream_descriptor_t *new_byte_stream_descriptor = (struct byte_stream_descriptor_t *) (calloc(sizeof(struct byte_stream_descriptor_t)));
+ struct byte_stream_descriptor_t *new_byte_stream_descriptor = (struct byte_stream_descriptor_t *) (malloc(sizeof(struct byte_stream_descriptor_t)));
 
- new_byte_stream_descriptor->start_of_allocated_memory = (calloc(size_of_block));
+ new_byte_stream_descriptor->start_of_allocated_memory = (malloc(size_of_block));
  new_byte_stream_descriptor->memory_pointer = (byte_t *) (new_byte_stream_descriptor->start_of_allocated_memory);
  new_byte_stream_descriptor->size_of_allocated_memory = size_of_block;
  new_byte_stream_descriptor->end_of_allocated_memory = (new_byte_stream_descriptor->start_of_allocated_memory+new_byte_stream_descriptor->size_of_allocated_memory);

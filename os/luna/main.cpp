@@ -1,12 +1,16 @@
-#include <sys/system.h>
 #include <luna/engine.h>
 #include <luna/graphics.h>
 #include <lvgl.h>
-#include <drivers/timer.h>
 #include <eastl/unique_ptr.h>
 #include <eastl/allocator_malloc.h>
 
+#include <sys/time.h>
+
 #include <src/display/lv_display_private.h>
+
+extern "C" {
+    void wait(dword_t milliseconds);
+}
 
 static void disp_flush(lv_display_t* disp, const lv_area_t* area, uint8_t* px_map) {
     Graphics* gfx = (Graphics*)disp->user_data;
@@ -17,7 +21,7 @@ static void disp_flush(lv_display_t* disp, const lv_area_t* area, uint8_t* px_ma
     uint32_t* back_buffer = static_cast<uint32_t*>(gfx->getBackBuffer());
     uint32_t* src = (uint32_t*)px_map;
 
-    memcpy((void*)back_buffer, (void*)src, w * h * (bpp / 8));
+//    memcpy((void*)back_buffer, (void*)src, w * h * (bpp / 8));
     lv_display_flush_ready(disp);
 }
 
@@ -38,8 +42,8 @@ static void close_cb(lv_event_t* e) {
     // Stub action for close
 }
 
-int main(int argc, char** argv) {
-    // eastl::allocator_malloc ma;
+extern "C" int main2(int argc, char** argv) {
+    
     eastl::unique_ptr<Graphics> gfx = 
     eastl::make_unique<Graphics>();
 
@@ -76,8 +80,24 @@ int main(int argc, char** argv) {
     while (1) {
         lv_timer_handler();
         gfx->swapBuffers();
+
+        wait(100);
     }
 
     free(draw_buf);
+    return 0;
+}
+
+
+extern "C" int main(int argc, char** argv) {
+
+
+    mouse_cursor_x = screen_width / 2;
+    mouse_cursor_y = screen_height / 2;
+
+    GameEngine engine;
+    engine.run();
+
+    // free(draw_buf);
     return 0;
 }

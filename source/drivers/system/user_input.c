@@ -9,75 +9,56 @@
 */
 
 void wait_for_user_input(void) {
- byte_t *keyboard_data_mem = (byte_t *) (usb_keyboard_data_memory);
- 
- for(int i=0; i<4; i++) {
-  ps2_mouse_data[i]=0;
- }
- for(int i=0; i<8; i++) {
-  keyboard_data_mem[i]=0;
- }
+    byte_t *keyboard_data_mem = (byte_t *) (usb_keyboard_data_memory);
 
- usb_mouse_packet_received = STATUS_FALSE;
- usb_keyboard_packet_received = STATUS_FALSE;
- ps2_mouse_wait = 1;
- ps2_keyboard_wait = 1;
- usb_new_device_detected = STATUS_FALSE;
- keyboard_code_of_pressed_key = 0;
- keyboard_unicode_value_of_pressed_key = 0;
- mouse_movement_x = 0;
- mouse_movement_y = 0;
- mouse_wheel = 0;
- internet_status_change = STATUS_FALSE;
- 
- while(usb_mouse_packet_received==STATUS_FALSE
-       && usb_keyboard_packet_received==STATUS_FALSE
-       && ps2_mouse_wait==1
-       && ps2_keyboard_wait==1
-       && usb_new_device_detected==STATUS_FALSE
-       && internet_last_status == internet.status) {
-  //wait
-  asm("hlt");
+    // Check for internet status change
+    if (internet_last_status != internet.status) {
+        internet_last_status = internet.status;
+        internet_status_change = STATUS_TRUE;
+    } else {
+        internet_status_change = STATUS_FALSE;
+    }
 
-  //run tasks in scheduler
-  scheduler_user_input();
- }
+    // Detect new USB devices
+    if (usb_new_device_detected == STATUS_TRUE) {
+        detect_usb_devices();
+        usb_new_device_detected = STATUS_FALSE;
+    }
 
- //detect change in internet status
- if(internet_last_status != internet.status) {
-  internet_last_status = internet.status;
-  internet_status_change = STATUS_TRUE;
- }
+    // Process PS/2 mouse data if available
+    if (ps2_mouse_wait == 0) {
+        ps2_mouse_convert_received_data();
+        for (int i = 0; i < 4; i++) ps2_mouse_data[i] = 0;
+        ps2_mouse_wait = 1;
+    }
 
- //detect changes in USB devices
- if(usb_new_device_detected==STATUS_TRUE) {
-  detect_usb_devices();
- }
- 
- //process PS/2 mouse (touchpad) event
- if(ps2_mouse_wait==0) {
-  ps2_mouse_convert_received_data();
- }
- 
- //process USB mouse event
- if(usb_mouse_packet_received==STATUS_TRUE) {
-  usb_mouse_process_received_data();
- }
- 
- //process USB keyboard event
- if(usb_keyboard_packet_received==STATUS_TRUE) {
-  keyboard_process_code(usb_keyboard_code_of_pressed_key);
- }
+    // Process USB mouse packet
+    if (usb_mouse_packet_received == STATUS_TRUE) {
+        usb_mouse_process_received_data();
+        usb_mouse_packet_received = STATUS_FALSE;
+    }
 
- //make screenshot
- #ifndef NO_PROGRAMS
- if(keyboard_code_of_pressed_key==KEY_PRINT_SCREEN) {
-  copy_memory((dword_t)screen_double_buffer_memory_pointer, screenshoot_image_info_data_mem, screenshoot_image_info_data_length);
-  show_system_message("You made a screenshot");
-  wait(500);
-  remove_system_message();
-  screenshot_was_made = STATUS_TRUE;
-  screenshot_is_cropped = STATUS_FALSE;
- }
- #endif
+    // Process USB keyboard packet
+    if (usb_keyboard_packet_received == STATUS_TRUE) {
+        keyboard_process_code(usb_keyboard_code_of_pressed_key);
+        for (int i = 0; i < 8; i++) keyboard_data_mem[i] = 0;
+        usb_keyboard_packet_received = STATUS_FALSE;
+    }
+    // Handle screenshot key
+    #ifndef NO_PROGRAMS
+    if (keyboard_code_of_pressed_key == KEY_PRINT_SCREEN) {
+        copy_memory((dword_t)screen_double_buffer_memory_pointer, 
+                    screenshoot_image_info_data_mem, 
+                    screenshoot_image_info_data_length);
+        show_system_message("Screenshot taken");
+        wait(500);
+        remove_system_message();
+        screenshot_was_made = STATUS_TRUE;
+        screenshot_is_cropped = STATUS_FALSE;
+        keyboard_code_of_pressed_key = 0;
+    }
+    #endif
+
+    // Run scheduled tasks
+    scheduler_user_input();
 }
