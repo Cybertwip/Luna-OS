@@ -67,10 +67,15 @@ ${CMAKE_CURRENT_LIST_DIR}/source/
 # Set include directories 
 include_directories(${LUNA_INCLUDES})
 
+set(CONFIG_LV_USE_DEMO_MUSIC ON)
+set(CONFIG_LV_USE_DEMO_WIDGETS ON)
+
+
 # Add subdirectories for dependencies
 add_subdirectory(external/EASTL)
 add_subdirectory(external/pdclib)
 add_subdirectory(external/lvgl)
+
 
 target_include_directories(EASTL PUBLIC ${LUNA_INCLUDES})
 
