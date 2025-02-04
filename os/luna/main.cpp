@@ -23,6 +23,7 @@ static lv_color32_t* draw_buf2 = nullptr;
 
 static void disp_flush(lv_display_t* disp, const lv_area_t* area, uint8_t* px_map) {
     Graphics* gfx = (Graphics*)disp->user_data;
+
     uint32_t w = gfx->getWidth();
     uint32_t h = gfx->getHeight();
     uint32_t bpp = gfx->getBitsPerPixel();
@@ -272,6 +273,8 @@ extern "C" int main(int argc, char** argv) {
 
     while (1) {
         lv_timer_handler();
+
+
         gfx.swapBuffers();
         wait_for_user_input();
         move_mouse_cursor();
