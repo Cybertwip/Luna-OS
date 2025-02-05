@@ -206,5 +206,8 @@ add_custom_target(sdk
     # Copy SDK CMakeLists
     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/sdk/CMakeLists.txt ${CMAKE_BINARY_DIR}/sdk/
 
+    # Copy i686 toolchain
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/sdk/i686-elf-toolchain.cmake ${CMAKE_BINARY_DIR}/sdk/
+
     DEPENDS ${CMAKE_BINARY_DIR}/bleskos.bin ${CMAKE_BINARY_DIR}/bootloader.bin
 )
