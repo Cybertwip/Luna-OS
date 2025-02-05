@@ -178,6 +178,9 @@ add_custom_target(run
     DEPENDS image
 )
 
+
+file(GLOB LVGL_HEADERS ${CMAKE_CURRENT_LIST_DIR}/external/lvgl/*.h)
+
 # Custom command to generate the SDK
 add_custom_target(sdk
     COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/sdk/include
@@ -186,7 +189,9 @@ add_custom_target(sdk
     # Copy headers from external libraries
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/external/EASTL/include ${CMAKE_BINARY_DIR}/sdk/include/c++
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/external/micro-gl/include ${CMAKE_BINARY_DIR}/sdk/include/micro-gl
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/external/lvgl ${CMAKE_BINARY_DIR}/sdk/include/lvgl
+
+    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_LIST_DIR}/sdk/lvgl.cmake
+
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/external/gl/include ${CMAKE_BINARY_DIR}/sdk/include/gl
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/external/pdclib/include ${CMAKE_BINARY_DIR}/sdk/include/libc
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_BINARY_DIR}/external/pdclib/configured_include ${CMAKE_BINARY_DIR}/sdk/include/libc/configured_include
