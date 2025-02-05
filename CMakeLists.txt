@@ -177,3 +177,29 @@ add_custom_target(run
     -object filter-dump,id=f1,netdev=net0,file=/tmp/dump.dat
     DEPENDS image
 )
+
+# Custom command to generate the SDK
+add_custom_target(sdk
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/sdk/include
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/sdk/lib
+
+    # Copy headers from external libraries
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/external/EASTL/include ${CMAKE_BINARY_DIR}/sdk/include/c++
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/external/micro-gl/include ${CMAKE_BINARY_DIR}/sdk/include/micro-gl
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/external/lvgl ${CMAKE_BINARY_DIR}/sdk/include/lvgl
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/external/gl/include ${CMAKE_BINARY_DIR}/sdk/include/gl
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/external/pdclib/include ${CMAKE_BINARY_DIR}/sdk/include/libc
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_BINARY_DIR}/external/pdclib/configured_include ${CMAKE_BINARY_DIR}/sdk/include/libc/configured_include
+
+    # Exclude kernel and OS headers (do not copy them)
+
+    # Copy precompiled libraries (if any) and rename them
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_BINARY_DIR}/external/pdclib/libpdclibs.a ${CMAKE_BINARY_DIR}/sdk/lib/libc.a
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_BINARY_DIR}/external/lvgl/lib/liblvgl.a ${CMAKE_BINARY_DIR}/sdk/lib/liblvgl.a
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_BINARY_DIR}/external/EASTL/libEASTL.a ${CMAKE_BINARY_DIR}/sdk/lib/libc++.a
+
+    # Copy SDK CMakeLists
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/sdk/CMakeLists.txt ${CMAKE_BINARY_DIR}/sdk/
+
+    DEPENDS ${CMAKE_BINARY_DIR}/bleskos.bin ${CMAKE_BINARY_DIR}/bootloader.bin
+)
